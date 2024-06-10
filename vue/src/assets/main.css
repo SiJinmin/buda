@@ -1,0 +1,52 @@
+/* color palette from <https://github.com/vuejs/theme> */
+
+:root {
+  --color-bg: #ffffff;
+  --color-block: rgba(220, 220, 220, 0.5);
+  --color-border: var(--color-block);
+  --color-text: black;
+  --color-text-light: #888888;
+  --color-text-high: red;
+  --color-title: orange;
+  --color-link: green;
+  --color-site-title: gold;
+
+  --size-font: 16px;
+  --size-section-gap: 3rem;
+  --size-line-height: 1.6;
+  --size-list-item-gap: 0.2rem;
+}
+
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; font-weight: normal; }
+html, body{ min-height: 100vh; margin:0; padding:0; font-size: var(--size-font); }
+body {  
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: var(--size-line-height);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a { text-decoration: none; color: var(--color-link); cursor:pointer;  }
+img{ display: block; }
+
+.page_title_c{ display:flex; justify-content: center; }
+.page_title{ padding: 0rem 0 1rem 0; font-size: 1.5rem; color: var(--color-site-title); }
+
+.grid_c { --ColumnCount: 1; padding: var(--size-list-item-gap); display:grid; grid-template-columns: repeat(var(--ColumnCount), 1fr);  }
+.block { padding: var(--size-list-item-gap); }
+.block_inner { background-color: var(--color-block);  padding: 0.8rem; height: 100%;  }
+.block_inner2 { background-color: var(--color-block);  height: 100%; display:flex; align-items: flex-start; }
+.block_left_img{ width: 30%; margin: 0.3rem 1rem 0.3rem 0.3rem;}
+.block_right_c{padding: 0.3rem 0 0 0;}
+.block_right_title{font-weight: bold;}
+.block_right_des{ color:var(--color-text-light); font-size: 90%; }
+.block_right_money{ color:var(--color-text-high); }
+.field_label{ white-space: nowrap;}
+
+
+
+
+
