@@ -2,8 +2,9 @@
   "name": "buda.node",
   "version": "0.0.1",
   "private": true,
-  "scripts": { },
+  "scripts": {},
   "dependencies": {
+    "exceljs": "^4.4.0",
     "sharp": "^0.33.4"
   }
 }
