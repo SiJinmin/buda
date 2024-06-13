@@ -9,6 +9,15 @@ let jobs=[
     closed: true,
   },
   { 
+    company:"玲明信息技术服务",
+    location:'金银湖科技园16栋',
+    summary:'提供信息技术服务:',
+    ServiceItems: ['电脑系统安装维护','Excel/Word等文件资料自动化处理','文件存储管理系统（历史记录、多人协作）','网站开发','管理软件开发','工作流程自动化软件开发','微信小程序开发','手机APP开发'],
+    env:['qiuzen20240613.jpg'],  
+    contacts:['微信：TobeBuda'],  
+    closed: false,
+  },
+  { 
     company:"品牌女装",
     location:'金银湖科技园7栋4单元3楼',
     summary:'',

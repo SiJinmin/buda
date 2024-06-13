@@ -15,7 +15,7 @@ onMounted(() => {
     <div v-for="a in buda.jobs.filter(i=>!i.closed)"  class="block">
       <div class="block_inner">
         <div class="company">{{ a.company }}</div>
-        <div>{{ a.location }}</div>
+        <div>地址：{{ a.location }}</div>
         <div v-if="a.contacts && a.contacts.length" class="contacts_c">
           <div class="field_label">联系人：</div>
           <div class="contacts">

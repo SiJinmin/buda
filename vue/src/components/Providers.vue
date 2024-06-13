@@ -15,9 +15,9 @@ onMounted(() => {
     <div v-for="a in buda.jobs"  class="block">
       <div class="block_inner">
         <div class="company">{{ a.company }}</div>
-        <div>{{ a.location }}</div>
+        <div><span class="field_title">地址</span>{{ a.location }}</div>
         <div v-if="a.contacts && a.contacts.length" class="contacts_c">
-          <div>联系人：</div>
+          <div><span class="field_title">联系人</span></div>
           <div class="contacts">
             <div class="contact" v-for="d in a.contacts">
               {{ d }}
@@ -25,6 +25,9 @@ onMounted(() => {
           </div>
         </div>
         <div>{{ a.summary }}</div>
+        <ul>
+          <li v-for="(s, index) in a.ServiceItems" :key="index">{{ s }}</li>
+        </ul>
         <div v-if="a.detail && a.detail.length" v-for="d in a.detail">
           <img :title="d" :src="`/images/companies/small/${d}`" class="detail_image">
         </div>
