@@ -5,8 +5,11 @@ import { RouterLink, RouterView, useRouter } from 'vue-router'
 
 const router = useRouter();
 router.afterEach((to, from) => { 
-  buda.page.name='';
-  //console.log('route change :', from, to) 
+  let code = to.name;
+  let route=buda.services.find(s=>s.code==code); if(route){
+    buda.page.name=route.title;
+    console.log('route change :', code, route.title); 
+  }
 });
 
 onMounted(() => {
@@ -60,5 +63,4 @@ header { padding: 0.6rem 0.4rem 0.8rem 0.4rem; display: flex; align-items: cente
 .site_menu_c a { padding: 0 1em 1em 0; display: inline-block; }
 
 .site_content_c { padding: 1rem 0;  }
-.site_content_inner { display: flex; align-items: center; justify-content: center; }
 </style>

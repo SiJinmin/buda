@@ -2,11 +2,8 @@
 import buda from '../buda.js'
 import { onMounted } from 'vue'
 
-buda.page.name='纯素超市';
-
 onMounted(() => {
   Buda.window_resize();
-  // console.log('buda.page.name',buda.page.name);
 });
 
 </script>

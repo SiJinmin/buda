@@ -10,8 +10,6 @@ function update(){
   list[1]="div4";
 }
 
-buda.page.name='测试页面';
-
 onMounted(() => {
   
 });
