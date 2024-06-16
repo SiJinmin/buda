@@ -8,6 +8,6 @@ window.Buda.dom.setAreaH=function (e, fontsize=16, max=null, er=null, freeH=3, m
     let s=e.style, sr; if (er) { sr=er.style; sr.height=s.height; }
     s.minHeight=minh+'em';
     s.height=(fontsize*(1+freeH))+"px"; let v=(e.scrollHeight/fontsize+0.3+freeH);
-    if (max&&v>max) v=max; s.height=v+"em"; //console.log('height', s.height);    
+    if (max&&v>max) v=max; s.height=v+"em"; // console.log('height', s.height, s.minHeight, e.value);    
     if (sr) sr.height=s.height; return v;
 };

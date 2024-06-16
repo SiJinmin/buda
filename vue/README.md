@@ -1,29 +1,18 @@
-# buda
+# buda 社区资讯服务网站前端
 
-This template should help get you started developing with Vue 3 in Vite.
+这是提供社区资讯服务的网站的前端，用vue3开发
 
-## Recommended IDE Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
+## 使用本项目
 
 ```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
+npm i
 npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
 npm run build
 ```
+
+## 功能介绍
+
+### 人物传记整理工具
+1. 自动将您的输入保存到浏览器的localStorage
+2. 自动计算和显示人物年龄
