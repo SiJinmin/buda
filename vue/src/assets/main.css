@@ -32,7 +32,7 @@ body {
 a { text-decoration: none; color: var(--color-link); cursor:pointer;  }
 img{ display: block; }
 input, input:focus { display:inline-block; }
-textarea{ height: 6em;}
+textarea{ min-height: 2em;}
 input, input:focus, textarea { font-size: var(--size-font);  border: solid var(--color-border) 0.1em; padding: 0.2em;}
 
 .center{text-align: center;}  

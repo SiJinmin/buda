@@ -1,6 +1,7 @@
 <script setup>
 import buda from '../buda.js'
 import BudaDate from '../comps/Date.vue'
+import BudaInput from '../comps/Input.vue'
 
 import { reactive, onMounted } from 'vue'
 
@@ -18,18 +19,13 @@ let life=localStorage.getItem("life"); if(!life) life={
 }; else life=JSON.parse(life);
 life = reactive(life);
 
-
-let PreventSave=false, Pending=false;
-function Input(event){
-  if(event.target.tagName.toLowerCase()=='textarea')  Buda.dom.setAreaH(event.target, buda.ui.rem);
-
-  //Pending=true; if(PreventSave) return; PreventSave=true;
-  localStorage.setItem("life", JSON.stringify(life)); Pending=false;
-
-  // setTimeout(() => { PreventSave=false; if(Pending) Input();  }, 5000);
-
-  //console.log();
+// 自由、开放、透明、免费、去中心化、全民协作思想的领军者、核心力量
+function save(){
+  localStorage.setItem("life", JSON.stringify(life));
+  console.log('saved', new Date());
 }
+
+function Input(){}
 
 
 onMounted(() => {
@@ -42,7 +38,7 @@ onMounted(() => {
   <div class="page_comp_small_padding">
     <div class="field_editor">
       <div class="field_editor_label">标题</div>
-      <div class="field_editor_content"><input v-model="life.title" @input="Input" class="field_editor_input_long"/></div>
+      <div class="field_editor_content"><BudaInput v-model="life.title" type="textarea" :input_classes="{field_editor_input_long:true}" :func="save" :maxh="3" input_id="textarea_title"/></div>
     </div>
     <div class="field_editor">
       <div class="field_editor_label">出生时间</div>
@@ -54,15 +50,15 @@ onMounted(() => {
     </div>  
     <div class="field_editor_multilines">
       <div class="field_editor_label">综述</div>
-      <div class="field_editor_content"><textarea v-model="life.summary" @input="Input" class="field_editor_input_long"></textarea></div>
+      <div class="field_editor_content"><BudaInput v-model="life.summary" type="textarea" :input_classes="{field_editor_input_long:true}" :func="save" input_id="textarea_summary"/></div>
     </div> 
+    <div>事件</div>
     <div>
-      <div v-for="e in life.events" class="field_editor_verticle">
+      <div v-for="(e, ei) in life.events" class="field_editor_verticle">
         <div>
-          <div class="field_editor_label">事件</div>
           <BudaDate v-model:year="e.date.year" v-model:month="e.date.month" v-model:day="e.date.day" @input="Input" />
         </div>
-        <div class="field_editor_content"><textarea  v-model="e.content"  @input="Input" class="field_editor_input_long"></textarea></div>
+        <div class="field_editor_content"><BudaInput v-model="e.content" type="textarea" :input_classes="{field_editor_input_long:true}" :func="save" :minh="4" :input_id="`textarea_event_${ei}_content`"/></div>
       </div>
     </div>
   </div>
