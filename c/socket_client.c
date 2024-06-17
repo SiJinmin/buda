@@ -6,6 +6,7 @@
 
 #include <stdio.h>      // printf
 #include <string.h>	    // strlen(char*)
+#include <stdlib.h>     // free(*memory)
 #include <unistd.h>     // close(int file_descriptor): close socket
 #include <sys/socket.h> // socket(), bind(), accept(), etc
 #include <netdb.h>      // gethostbyname(char* domain_name)
@@ -15,6 +16,7 @@
 #define SOCK_BUF_SIZE 10241
 #define SOCK_BUF_SIZE1 10240 // subtract 1 for the null terminator at the buf end
 #define SERVER_DOMAIN_NAME "idealand.space"
+#define BUDA_F(p) if(p){ free(p); p=NULL; } 
 
 
 /* 通过域名获取socket可用的ip地址格式，用于连接server socket 
@@ -41,28 +43,6 @@ struct in_addr * get_sock_addr(char *hostname)
 	fail: printf("gethostbyname for %s failed", hostname); return NULL;
 }
 
-
-/* 查看和设置socket发送和接收数据的超时时长，设置为5秒超时 */
-/*int set_socket_options(int socket)
-{
-    static socklen_t len = sizeof(struct timeval); 
-	struct timeval SocketTimeout, RecvTimeout, SendTimeout; 
-	SocketTimeout.tv_sec = 5; SocketTimeout.tv_usec = 0; 
-	RecvTimeout.tv_sec = RecvTimeout.tv_usec = 0; SendTimeout.tv_sec = SendTimeout.tv_usec = 0;
-
-	getsockopt(socket, SOL_SOCKET,SO_RCVTIMEO, &RecvTimeout, &len); printf("recv timeout is %ld.%ld\n",RecvTimeout.tv_sec, RecvTimeout.tv_usec );
-	getsockopt(socket, SOL_SOCKET,SO_SNDTIMEO, &SendTimeout, &len); printf("send timeout is %ld.%ld\n",SendTimeout.tv_sec, SendTimeout.tv_usec );
-    if(setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, &SocketTimeout, len)==-1) { printf("set receive timeout failed\n"); goto fail; }
-    if(setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, &SocketTimeout, len)==-1) { printf("set send timeout failed\n"); goto fail; }
-	getsockopt(socket, SOL_SOCKET,SO_RCVTIMEO, &RecvTimeout, &len); printf("recv timeout is %ld.%ld\n",RecvTimeout.tv_sec, RecvTimeout.tv_usec );
-	getsockopt(socket, SOL_SOCKET,SO_SNDTIMEO, &SendTimeout, &len); printf("send timeout is %ld.%ld\n",SendTimeout.tv_sec, SendTimeout.tv_usec );
-
-	succeed: return 0;
-	fail: return -1;
-}*/
-
-
-
 int main(int argc, char * argv[])
 {
 	int r=0;
@@ -87,10 +67,36 @@ int main(int argc, char * argv[])
 	while((read = getline(&line, &len, stdin)) > 0)
 	{			
 		if(send(sock, line, read,	0) <= 0) goto fail_close;
+		BUDA_F(line);
 	}
+	BUDA_F(line);
 
 	close(sock); goto succeed;
 	fail_close: close(sock); goto fail;
 	succeed: return r;
 	fail: r=1; return r;
 }
+
+
+
+
+/* 查看和设置socket发送和接收数据的超时时长，设置为5秒超时 */
+/*int set_socket_options(int socket)
+{
+    static socklen_t len = sizeof(struct timeval); 
+	struct timeval SocketTimeout, RecvTimeout, SendTimeout; 
+	SocketTimeout.tv_sec = 5; SocketTimeout.tv_usec = 0; 
+	RecvTimeout.tv_sec = RecvTimeout.tv_usec = 0; SendTimeout.tv_sec = SendTimeout.tv_usec = 0;
+
+	getsockopt(socket, SOL_SOCKET,SO_RCVTIMEO, &RecvTimeout, &len); printf("recv timeout is %ld.%ld\n",RecvTimeout.tv_sec, RecvTimeout.tv_usec );
+	getsockopt(socket, SOL_SOCKET,SO_SNDTIMEO, &SendTimeout, &len); printf("send timeout is %ld.%ld\n",SendTimeout.tv_sec, SendTimeout.tv_usec );
+    if(setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, &SocketTimeout, len)==-1) { printf("set receive timeout failed\n"); goto fail; }
+    if(setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, &SocketTimeout, len)==-1) { printf("set send timeout failed\n"); goto fail; }
+	getsockopt(socket, SOL_SOCKET,SO_RCVTIMEO, &RecvTimeout, &len); printf("recv timeout is %ld.%ld\n",RecvTimeout.tv_sec, RecvTimeout.tv_usec );
+	getsockopt(socket, SOL_SOCKET,SO_SNDTIMEO, &SendTimeout, &len); printf("send timeout is %ld.%ld\n",SendTimeout.tv_sec, SendTimeout.tv_usec );
+
+	succeed: return 0;
+	fail: return -1;
+}*/
+
+

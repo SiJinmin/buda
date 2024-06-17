@@ -20,6 +20,7 @@ let life=localStorage.getItem("life"); if(!life) life={
   events:[
     AEvent(1900,1,1),
   ],
+  refs:'',
 }; else life=JSON.parse(life);
 life = reactive(life);
 
@@ -38,6 +39,15 @@ function save(){
 function save_birth(){ 
   if(BirthUpdateFirst){ let e=life.events[0].date, b=life.birth; e.year=b.year; e.month=b.month; e.day=b.day; }
   save(); 
+}
+function event_content_input(event, ei){
+  let reg_year=/([0-9]{1,4})\s*年/;
+  let reg_month=/([0-9]{1,2})\s*月/;
+  let reg_day=/([0-9]{1,2})\s*日/;
+  let v=event.target.value, r, d=life.events[ei].date;
+  if((r=reg_year.exec(v)) && r.length>=2) d.year=parseInt(r[1]);
+  if((r=reg_month.exec(v)) && r.length>=2) d.month=parseInt(r[1]);
+  if((r=reg_day.exec(v)) && r.length>=2) d.day=parseInt(r[1]);
 }
 
 function AddEvent(nexte, nextei){
@@ -58,45 +68,55 @@ onMounted(() => {
 
 <template>
   <div class="page_comp_small_padding">
-    <div class="field_editor">
-      <div class="field_editor_label">标题</div>
-      <div class="field_editor_content"><BudaInput v-model="life.title" type="textarea" :input_classes="{field_editor_input_long:true}" :func="save" :maxh="3"/></div>
-    </div>
-    <div class="field_editor">
-      <div class="field_editor_label">出生时间</div>
-      <div class="field_editor_content"><BudaDate v-model:year="life.birth.year" v-model:month="life.birth.month" v-model:day="life.birth.day" :func="save_birth" /></div>      
-    </div>  
-    <div class="field_editor">
-      <div class="field_editor_label">名称</div>
-      <div class="field_editor_content"><BudaInput v-model="life.name" :func="save"/></div>      
-    </div>  
-    <div class="field_editor_multilines">
-      <div class="field_editor_label">综述</div>
-      <div class="field_editor_content"><BudaInput v-model="life.summary" type="textarea" :input_classes="{field_editor_input_long:true}" :func="save" /></div>
-    </div> 
-    <div>事件</div>
-    <div>
-      <div v-for="(e, ei) in life.events" class="field_editor_verticle">
-        <div>
-          <img src="@/assets/add.svg" @click="AddEvent(e, ei)" class="add_img">
-        </div>
-        <div>
-          <div class="event_head">
-            <BudaDate v-model:year="e.date.year" v-model:month="e.date.month" v-model:day="e.date.day" :func="save" />
-            <div class="event_age">{{ Age(e) }}岁</div>
-          </div>
-          <div class="field_editor_content"><BudaInput v-model="e.content" type="textarea" :input_classes="{field_editor_input_long:true}" :func="save"/></div>
-        </div>
+    <section class="editor">
+      <div class="field_editor">
+        <div class="field_editor_label">标题</div>
+        <div class="field_editor_content"><BudaInput v-model="life.title" type="textarea" :input_classes="{field_editor_input_long:true}" :func="save" :maxh="3"/></div>
       </div>
+      <div class="field_editor">
+        <div class="field_editor_label">出生时间</div>
+        <div class="field_editor_content"><BudaDate v-model:year="life.birth.year" v-model:month="life.birth.month" v-model:day="life.birth.day" :func="save_birth" /></div>      
+      </div>  
+      <div class="field_editor">
+        <div class="field_editor_label">简称</div>
+        <div class="field_editor_content"><BudaInput v-model="life.name" :func="save"/></div>      
+      </div>  
+      <div class="field_editor_multilines">
+        <div class="field_editor_label">综述</div>
+        <div class="field_editor_content"><BudaInput v-model="life.summary" type="textarea" :input_classes="{field_editor_input_long:true}" :func="save" /></div>
+      </div> 
+      <div>事件</div>
       <div>
-        <img src="@/assets/add.svg" @click="AddEvent()" class="add_img">
-      </div>
-    </div>
+        <div v-for="(e, ei) in life.events" class="field_editor_verticle">
+          <div>
+            <img src="@/assets/add.svg" @click="AddEvent(e, ei)" class="add_img">
+          </div>
+          <div>
+            <div class="event_head">
+              <BudaDate v-model:year="e.date.year" v-model:month="e.date.month" v-model:day="e.date.day" :func="save" />
+              <div class="event_age">{{ Age(e) }}岁</div>
+            </div>
+            <div class="field_editor_content"><BudaInput v-model="e.content" @input="event_content_input($event, ei)" type="textarea" :input_classes="{field_editor_input_long:true}" :func="save"/></div>
+          </div>
+        </div>
+        <div>
+          <img src="@/assets/add.svg" @click="AddEvent()" class="add_img">
+        </div>
+      </div> 
+      <div class="field_editor_multilines">
+        <div class="field_editor_label">参考资料</div>
+        <div class="field_editor_content"><BudaInput v-model="life.refs" type="textarea" :input_classes="{field_editor_input_long:true}" :func="save" /></div>
+      </div> 
+    </section>
+    <section class="preview">
+
+      
+    </section>
   </div>
 </template>
 
 <style scoped>
-.add_img{ margin: 0 0 1em 0; width: 4em; height: 4em; cursor: pointer; }
+.add_img{ margin: 0 0 1em 0; width: 2em; height: 2em; cursor: pointer; }
 .event_head { display: flex; flex-wrap: wrap; }
 .event_age{ margin: 0 1em;}
 </style>
