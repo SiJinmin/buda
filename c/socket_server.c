@@ -2,7 +2,10 @@
 编译生成可执行程序（Ubuntu Linux 24.04）
 # gcc ./socket_server.c -o socket_server
 # scp socket_server root@idealand.space:/root/code/buda/c
-# ./socket_server
+启动http server
+# ./socket_server http_single_thread
+启动client message display
+# ./socket_server show_client_messages
 
 查看防火墙的状态：(国内的云服务器80,443,8080,8443是备案端口，必须备案以后才能从外网访问，注意避免使用)
 # ufw status
@@ -99,16 +102,16 @@ int main(int argc, char * argv[])
 	char buffer[SOCK_BUF_SIZE] = { 0 };
 	long send_size=0;
 
-	if ((listen_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) { perror("create server listen socket failed"); goto fail; 	}
+	if ((listen_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) { perror("create server listen socket failed\n"); goto fail; 	}
 	printf("create server listen socket succeed\n");
 
 	server_addr.sin_family = AF_INET; // IPv4
 	server_addr.sin_addr.s_addr = INADDR_ANY;	// 监听所有本地IP地址
 	server_addr.sin_port = htons(SERVER_LISTEN_PORT);
-	if (bind(listen_sock, (struct sockaddr*)&server_addr, addrlen) == -1) { perror("server listen socket bind to ip:port failed"); goto fail_close; }
+	if (bind(listen_sock, (struct sockaddr*)&server_addr, addrlen) == -1) { perror("server listen socket bind to ip:port failed\n"); goto fail_close; }
 	printf("bind server listen socket to port %d succeed\n", SERVER_LISTEN_PORT);
 
-	if (listen(listen_sock, SOCK_CONN_QUEUE_MAX) == -1) { perror("server socket start listening failed"); goto fail_close; }
+	if (listen(listen_sock, SOCK_CONN_QUEUE_MAX) == -1) { perror("server socket start listening failed\n"); goto fail_close; }
 	printf("server socket starts listening ...\n");
 
 	while((sock	= accept(listen_sock, (struct sockaddr*)&client_addr,	&addrlen)) > 0)
@@ -118,8 +121,6 @@ int main(int argc, char * argv[])
 		printf("%d --------------- \nserver socket accepted a client connection:  %s:%d ---------------\n", client_count, client_ip, client_port);
 		// if(set_socket_options(sock) == -1) goto end_close_client;
     if(fun_sock(sock, buffer, SOCK_BUF_SIZE) < 0) goto end_close_client;
-		//send_size = send(sock, hello, strlen(hello), 0); if(send_size<0) { printf("write to client failed\n"); goto end_close_client;}
-		//printf("Hello message sent\n");
 		end_close_client: close(sock);
 		printf("waiting for next client ...\n");
 	}
