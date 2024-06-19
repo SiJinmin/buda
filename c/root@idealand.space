@@ -1,7 +1,7 @@
 /*
 编译生成可执行程序（Ubuntu Linux 24.04）
 # gcc ./socket_server.c -o socket_server
-# scp socket_server root@idealand.space:/root/code/buda/c
+# scp socket_server.c root@idealand.space
 # ./socket_server
 
 查看防火墙的状态：(国内的云服务器80,443,8080,8443是备案端口，必须备案以后才能从外网访问，注意避免使用)
@@ -25,12 +25,6 @@
 #define SOCK_CONN_QUEUE_MAX 3
 #define MODE_show_client_messages "show_client_messages"
 #define MODE_http_single_thread "http_single_thread"
-#define HTTP_HEAD "HTTP/1.1 200 OK\n\
-Server: buda\n\
-Content-Type: text/html\n\
-Content-Length: %ld\n\
-\n\
-%s"
 
 enum MODE
 {
@@ -38,13 +32,6 @@ enum MODE
 };
 
 typedef int (*FUN_process_connection_sock)(int sock, char* buffer, int buf_size); 
-
-int make_http_response(char* buf, int buf_size)
-{
-	char* content="<!DOCTYPE html><body>hello world</body></html>";
-  int len=sprintf(buf, HTTP_HEAD, strlen(content) , content); buf[len]=0;
-	return len;
-}
 
 
 // server waits for messages from client, and display messages in server console
@@ -64,18 +51,7 @@ int show_client_messages_single_thread(int sock, char* buffer, int buf_size)
 // the listen socket and connection sockets work in the same single thread
 int http_single_thread(int sock, char* buffer, int buf_size)
 {
-	int r=0;
-	long recv_size=0, buf_size1=buf_size-1;
-  recv_size = recv(sock, buffer, buf_size1, 0);
-	
-	if(recv_size<0) { printf("receive from client failed\n"); return -1;}
-	buffer[recv_size]=0; // set string end
-	printf("received %ld bytes data: \n%s\n", recv_size, buffer);
-
-  int send_size = make_http_response(buffer, buf_size);
-	r = send(sock, buffer, send_size, 0);
-	if(r>0) printf("[sent to client]\n%s\n[end of sent]\n", buffer);
-	return r;
+  return 0;
 }
 
 int main(int argc, char * argv[])
@@ -86,9 +62,8 @@ int main(int argc, char * argv[])
 	if(argc>=2)
 	{
 		if(strcmp(MODE_http_single_thread, argv[1])==0) 
-		{ mode=HTTP_SINGLE_THREAD; fun_sock=http_single_thread; printf("server work in http_single_thread mode\n"); }
+		{ mode=HTTP_SINGLE_THREAD; fun_sock=http_single_thread; }
 	}
-	if(mode==SHOW_CLIENT_MESSAGES) printf("server work in client_messages_single_thread mode\n");
 
 	int listen_sock, sock;
 	struct sockaddr_in server_addr, client_addr;
