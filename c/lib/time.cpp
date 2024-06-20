@@ -1,8 +1,9 @@
-
-
 #include "../includes/buda.h"
 
 
+namespace BUDA
+{
+	
 struct tm *localtime_s(struct tm *result, time_t *timep)
 {
 	return localtime_r(timep, result);
@@ -11,5 +12,7 @@ struct tm *localtime_s(struct tm *result, time_t *timep)
 struct tm * gmtime_s(struct tm *result, time_t *timep)
 {
 		return gmtime_r(timep, result);
+}
+
 }
 

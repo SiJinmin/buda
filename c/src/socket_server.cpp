@@ -1,28 +1,11 @@
-/*
-编译生成可执行程序（Ubuntu Linux 24.04）
-debug版
-# cd debug
-# gcc ../src/socket_server.c ../lib/*.c -g -o ../debug/socket_server
-release版
-# gcc ./socket_server.c -o socket_server
-
-# scp -r c root@idealand.space:/root/code/buda/
-启动http server
-# ./socket_server http_single_thread
-启动client message display
-# ./socket_server show_client_messages
-
-查看防火墙的状态：(国内的云服务器80,443,8080,8443是备案端口，必须备案以后才能从外网访问，注意避免使用)
-# ufw status
-# ufw allow 8888
-查看端口是否被其它程序占用
-# sudo apt lsof
-# lsof -i:8888
-*/
-
 #include "../includes/buda.h"
 
+namespace BUDA
+{
 
+typedef int (*FUN_process_connection_sock)(int sock, char* buf_recv, int buf_recv_size, char* buf_send, int buf_send_size); 
+
+	
 // server waits for messages from client, and display messages in server console
 // the listen socket and connection sockets work in the same single thread, so the queued clients may be blocked for a very long time.
 int show_client_messages_single_thread(int sock, char* buf_recv, int buf_recv_size, char* buf_send, int buf_send_size)
@@ -34,6 +17,7 @@ int show_client_messages_single_thread(int sock, char* buf_recv, int buf_recv_si
 		buf_recv[recv_size]=0; // set string end
 		printf("received %ld bytes data: \n%s\n", recv_size, buf_recv);
 	}
+	return 0;
 }
 
 // server waits for a message from client, response it, and close the connection, then wait for the next client to connect
@@ -47,11 +31,14 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, char* buf_se
 	if(recv_size<0) { printf("receive from client socket failed\n"); return -1;}
 	buf_recv[recv_size]=0; // set string end
 	printf("[received %ld bytes from client]\n%s\n[end of recv]\n", recv_size, buf_recv);
+
 	BudaZero(HttpReq, req); parse_http_request(buf_recv, &req);
 
-  make_http_response(buf_send, buf_send_size, 0, NULL, req.path, -1, "text/plain", "UTF-8", NULL);
-	r = send(sock, buf_send, buf_send_size, 0);
-	if(r>0) printf("[sent to client]\n%s\n[end of sent]\n", buf_send);
+  int send_size = make_http_response(buf_send, buf_send_size, req.path, -1, "text/plain");
+	
+	r = send(sock, buf_send, send_size, 0);
+	if(r>0) printf("[sent to client %d/%d bytes]\n%s\n[end of sent]\n", r, send_size, buf_send);
+	if(r<=0 || r!=send_size) printf("sent to client error: %d\n", r);
 	return r;
 }
 
@@ -116,4 +103,12 @@ int main(int argc, char * argv[])
 	fail_close: close(listen_sock); goto fail;
 	succeed: return r;
 	fail: r=-1; return r;
+}
+
+
+}
+
+int main(int argc, char * argv[])
+{
+  return BUDA::main(argc, argv);
 }

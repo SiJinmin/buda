@@ -1,5 +1,5 @@
 
-#pragma once
+
 #ifndef buda_h
 #define buda_h
 
@@ -42,16 +42,22 @@
 #include <netinet/in.h>
 
 
+#define BudaZero(T, name) T name; memset(&name, 0, sizeof(name))
 
-#define VERSION "1.0.0"
-#define SERVER_LISTEN_PORT   8888
-#define SOCK_BUF_RECV_SIZE  10241  // about 10K
-#define SOCK_BUF_RECV_SIZE1 10240 // subtract 1 for the null terminator at the buf end
-#define SOCK_BUF_SEND_SIZE  2000001 // about 2M, default max stack memory is 8M
-#define SOCK_BUF_SEND_SIZE1 2000000
-#define SOCK_CONN_QUEUE_MAX 3
-#define MODE_show_client_messages "show_client_messages"
-#define MODE_http_single_thread "http_single_thread"
+
+namespace BUDA
+{
+
+static const char* VERSION = "1.0.0";	
+static const int SERVER_LISTEN_PORT =  8888;
+static const int SOCK_BUF_RECV_SIZE = 10241 ; // about 10K
+static const int SOCK_BUF_RECV_SIZE1 = 10240 ;// subtract 1 for the null terminator at the buf end
+static const int SOCK_BUF_SEND_SIZE = 2000001; // about 2M, default max stack memory is 8M
+static const int SOCK_BUF_SEND_SIZE1 = 2000000;
+static const int SOCK_CONN_QUEUE_MAX = 3;
+static const char *MODE_show_client_messages = "show_client_messages";
+static const char *MODE_http_single_thread = "http_single_thread";
+
 
 enum MODE
 {
@@ -59,25 +65,21 @@ enum MODE
 };
 
 
-typedef int (*FUN_process_connection_sock)(int sock, char* buf_recv, int buf_recv_size, char* buf_send, int buf_send_size); 
+//-------------------- string.cpp ---------------------------
 
-
-
-#define BudaZero(T, name) T name; memset(&name, 0, sizeof(name))
-
-
-// time.c
-struct tm *localtime_s(struct tm *result, time_t *timep);
-struct tm * gmtime_s(struct tm *result, time_t *timep);
-
-// string.c
 /* get token ended by end in the current line, set the end char to \0 as found token end.
    if not found the token, *start remain origin value, *token=NULL, return -1.
    if found, *start is the next char position of end char, *token is found position, return 0.*/
 int get_token_by_char_end(char** start, char end, char** token);
 
 
-// http.c
+//--------------------------- time.cpp ---------------------------
+struct tm * gmtime_s(struct tm *result, time_t *timep);
+struct tm *localtime_s(struct tm *result, time_t *timep);
+
+
+//--------------------------- http.cpp ---------------------------
+
 typedef struct http_req
 {
   char* method;
@@ -87,13 +89,15 @@ typedef struct http_req
 } HttpReq;
 
 int parse_http_request(char* req, HttpReq* r);
-char* make_http_response(char* StringBuf, int StringBufSize, int status_number, char* status_message, char* content, int content_len, char* content_type, char* encoding, char* filename);
 
-// help.c
+int make_http_response(char* StringBuf, int StringBufSize, char* content=NULL, int content_len=-1, const char* content_type="text/html", const char* encoding="UTF-8", int status_no=200, const char* status_code="OK", char* filename=NULL);
+
+
+//--------------------------- help.cpp ---------------------------
 void print_help(char* program_name);
 
 
-
+}
 
 
 #endif

@@ -1,5 +1,8 @@
 #include "../includes/buda.h"
 
+namespace BUDA
+{
+	
 int get_token_by_char_end(char** start, char end, char** token)
 {
   char* old=*start; char* p=old; char c;
@@ -11,4 +14,6 @@ int get_token_by_char_end(char** start, char end, char** token)
   }
 fail:
   *token=NULL; return -1;
+}
+
 }
