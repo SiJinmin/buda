@@ -4,13 +4,15 @@
 #define buda_h
 
 
-/// system defines, must be pre of includes for its usage
-/* the system use utf-8 as unified encoding. */
+
+//--------------- system --------------
+
+/// the system use utf-8 as unified encoding, must be pre of includes for its usage.
 #ifndef UNICODE
 #define UNICODE
 #endif
 
-
+/// common in windows and linux
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -29,68 +31,73 @@
 #include <fcntl.h>
 #include <getopt.h>
 
+/// by linux only, not by windows
 #include <unistd.h>
 #include <stddef.h>
 #include <dirent.h>
 #include <pthread.h>
 #include <sys/time.h>
 #include <linux/input.h>
-
+//// linux socket
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 
 
+
+//--------------- macros --------------
 #define BudaZero(T, name) T name; memset(&name, 0, sizeof(name))
+
 
 
 namespace BUDA
 {
 
-static const char* VERSION = "1.0.0";	
+
+//--------------- constants --------------
+static const char *VERSION = "1.0.0";	
 static const int SERVER_LISTEN_PORT =  8888;
-static const int SOCK_BUF_RECV_SIZE = 10241 ; // about 10K
-static const int SOCK_BUF_RECV_SIZE1 = 10240 ;// subtract 1 for the null terminator at the buf end
-static const int SOCK_BUF_SEND_SIZE = 2000001; // about 2M, default max stack memory is 8M
-static const int SOCK_BUF_SEND_SIZE1 = 2000000;
+static const int SOCK_BUF_RECV_SIZE = 10240 ; // about 10K
+static const int SOCK_BUF_SEND_SIZE = 2001024; // about 2M, default max stack memory is 8M
 static const int SOCK_CONN_QUEUE_MAX = 3;
 static const char *MODE_show_client_messages = "show_client_messages";
 static const char *MODE_http_single_thread = "http_single_thread";
 
 
-enum MODE
-{
-  SHOW_CLIENT_MESSAGES=1, HTTP_SINGLE_THREAD
-};
-
 
 //-------------------- string.cpp ---------------------------
+/* This function is originally written for parse http request, but can be used by others.
+   It gets the first token ended by end in the current line starting from *start.
+   If not found, *start remains original value, *token=NULL, return -1.
+   If found, set the end char to \0 as the found token end, set *start point to the next char of end char, set *token to the found token, and return 0.*/
+int get_token_by_char_end(char** start, char** token, char end=' ', char line_end='\r');
 
-/* get token ended by end in the current line, set the end char to \0 as found token end.
-   if not found the token, *start remain origin value, *token=NULL, return -1.
-   if found, *start is the next char position of end char, *token is found position, return 0.*/
-int get_token_by_char_end(char** start, char end, char** token);
 
 
 //--------------------------- time.cpp ---------------------------
-struct tm * gmtime_s(struct tm *result, time_t *timep);
+struct tm *gmtime_s(struct tm *result, time_t *timep);
 struct tm *localtime_s(struct tm *result, time_t *timep);
 
 
-//--------------------------- http.cpp ---------------------------
 
+//--------------------------- http.cpp ---------------------------
 typedef struct http_req
 {
   char* method;
   char* path;
-  int content_len;
   char* content;
+  int content_len;
 } HttpReq;
 
+/* return 0 for succeed, return -1 for failure. */
 int parse_http_request(char* req, HttpReq* r);
-
+/* Return response size if succeed, or -1 for failure.
+   encoding should be auto detected and reset by content_type
+   content_len = -1 means it should be caculated by content
+*/
 int make_http_response(char* StringBuf, int StringBufSize, char* content=NULL, int content_len=-1, const char* content_type="text/html", const char* encoding="UTF-8", int status_no=200, const char* status_code="OK", char* filename=NULL);
+
 
 
 //--------------------------- help.cpp ---------------------------

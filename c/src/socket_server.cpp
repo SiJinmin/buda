@@ -13,67 +13,65 @@ int show_client_messages_single_thread(int sock, char* buf_recv, int buf_recv_si
 	long recv_size=0, buf_recv_size1=buf_recv_size-1;
   while((recv_size = recv(sock, buf_recv, buf_recv_size1, 0))>0)
 	{
-		if(recv_size<0) { printf("receive from client failed\n"); return -1;}
 		buf_recv[recv_size]=0; // set string end
-		printf("received %ld bytes data: \n%s\n", recv_size, buf_recv);
+		printf("[received %ld bytes data]\n%s\n[end of received data]\n", recv_size, buf_recv);
 	}
-	return 0;
+	printf("receive from client failed\n"); return -1;
 }
 
-// server waits for a message from client, response it, and close the connection, then wait for the next client to connect
-// the listen socket and connection sockets work in the same single thread
+
+/* process a http request, return 0 for succeed, -1 for failure.  */
 int http_single_thread(int sock, char* buf_recv, int buf_recv_size, char* buf_send, int buf_send_size)
 {
-	int r=0;
-	long recv_size=0, buf_recv_size1=buf_recv_size-1;
+	int r=0; BudaZero(HttpReq, req); 
+	long recv_size=0, buf_recv_size1=buf_recv_size-1; int send_size;
   recv_size = recv(sock, buf_recv, buf_recv_size1, 0);
 	
-	if(recv_size<0) { printf("receive from client socket failed\n"); return -1;}
+	if(recv_size<=0) { printf("receive from client socket failed\n"); goto fail;}
 	buf_recv[recv_size]=0; // set string end
 	printf("[received %ld bytes from client]\n%s\n[end of recv]\n", recv_size, buf_recv);
 
-	BudaZero(HttpReq, req); parse_http_request(buf_recv, &req);
+	if(parse_http_request(buf_recv, &req)) goto fail;
 
-  int send_size = make_http_response(buf_send, buf_send_size, req.path, -1, "text/plain");
-	
+  send_size = make_http_response(buf_send, buf_send_size, req.path, -1, "text/plain"); if(send_size<=0) goto fail;	
 	r = send(sock, buf_send, send_size, 0);
-	if(r>0) printf("[sent to client %d/%d bytes]\n%s\n[end of sent]\n", r, send_size, buf_send);
-	if(r<=0 || r!=send_size) printf("sent to client error: %d\n", r);
-	return r;
+	if(r==send_size) printf("[sent to client %d bytes]\n%s\n[end of sent]\n", r, buf_send);
+	else { printf("sent to client error: %d\n", r); goto fail; }
+
+	return 0;
+	fail: return -1;
 }
 
 
 int main(int argc, char * argv[])
 {
-	int r=0; 
-	enum MODE mode=HTTP_SINGLE_THREAD; FUN_process_connection_sock fun_sock=http_single_thread;	
-	char* web_root=NULL;
-	
+	int r=0; FUN_process_connection_sock fun_sock=http_single_thread;	
+	char* web_root=NULL;	
 	int optc; char *program_name = argv[0];
 
 	while ((optc = getopt_long(argc, argv, "hmw:", NULL, NULL)) != -1)
 	{
 			switch (optc) 
 			{
-				case 'h':
-							print_help(program_name);
-							exit(EXIT_SUCCESS);
 				case 'm':
-							mode=SHOW_CLIENT_MESSAGES; 
 							fun_sock=show_client_messages_single_thread; 
 							printf("server works in client_messages_single_thread mode\n");
-							break;
-					case 'w':
+							goto command_end;
+				case 'w':
 							web_root = optarg;
-							break;
+							printf("starting http web server: %s\n", web_root);
+							goto command_end;
+				default:
+							print_help(program_name);
+							exit(EXIT_SUCCESS);
 			}
-	}
+	}	
+  command_end:
 
-	if(mode==HTTP_SINGLE_THREAD) printf("starting http web server: %s\n", web_root);
 
 	int listen_sock, sock; // sock is the client connection socket
 	struct sockaddr_in server_addr, client_addr; socklen_t addrlen = sizeof(struct sockaddr_in), addrlen_client=0;
-  int client_count=0;	char *client_ip=NULL; int client_port=-1;
+  long client_count=0;	char *client_ip=NULL; int client_port=-1;
 	char buf_recv[SOCK_BUF_RECV_SIZE], buf_send[SOCK_BUF_SEND_SIZE];
 
 	if ((listen_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) { perror("create server listen socket failed\n"); goto fail; 	}
@@ -92,16 +90,15 @@ int main(int argc, char * argv[])
 	while((sock	= accept(listen_sock, (struct sockaddr*)&client_addr,	&addrlen_client)) > 0)
 	{			
 		client_count++; client_ip = inet_ntoa(client_addr.sin_addr); client_port = ntohs(client_addr.sin_port);
-		printf("%d --------------- server socket accepted a client connection:  %s:%d ---------------\n", client_count, client_ip, client_port);
+		printf("%ld --------------- server socket accepted a client connection:  %s:%d ---------------\n", client_count, client_ip, client_port);
 		// if(set_socket_options(sock) == -1) goto end_close_client;
     if(fun_sock(sock, buf_send, SOCK_BUF_SEND_SIZE, buf_recv, SOCK_BUF_RECV_SIZE) < 0) goto end_close_client;
+
 		end_close_client: close(sock);
 		printf("waiting for next client ...\n");
 	}
 
-	close(listen_sock); goto succeed;
-	fail_close: close(listen_sock); goto fail;
-	succeed: return r;
+	fail_close: close(listen_sock); 
 	fail: r=-1; return r;
 }
 

@@ -3,13 +3,13 @@
 namespace BUDA
 {
 	
-int get_token_by_char_end(char** start, char end, char** token)
+int get_token_by_char_end(char** start, char** token, char end, char line_end)
 {
-  char* old=*start; char* p=old; char c;
+  char *old=*start; char* p=old; char c;
   while (c=*p)
   {
     if (end == c) { *token=old; *p = 0; *start = p+1; return 0; }
-    else if (c == '\r') goto fail;
+    else if (c == line_end) goto fail;
     else p++;
   }
 fail:
