@@ -3,6 +3,7 @@
 namespace BUDA
 {
 
+static char web_root[FILE_PATH_SIZE]; static int web_root_len;
 typedef int (*FUN_process_connection_sock)(int sock, char* buf_recv, int buf_recv_size, char* buf_send, int buf_send_size); 
 
 	
@@ -33,8 +34,10 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, char* buf_se
 
 	if(parse_http_request(buf_recv, &req)) goto fail;
 
-  send_size = make_http_response(buf_send, buf_send_size, req.path, -1, "text/plain"); if(send_size<=0) goto fail;	
+  send_size = make_http_response_file(buf_send, buf_send_size, web_root, web_root_len, req.path, NULL); if(send_size<=0) goto fail;	
 	r = send(sock, buf_send, send_size, 0);
+	//if(r==send_size) printf("[sent to client %d bytes]\n", r);
+	buf_send[150]=0;
 	if(r==send_size) printf("[sent to client %d bytes]\n%s\n[end of sent]\n", r, buf_send);
 	else { printf("sent to client error: %d\n", r); goto fail; }
 
@@ -46,25 +49,28 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, char* buf_se
 int main(int argc, char * argv[])
 {
 	int r=0; FUN_process_connection_sock fun_sock=http_single_thread;	
-	char* web_root=NULL;	
-	int optc; char *program_name = argv[0];
+	 
+	int optc; char *program_name = argv[0]; char *web_root_input;
 
 	while ((optc = getopt_long(argc, argv, "hmw:", NULL, NULL)) != -1)
 	{
-			switch (optc) 
-			{
-				case 'm':
-							fun_sock=show_client_messages_single_thread; 
-							printf("server works in client_messages_single_thread mode\n");
-							goto command_end;
-				case 'w':
-							web_root = optarg;
-							printf("starting http web server: %s\n", web_root);
-							goto command_end;
-				default:
-							print_help(program_name);
-							exit(EXIT_SUCCESS);
-			}
+		switch (optc) 
+		{
+			case 'm':
+				fun_sock=show_client_messages_single_thread; 
+				printf("server works in client_messages_single_thread mode\n");
+				goto command_end;
+			case 'w':
+				web_root_input = optarg; 
+				if(realpath(web_root_input, web_root)!=web_root){ printf("web root path error: %s\n", web_root_input); return -1; }
+				struct stat file_info; r = stat(web_root, &file_info); if (r) { printf("web root does not exists: %s\n", web_root); return -1; }
+				if(!(file_info.st_mode & S_IFDIR)){ printf("web root is not a directory: %s\n", web_root); return -1; }
+				web_root_len=strlen(web_root); printf("starting http web server: %s\n", web_root); 
+				goto command_end;
+			default:
+				print_help(program_name);
+				exit(EXIT_SUCCESS);
+		}
 	}	
   command_end:
 
@@ -92,7 +98,7 @@ int main(int argc, char * argv[])
 		client_count++; client_ip = inet_ntoa(client_addr.sin_addr); client_port = ntohs(client_addr.sin_port);
 		printf("%ld --------------- server socket accepted a client connection:  %s:%d ---------------\n", client_count, client_ip, client_port);
 		// if(set_socket_options(sock) == -1) goto end_close_client;
-    if(fun_sock(sock, buf_send, SOCK_BUF_SEND_SIZE, buf_recv, SOCK_BUF_RECV_SIZE) < 0) goto end_close_client;
+    if(fun_sock(sock, buf_recv, SOCK_BUF_RECV_SIZE, buf_send, SOCK_BUF_SEND_SIZE) < 0) goto end_close_client;
 
 		end_close_client: close(sock);
 		printf("waiting for next client ...\n");
