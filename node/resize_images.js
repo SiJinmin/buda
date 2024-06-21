@@ -7,10 +7,11 @@ const TargetImagesFolder="../vue/public/images";
 
 function traverseFolder(folderPath, func) {
   const items = fs.readdirSync(folderPath);
-  items.forEach(item => {
+  items.forEach(item => {    
     const itemPath = path.join(folderPath, item);
     const stats = fs.statSync(itemPath);
     if (stats.isDirectory()) {
+      if(item=="small") return;
       traverseFolder(itemPath, func);
     } else if (stats.isFile()) {
       func(itemPath, folderPath, item);

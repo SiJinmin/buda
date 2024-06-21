@@ -36,7 +36,7 @@ function CloseSiteMenu(){ SiteMenuShowing.value = false; }
         <img alt="menu" class="menu" src="@/assets/menu.svg" @click.stop="ClickSiteMenu">
       </div>
       <div class="site_menu_c" v-if="SiteMenuShowing">
-        <RouterLink v-for="a in buda.services" :to="a.route">{{ a.title }}</RouterLink>
+        <RouterLink v-for="a in buda.modules" :to="a.route">{{ a.title }}</RouterLink>
       </div>
     </header>
     <div class="site_content_c">

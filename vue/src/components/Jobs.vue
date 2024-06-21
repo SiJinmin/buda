@@ -13,9 +13,9 @@ onMounted(() => {
     <div v-for="a in buda.jobs.filter(i=>!i.closed)"  class="block">
       <div class="block_inner">
         <div class="company">{{ a.company }}</div>
-        <div>地址：{{ a.location }}</div>
+        <div><span class="field_title">地址</span>{{ a.location }}</div>
         <div v-if="a.contacts && a.contacts.length" class="contacts_c">
-          <div class="field_label">联系人：</div>
+          <div><span class="field_title">联系人</span></div>
           <div class="contacts">
             <div class="contact" v-for="d in a.contacts">
               {{ d }}
@@ -26,7 +26,7 @@ onMounted(() => {
         <div v-if="a.detail && a.detail.length" v-for="d in a.detail">
           <img :title="d" :src="`/images/companies/small/${d}`" class="detail_image">
         </div>
-        <div v-if="a.env && a.env.length" v-for="d in a.env">
+        <div v-if="false && a.env && a.env.length" v-for="d in a.env">
           <img :title="d" :src="`/images/companies/small/${d}`" class="detail_image">
         </div>
       </div>
