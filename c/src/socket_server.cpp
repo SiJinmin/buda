@@ -98,7 +98,7 @@ int main(int argc, char * argv[])
 	{			
 		client_count++; client_ip = inet_ntoa(client_addr.sin_addr); client_port = ntohs(client_addr.sin_port);
 		printf("%ld --------------- server socket accepted a client connection:  %s:%d ---------------\n", client_count, client_ip, client_port);
-		
+
 		// if(set_socket_options(sock) == -1) goto end_close_client;
     if(fun_sock(sock, buf_recv, SOCK_BUF_RECV_SIZE, buf_send, SOCK_BUF_SEND_SIZE) < 0) goto end_close_client;
 
@@ -115,5 +115,6 @@ int main(int argc, char * argv[])
 
 int main(int argc, char * argv[])
 {
+	char a=0b10000000; u_char b=0b10000000; a=(a>>4); b=(b>>4); printf("a=%d, b=%d\n", (int)a, (int)b);return 0;
   return BUDA::main(argc, argv);
 }

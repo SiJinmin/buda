@@ -60,6 +60,7 @@ namespace BUDA
 
 //--------------- constants --------------
 static const u_char LOW_BYTE_MASK = 15;
+static const char* HEXS = "0123456789ABCDEF";
 
 static const char *VERSION = "1.0.0";	
 static const int SERVER_LISTEN_PORT =  8888;
@@ -80,7 +81,6 @@ static const char *MODE_http_single_thread = "http_single_thread";
    If found, set the end char to \0 as the found token end, set *start point to the next char of end char, set *token to the found token, and return 0.*/
 int get_token_by_char_end(char** start, char** token, char end=' ', char line_end='\r');
 int hex2dec(char c);
-char dec2hex(short int c);
 int url_encode(u_char *s, u_char *d, int max_len=FILE_PATH_SIZE1);
 int url_decode(u_char *s, u_char *d, int max_len=FILE_PATH_SIZE1);
 

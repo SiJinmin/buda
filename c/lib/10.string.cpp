@@ -35,19 +35,19 @@ char dec2hex(short int c)
 }
  
  
-  #define BudaMaxLen(max_len, dec, fail, source) if((max_len-=dec)<0) { printf("dest buf is full for %s\n", source); goto fail; }
-//编码一个url 
+#define BudaMaxLen(max_len, dec, fail, source) if((max_len-=dec)<0) { printf("dest buf is full for %s\n", source); goto fail; }
+
 int url_encode(u_char *s, u_char *d, int max_len)
 {
   u_char c, c_high, c_low, *ps = s, *pd=d; 
   while(c=*(ps++))
   {
-    if(('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c == '/' || c == '.') { BudaMaxLen(max_len, 1, fail, s); *(pd++) = c; }
+    if(isalnum(c) || c == '/' || c == '.'|| c == '-' || c == '_'|| c == '~') { BudaMaxLen(max_len, 1, fail, s); *(pd++) = c; }
+    else if (c == ' ') { BudaMaxLen(max_len, 1, fail, s); *(pd++) = '+'; }
     else 
     {
       BudaMaxLen(max_len, 3, fail, s);
-      c_high = (c >> 4) ; c_low = (c & LOW_BYTE_MASK);
-      *(pd++) = '%'; *(pd++) = BudaDec2Hex(c_high); *(pd++) = BudaDec2Hex(c_low); 
+      *(pd++) = '%'; *(pd++) = HEXS[c >> 4]; *(pd++) = HEXS[c & LOW_BYTE_MASK]; 
     }
   }
   *pd=0;
@@ -55,18 +55,16 @@ int url_encode(u_char *s, u_char *d, int max_len)
   succeed: return 0;
   fail:return -1;
 }
- 
-// 解码url
+
+
 int url_decode(u_char *s, u_char *d, int max_len)
 {
   u_char c, *ps = s, *pd=d, c_high, c_low;
   while(c=*(ps++))
   {
     BudaMaxLen(max_len, 1, fail, s); 
-    if (c != '%')
-    {
-      *(pd++) = c; 
-    }
+    if (c == '+') *(pd++) = ' ';    
+    else if (c != '%') *(pd++) = c;
     else
     {
       c = *(ps++); c_high=BudaHex2Dec(c); c = *(ps++); c_low=BudaHex2Dec(c); 
