@@ -48,10 +48,13 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, char* buf_se
 
 int main(int argc, char * argv[])
 {
-	int r=0; FUN_process_connection_sock fun_sock=http_single_thread;	
-	 
-	int optc; char *program_name = argv[0]; char *web_root_input;
+	int r=0; int optc; char *program_name = argv[0]; 
+	FUN_process_connection_sock fun_sock=http_single_thread; char *web_root_input=NULL;
 
+	if(argc==1) goto need_help; else goto command_start;
+	need_help: print_help(program_name);	exit(EXIT_SUCCESS);
+
+  command_start:
 	while ((optc = getopt_long(argc, argv, "hmw:", NULL, NULL)) != -1)
 	{
 		switch (optc) 
@@ -68,12 +71,10 @@ int main(int argc, char * argv[])
 				web_root_len=strlen(web_root); printf("starting http web server: %s\n", web_root); 
 				goto command_end;
 			default:
-				print_help(program_name);
-				exit(EXIT_SUCCESS);
+				goto need_help;
 		}
 	}	
   command_end:
-
 
 	int listen_sock, sock; // sock is the client connection socket
 	struct sockaddr_in server_addr, client_addr; socklen_t addrlen = sizeof(struct sockaddr_in), addrlen_client=0;
@@ -97,6 +98,7 @@ int main(int argc, char * argv[])
 	{			
 		client_count++; client_ip = inet_ntoa(client_addr.sin_addr); client_port = ntohs(client_addr.sin_port);
 		printf("%ld --------------- server socket accepted a client connection:  %s:%d ---------------\n", client_count, client_ip, client_port);
+		
 		// if(set_socket_options(sock) == -1) goto end_close_client;
     if(fun_sock(sock, buf_recv, SOCK_BUF_RECV_SIZE, buf_send, SOCK_BUF_SEND_SIZE) < 0) goto end_close_client;
 

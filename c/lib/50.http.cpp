@@ -47,7 +47,9 @@ int make_http_response_file(char* buf, int buf_size, char* web_root, int web_roo
 
 	int r=0; char path_input[FILE_PATH_SIZE], path_real[FILE_PATH_SIZE]; struct stat file_info; int sum, remain, len, file_size; char* c; FILE* pf=NULL;
 
-  len = snprintf(path_input, FILE_PATH_SIZE1, "%s%s", web_root, url); 
+  if(url_decode((u_char*)url, (u_char*)path_real)) { printf("decode url failed: %s\n", url); RedirectToIndexPageGoto;} 
+	else { printf("decoded url: %s\n", path_real); }
+  len = snprintf(path_input, FILE_PATH_SIZE1, "%s%s", web_root, path_real); 
 	if(len >= FILE_PATH_SIZE1){ printf("file path too long: %d, redirect to index\n", len); RedirectToIndexPageGoto; }
 	if(realpath(path_input, path_real)!=path_real) { printf("get file real path error: %s\n", path_input); RedirectToIndexPageGoto;  }
 	if(strncmp(web_root, path_real, web_root_len) || path_real[web_root_len]!='/')
@@ -58,9 +60,9 @@ int make_http_response_file(char* buf, int buf_size, char* web_root, int web_roo
 		{
 			HttpMime *m=&(HttpMimes[i]); int len=m->ext_len; const char* ext=m->ext+(len-1); const char *name=path_real; name+=(strlen(name)-1); int same=1;
 			for(int j=0;j<len;j++, ext--, name--)	{	if(*ext != *name) {same=0; break;}	}
-			if(same) { content_type=m->type; printf("mime type is %s", content_type); break; }
+			if(same) { content_type=m->type; printf("mime type is %s\n", content_type); break; }
 		}
-		if(content_type==NULL) { printf("unknown mime type: %s", url); RedirectToIndexPageGoto;  }
+		if(content_type==NULL) { printf("unknown mime type: %s\n", url); RedirectToIndexPageGoto;  }
 	}
 	r = stat(path_real, &file_info); 
 	if (r || !(S_IFREG & file_info.st_mode)) { printf("file does not exists: %s\n", path_real); RedirectToIndexPageGoto;  } 	
