@@ -55,7 +55,7 @@ int main(int argc, char * argv[])
 	need_help: print_help(program_name);	exit(EXIT_SUCCESS);
 
   command_start:
-	while ((optc = getopt_long(argc, argv, "hmw:", NULL, NULL)) != -1)
+	while ((optc = getopt_long(argc, argv, "hmw:p:", NULL, NULL)) != -1)
 	{
 		switch (optc) 
 		{
@@ -68,8 +68,13 @@ int main(int argc, char * argv[])
 				if(realpath(web_root_input, web_root)!=web_root){ printf("web root path error: %s\n", web_root_input); return -1; }
 				struct stat file_info; r = stat(web_root, &file_info); if (r) { printf("web root does not exists: %s\n", web_root); return -1; }
 				if(!(file_info.st_mode & S_IFDIR)){ printf("web root is not a directory: %s\n", web_root); return -1; }
-				web_root_len=strlen(web_root); printf("starting http web server: %s\n", web_root); 
-				goto command_end;
+				web_root_len=strlen(web_root); printf("web server root path: %s\n", web_root); 
+				break;
+			case 'p':
+				server_listen_port = atoi(optarg); 
+				if(server_listen_port<1 || server_listen_port>=SOCK_PORT_MAX) { printf("port should in 1 ~ %d\n", SOCK_PORT_MAX); goto need_help; }
+				else printf("web server listen port: %d\n", server_listen_port); 
+				break;
 			default:
 				goto need_help;
 		}
@@ -86,10 +91,10 @@ int main(int argc, char * argv[])
 
 	server_addr.sin_family = AF_INET; // IPv4
 	server_addr.sin_addr.s_addr = INADDR_ANY;	// 监听所有本地IP地址
-	server_addr.sin_port = htons(SERVER_LISTEN_PORT);
+	server_addr.sin_port = htons(server_listen_port);
 	if (bind(listen_sock, (struct sockaddr*)&server_addr, addrlen) == -1) 
-	{ printf("server listen socket bind to port %d failed\n", SERVER_LISTEN_PORT); goto fail_close; }
-	printf("bind server listen socket to port %d succeed\n", SERVER_LISTEN_PORT);
+	{ printf("server listen socket bind to port %d failed\n", server_listen_port); goto fail_close; }
+	printf("bind server listen socket to port %d succeed\n", server_listen_port);
 
 	if (listen(listen_sock, SOCK_CONN_QUEUE_MAX) == -1) { perror("server socket start listening failed\n"); goto fail_close; }
 	printf("server socket starts listening ...\n");
@@ -115,6 +120,6 @@ int main(int argc, char * argv[])
 
 int main(int argc, char * argv[])
 {
-	char a=0b10000000; u_char b=0b10000000; a=(a>>4); b=(b>>4); printf("a=%d, b=%d\n", (int)a, (int)b);return 0;
+	//char a=0b10000000; u_char b=0b10000000; a=(a>>4); b=(b>>4); printf("a=%d, b=%d\n", (int)a, (int)b);return 0;
   return BUDA::main(argc, argv);
 }

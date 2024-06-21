@@ -10,7 +10,7 @@ onMounted(() => {
 
 <template>
   <div class="grid_c">
-    <div class="block" v-for="a in buda.services">
+    <div class="block" v-for="a in buda.services.filter(s=>!s.hide)">
       <div class="block_inner">
         <RouterLink :to="a.route">{{ a.title }}</RouterLink>
         <div class="block_content">{{ a.des }}</div>

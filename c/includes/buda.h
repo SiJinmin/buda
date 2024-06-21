@@ -51,7 +51,6 @@
 #define BudaFclose(pf) if(pf){ fclose(pf); pf = NULL; }
 
 #define BudaHex2Dec(c) (c<='9'? (c-'0'):(c<='Z'? (c-55):(c-87)))
-#define BudaDec2Hex(c) (c<=9 ? (c+'0'):(c+55))
 
 
 namespace BUDA
@@ -63,12 +62,13 @@ static const u_char LOW_BYTE_MASK = 15;
 static const char* HEXS = "0123456789ABCDEF";
 
 static const char *VERSION = "1.0.0";	
-static const int SERVER_LISTEN_PORT =  8888;
 static const int FILE_PATH_SIZE =  6000;
 static const int FILE_PATH_SIZE1 = 5999;
 static const int SOCK_BUF_RECV_SIZE = 10240; // about 10K
 static const int SOCK_BUF_SEND_SIZE = 2001024; // about 2M, default max stack memory is 8M
 static const int SOCK_CONN_QUEUE_MAX = 3;
+static const int SOCK_PORT_MAX=65535;
+static int server_listen_port =  8888;
 static const char *MODE_show_client_messages = "show_client_messages";
 static const char *MODE_http_single_thread = "http_single_thread";
 

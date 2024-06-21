@@ -27,10 +27,10 @@ function CloseSiteMenu(){ SiteMenuShowing.value = false; }
 <template>  
   <div @click="CloseSiteMenu">
     <header>
-      <div class="site_header_left">{{ buda.community }}</div>
+      <div class="site_header_left">{{  }}</div>
       <div class="site_title_c">
         <img v-if="false" alt="logo" class="logo" src="@/assets/logo.svg"/>
-        <RouterLink class="site_title" to="/">{{ buda.site.title }}</RouterLink>
+        <RouterLink class="site_title" to="/">{{ buda.community }}</RouterLink>
       </div>
       <div class="site_header_right">
         <img alt="menu" class="menu" src="@/assets/menu.svg" @click.stop="ClickSiteMenu">
