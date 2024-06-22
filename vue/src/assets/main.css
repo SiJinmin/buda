@@ -35,6 +35,7 @@ input, input:focus { display:inline-block; }
 textarea{ min-height: 2em;}
 input, input:focus, textarea { font-size: var(--size-font);  border: solid var(--color-border) 0.1em; padding: 0.2em;}
 
+.loading{ color: var(--color-site-title); z-index: 999; position:fixed; left: calc(50vw-3rem); top: 50vh; font-size: 2rem; }
 .center{text-align: center;}  
 .fullscreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; justify-content: center;  align-items: center; background-color: #222222ee;  overflow: hidden;  }
 .close_img{ width: 3rem; height: 3rem; cursor:pointer; }

@@ -9,8 +9,8 @@ const props = defineProps({
     default(rawProps) { return { };  }
   },
 }); 
-const {imgs, img_class}=props; 
-let index=ref(0), fullscreen=ref(false); let container_class=computed(() => ({ fullscreen: fullscreen.value }) );
+const {imgs, img_class}=props; const imgs_len=imgs.length;
+let index=ref(0), fullscreen=ref(false), loading=ref(false); let container_class=computed(() => ({ fullscreen: fullscreen.value }) );
 const img = computed(() => imgs[index.value] ); let img_src = ref(img.value.src);
 
 async function GetImgBig(img){
@@ -23,15 +23,16 @@ onUnmounted(()=>{
 });
 
 
-function ClickImg(){
+async function ClickImg(){
   if(fullscreen.value) return; fullscreen.value=true; document.body.style.overflow = 'hidden'; // 隐藏页面滚动条
+  for(let i=0;i<imgs_len;i++){ if(!fullscreen.value) break; await GetImgBig(imgs[i]); }
 }
 function ClickCloseImg(){
   fullscreen.value=false; document.body.style.overflow = ''; // 恢复页面滚动条
 }
 async function ClickNextImg(type){ 
-  let v=index.value; if(type=='left') { v--; if(v<0) v=0; } else { v++; if(v>=imgs.length) v=imgs.length-1; }
-  index.value=v; let img=imgs[v]; await GetImgBig(img); img_src.value=img.big; 
+  let v=index.value; if(type=='left') { v--; if(v<0) v=0; } else { v++; if(v>=imgs_len) v=imgs_len-1; }
+  index.value=v; let img=imgs[v]; loading.value=true; await GetImgBig(img); loading.value=false; img_src.value=img.big; 
 }
 
 function GetImgBlobUrl(img) {  
@@ -61,8 +62,9 @@ async function GetBlobUrl(big_src) {  return URL.createObjectURL(await fetchBlob
 <template>
   <div :class="container_class">
     <img :src="img_src" :alt="img.alt" :title="img.alt" :class="img_class" @click="ClickImg"/>
+    <div v-if="fullscreen && loading" class="loading">正在加载图片...</div>
     <img v-if="fullscreen && index>0" src="@/assets/left.svg" alt="前一张" title="前一张" class="left_img" @click="ClickNextImg('left')"/>
-    <img v-if="imgs.length>1 && fullscreen && index<imgs.length-1" src="@/assets/right.svg" alt="后一张" title="后一张" class="right_img" @click="ClickNextImg('right')"/>
+    <img v-if="imgs_len>1 && fullscreen && index<imgs_len-1" src="@/assets/right.svg" alt="后一张" title="后一张" class="right_img" @click="ClickNextImg('right')"/>
     <img v-if="fullscreen" src="@/assets/close.svg" class="close_img" alt="关闭全屏" title="关闭全屏" @click="ClickCloseImg"/>
   </div>
 </template>
