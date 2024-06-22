@@ -30,12 +30,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 a { text-decoration: none; color: var(--color-link); cursor:pointer;  }
-img{ display: block; }
+img{ display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
 input, input:focus { display:inline-block; }
 textarea{ min-height: 2em;}
 input, input:focus, textarea { font-size: var(--size-font);  border: solid var(--color-border) 0.1em; padding: 0.2em;}
 
 .center{text-align: center;}  
+.fullscreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; justify-content: center;  align-items: center; background-color: #222222ee;  overflow: hidden;  }
+.close_img{ width: 3rem; height: 3rem; cursor:pointer; }
+.fullscreen .close_img{ position: fixed; right: 0; top:0;}
+.left_img, .right_img{ position:fixed; top: 50vh; width: 3rem; height: 3rem; cursor:pointer; }
+.left_img{  left:0; }
+.right_img{ right:0;}
+
 
 .field_title{ margin: 0 0.5em 0 0;  display: inline-block; font-weight: bold; white-space: nowrap; }
 .field_editor, .field_editor_multilines, .field_editor_verticle { display: flex; align-items: center; padding: 0.5em 0; }
@@ -68,6 +75,13 @@ input, input:focus, textarea { font-size: var(--size-font);  border: solid var(-
 .block_right_des{ color:var(--color-text-light); font-size: 90%; }
 .block_right_money{ color:var(--color-text-high); }
 .field_label{ white-space: nowrap;}
+
+
+.title{font-weight: bold;}
+.detail_image{ width:100%; border-radius: 0.5rem; cursor: pointer; }
+.contacts_c{display: flex;}
+.contacts{ display:flex; flex-wrap: wrap;}
+.contact{ margin: 0 1rem 0 0; }
 
 
 

@@ -18,7 +18,7 @@ onMounted(() => {
           <div><span class="field_title">联系人</span></div>
           <div class="contacts">
             <div class="contact" v-for="d in a.contacts">
-              {{ d }}
+              {{ d }} 
             </div>
           </div>
         </div>

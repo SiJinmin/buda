@@ -27,7 +27,9 @@ function CloseSiteMenu(){ SiteMenuShowing.value = false; }
 <template>  
   <div @click="CloseSiteMenu">
     <header>
-      <div class="site_header_left">{{  }}</div>
+      <div class="site_header_left">
+        <img v-if="false" alt="登录" class="login" src="@/assets/login.svg" @click="ClickSiteMenu">        
+      </div>
       <div class="site_title_c">
         <img v-if="false" alt="logo" class="logo" src="@/assets/logo.svg"/>
         <RouterLink class="site_title" to="/">{{ buda.community }}</RouterLink>
@@ -56,7 +58,8 @@ header { padding: 0.6rem 0.4rem 0.8rem 0.4rem; display: flex; align-items: cente
 .site_header_right { flex-grow:1; display:flex; justify-content: flex-end; }
 .site_title_c { display:flex; cursor:pointer; }
 .site_title { color: var(--color-site-title); }
-.menu { width: 1em; height: 1em; border-radius: 0.1em; cursor:pointer;  }
+.menu , .login { width: 1em; height: 1em; border-radius: 0.1em; cursor:pointer;  }
+.login{ width:1.5em; height: 1.5em; }
 
 .logo { display: block; width: 1em; height: 1em; margin: 0 0.2em 0 0; }
 .site_menu_c { z-index: 999; position: fixed; right:0; top:0; margin: 2.9rem 0.4rem 0 0.4rem; border-radius: 0.5rem; padding: 1em 0 0 1em; font-size: 60%; background-color: var(--color-site-title);   }

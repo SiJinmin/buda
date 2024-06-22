@@ -1,6 +1,7 @@
 <script setup>
 import buda from '../buda.js'
 import { onMounted } from 'vue'
+import BudaImg from '../comps/Img.vue'
 
 onMounted(() => {
   Buda.window_resize();
@@ -12,7 +13,7 @@ onMounted(() => {
   <div class="grid_c">
     <div v-for="a in buda.jobs.filter(i=>!i.closed)"  class="block">
       <div class="block_inner">
-        <div class="company">{{ a.company }}</div>
+        <div class="title">{{ a.company }}</div>
         <div><span class="field_title">地址</span>{{ a.location }}</div>
         <div v-if="a.contacts && a.contacts.length" class="contacts_c">
           <div><span class="field_title">联系人</span></div>
@@ -23,21 +24,11 @@ onMounted(() => {
           </div>
         </div>
         <div>{{ a.summary }}</div>
-        <div v-if="a.detail && a.detail.length" v-for="d in a.detail">
-          <img :title="d" :src="`/images/companies/small/${d}`" class="detail_image">
-        </div>
-        <div v-if="false && a.env && a.env.length" v-for="d in a.env">
-          <img :title="d" :src="`/images/companies/small/${d}`" class="detail_image">
-        </div>
+        <BudaImg v-if="a.imgs && a.imgs.length" :imgs="a.imgs.map(name=>({ alt: name, src: `/images/companies/small/${name}`}))" :img_class="{detail_image: true}"/>      
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.company{font-weight: bold;}
-.detail_image{ width:100%; border-radius: 0.5rem; margin: 1rem 0 0 0; }
-.contacts_c{display: flex;}
-.contacts{ display:flex; flex-wrap: wrap;}
-.contact{ margin: 0 1rem 0 0; }
 </style>
