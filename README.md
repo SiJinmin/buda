@@ -30,7 +30,7 @@ npm run build
 
 主要使用C语言开发，使用了极少量的C++语言特性，绝大部分为纯C语言代码，尽量不用C++的语言特性，为什么要这样呢？
 1. 我们希望尽可能清晰地掌握每一句代码的运行原理，以便出现问题时能快速解决。
-2. 我们不推崇将函数绑定到一个类的OOP编程思想，而是认为，函数通常都是具有跨类的通用性的，不应该专属于某一个类，因此，我们仅仅使用了C语言的struct来表示一个对象的数据，而让所有的函数以库的形式分类放置。
+2. 我们不推崇将函数绑定到一个类的OOP编程思想，而认为，函数通常都具有跨类的通用性，不应该专属于某一个类，因此，我们仅仅使用了C语言的struct来表示一个对象的数据，而让所有的函数以库的形式分类放置。
 
 使用的极少量C++语言特性：
 1. namespace
@@ -51,7 +51,7 @@ play: 随意玩乐的地方，专放乱七八糟可忽略的文件的地方<br>
 ### 如何开发？
 ```sh
 cd buda/c/debug
-gcc ../src/socket_server.c ../lib/*.c -g -o socket_server
+gcc ../src/socket_server.cpp ../lib/*.cpp -g -o socket_server
 gdb socket_server -w ../../vue/dist -p 80
 ```
 
@@ -61,11 +61,11 @@ gdb socket_server -w ../../vue/dist -p 80
 ufw status
 ufw allow 80
 # 查看端口是否被其它程序占用
-sudo apt lsof
+apt lsof
 lsof -i:80
 
 cd buda/c/release
-gcc ../src/socket_server.c ../lib/*.c -o socket_server
+gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 ./socket_server -w ../../vue/dist -p 80
 ```
 
