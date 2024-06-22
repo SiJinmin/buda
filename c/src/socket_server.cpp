@@ -84,7 +84,7 @@ int main(int argc, char * argv[])
 	int listen_sock, sock; // sock is the client connection socket
 	struct sockaddr_in server_addr, client_addr; socklen_t addrlen = sizeof(struct sockaddr_in), addrlen_client=0;
   long client_count=0;	char *client_ip=NULL; int client_port=-1;
-	char buf_recv[SOCK_BUF_RECV_SIZE], buf_send[SOCK_BUF_SEND_SIZE];
+	char buf_recv[SOCK_BUF_RECV_SIZE]; char *buf_send = (char *)malloc(SOCK_BUF_SEND_SIZE);
 
 	if ((listen_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) { perror("create server listen socket failed\n"); goto fail; 	}
 	printf("create server listen socket succeed\n");
@@ -102,7 +102,7 @@ int main(int argc, char * argv[])
 	while((sock	= accept(listen_sock, (struct sockaddr*)&client_addr,	&addrlen_client)) > 0)
 	{			
 		client_count++; client_ip = inet_ntoa(client_addr.sin_addr); client_port = ntohs(client_addr.sin_port);
-		printf("%ld --------------- server socket accepted a client connection:  %s:%d ---------------\n", client_count, client_ip, client_port);
+		printf("%ld --- server socket accepted a client connection:  %s:%d ---\n", client_count, client_ip, client_port);
 
 		// if(set_socket_options(sock) == -1) goto end_close_client;
     if(fun_sock(sock, buf_recv, SOCK_BUF_RECV_SIZE, buf_send, SOCK_BUF_SEND_SIZE) < 0) goto end_close_client;
