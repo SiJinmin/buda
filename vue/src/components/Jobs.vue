@@ -23,7 +23,7 @@ onMounted(() => {
             </div>
           </div>
         </div>
-        <div>{{ a.summary }}</div>
+        <div class="detail_summary">{{ a.summary }}</div>
         <BudaImg v-if="a.imgs && a.imgs.length" :imgs="a.imgs.map(name=>({ alt: name, src: `/images/companies/small/${name}`}))" :img_class="{detail_image: true}"/>      
       </div>
     </div>

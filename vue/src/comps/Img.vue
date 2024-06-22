@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, onMounted , onUnmounted } from 'vue'
+import { ref, reactive, computed, onMounted , onUnmounted, nextTick } from 'vue'
 import buda from '../buda.js'
 
 const props = defineProps({
@@ -14,10 +14,15 @@ let index=ref(0), fullscreen=ref(false), loading=ref(false); let container_class
 const img = computed(() => imgs[index.value] ); let img_src = ref(img.value.src);
 
 async function GetImgBig(img){
-  if(img.big) return; if(!img.src.includes("/small/")) {img.big=img.src; return;} img.big=await GetBlobUrl(img.src.replace("/small/", "/"));
+  if(img.big) return; if(!img.src.includes("/small/")) {img.big=img.src; return;} img.big=await GetBlobUrl(img.src.replace("/small/", "/")); console.log('got big image: ', img.src);
+}
+async function GetNextImgBig(){
+  for(let i=0;i<imgs_len;i++){ if(!fullscreen.value) break; let img=imgs[i]; if(img.big) continue; await GetImgBig(img); break; }
 }
 onMounted(async () => { 
-  await GetImgBig(img.value); img_src.value=img.value.big; // console.log('big img', img_src.value);
+  setTimeout(async () => {
+    await GetImgBig(img.value); img_src.value=img.value.big; // console.log('big img', img_src.value);
+  }, 1000);
 });
 onUnmounted(()=>{   
 });
@@ -25,7 +30,7 @@ onUnmounted(()=>{
 
 async function ClickImg(){
   if(fullscreen.value) return; fullscreen.value=true; document.body.style.overflow = 'hidden'; // 隐藏页面滚动条
-  for(let i=0;i<imgs_len;i++){ if(!fullscreen.value) break; await GetImgBig(imgs[i]); }
+  await nextTick(); await GetNextImgBig();
 }
 function ClickCloseImg(){
   fullscreen.value=false; document.body.style.overflow = ''; // 恢复页面滚动条
@@ -33,6 +38,7 @@ function ClickCloseImg(){
 async function ClickNextImg(type){ 
   let v=index.value; if(type=='left') { v--; if(v<0) v=0; } else { v++; if(v>=imgs_len) v=imgs_len-1; }
   index.value=v; let img=imgs[v]; loading.value=true; await GetImgBig(img); loading.value=false; img_src.value=img.big; 
+  await nextTick(); await GetNextImgBig();
 }
 
 function GetImgBlobUrl(img) {  
@@ -63,9 +69,24 @@ async function GetBlobUrl(big_src) {  return URL.createObjectURL(await fetchBlob
   <div :class="container_class">
     <img :src="img_src" :alt="img.alt" :title="img.alt" :class="img_class" @click="ClickImg"/>
     <div v-if="fullscreen && loading" class="loading">正在加载图片...</div>
-    <img v-if="fullscreen && index>0" src="@/assets/left.svg" alt="前一张" title="前一张" class="left_img" @click="ClickNextImg('left')"/>
-    <img v-if="imgs_len>1 && fullscreen && index<imgs_len-1" src="@/assets/right.svg" alt="后一张" title="后一张" class="right_img" @click="ClickNextImg('right')"/>
-    <img v-if="fullscreen" src="@/assets/close.svg" class="close_img" alt="关闭全屏" title="关闭全屏" @click="ClickCloseImg"/>
+    <div class="img_bottom_bar" v-if="fullscreen">
+      <div @click="ClickNextImg('left')" class="left_img_c">
+        <div>
+          <div v-if="imgs_len>1 && index>0">
+            <img src="@/assets/left.svg" alt="上一张" title="上一张" class="left_img"/>
+          </div>
+        </div>
+      </div>
+      <div class="mid_img_c"><div>第{{index+1}}/{{imgs_len}}张</div></div>
+      <div @click="ClickNextImg('right')" class="right_img_c">
+        <div>
+          <div v-if="imgs_len>1 && index<imgs_len-1">
+            <img src="@/assets/right.svg" alt="下一张" title="下一张" class="right_img"/>
+          </div>
+        </div>
+      </div>
+    </div>
+    <img v-if="fullscreen" src="@/assets/close.svg" class="close_img" alt="关闭全屏" title="关闭全屏" @click="ClickCloseImg"/>    
   </div>
 </template>
 

@@ -82,6 +82,7 @@ gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 
 ## 即将开发的功能
 
+使用systemctl控制服务端的运行，保存日志文件<br>
 实现https协议<br>
 实现服务端的多线程运行<br>
 实现服务端的内容缓存系统，提升运行效率<br>
