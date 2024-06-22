@@ -73,7 +73,7 @@ gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 ## 已完成的功能
 
 2024年6月22日<br>
-实现http协议的Get /url功能，获取服务端的vue/dist中的静态文件。<br>
+实现http协议的GET /url功能，获取服务端的vue/dist中的静态文件。<br>
 当服务端发现异常时，返回给用户vue/dist/index.html文件的内容。<br>
 完成网站标题、菜单的现实，招聘信息和租房信息的列表页面。<br>
 完成图片显示组件，可全屏观看、上一张、下一张图片。<br>
