@@ -9,6 +9,7 @@ function AEvent(year, month, day){
   return {
     date:{ year, month, day },
     content: '',
+    lock_date: false,
   };
 }
 
@@ -41,18 +42,30 @@ function save_birth(){
   save(); 
 }
 function event_content_input(event, ei){
-  let reg_year=/([0-9]{1,4})\s*年/;
-  let reg_month=/([0-9]{1,2})\s*月/;
-  let reg_day=/([0-9]{1,2})\s*日/;
-  let v=event.target.value, r, d=life.events[ei].date;
-  if((r=reg_year.exec(v)) && r.length>=2) d.year=parseInt(r[1]);
-  if((r=reg_month.exec(v)) && r.length>=2) d.month=parseInt(r[1]);
-  if((r=reg_day.exec(v)) && r.length>=2) d.day=parseInt(r[1]);
+  let e=life.events[ei];
+  if(!e.lock_date){
+    let reg_year=/([0-9]{1,4})\s*年/;
+    let reg_month=/([0-9]{1,2})\s*月/;
+    let reg_day=/([0-9]{1,2})\s*日/;
+    let v=event.target.value, r, d=e.date;
+    if((r=reg_year.exec(v)) && r.length>=2) d.year=parseInt(r[1]);
+    if((r=reg_month.exec(v)) && r.length>=2) d.month=parseInt(r[1]);
+    if((r=reg_day.exec(v)) && r.length>=2) d.day=parseInt(r[1]);
+  } 
 }
 
+// the last add event has no args
 function AddEvent(nexte, nextei){
-  let e=nexte; if(!nexte) { e=LastEvent(); nextei=life.events.length; } let d = e.date ;
-  life.events.splice(nextei, 0, AEvent(d.year, d.month, d.day));
+  let year, {events}=life;
+  let next=nexte, pre=(nextei>0?events[nextei-1]:null); 
+  if(!next) year=pre.date.year+1; else if(!pre) year=next.date.year-1; else year=Math.floor((pre.date.year+next.date.year)/2);
+  events.splice(nextei, 0, AEvent(year, '', ''));
+  save();
+}
+function DeleteEvent(ei){
+  if(!confirm("确定删除本事件？")) return;
+  let {events}=life;
+  events.splice(ei, 1);
   save();
 }
 
@@ -94,7 +107,11 @@ onMounted(() => {
           <div>
             <div class="event_head">
               <BudaDate v-model:year="e.date.year" v-model:month="e.date.month" v-model:day="e.date.day" :func="save" />
+              <img v-if="e.lock_date" title="日期已被锁定，不再提取内容中的日期" src="@/assets/lock_color.svg" class="lock_img" @click="e.lock_date=!e.lock_date" />
+              <img v-else  title="从输入内容中自动提取日期" src="@/assets/unlock.svg" class="lock_img" @click="e.lock_date=!e.lock_date" />
               <div class="event_age">{{ Age(e) }}岁</div>
+              <div class="sep_div"></div>
+              <img title="删除本事件" src="@/assets/delete_left.svg" class="delete_img" @click="DeleteEvent(ei)" />
             </div>
             <div class="field_editor_content"><BudaInput v-model="e.content" @input="event_content_input($event, ei)" type="textarea" :input_classes="{field_editor_input_long:true}" :func="save"/></div>
           </div>
@@ -116,7 +133,10 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.sep_div{flex-grow:1;}
+.delete_img{ width: 1.5rem; height: 1.5rem; cursor:pointer; }
+.lock_img{ width: 1rem; height: 1rem; cursor:pointer; }
 .add_img{ margin: 0 0 1em 0; width: 2em; height: 2em; cursor: pointer; }
-.event_head { display: flex; flex-wrap: wrap; }
+.event_head { display: flex; flex-wrap: wrap; align-items: center;}
 .event_age{ margin: 0 1em;}
 </style>
