@@ -5,7 +5,7 @@ namespace BUDA
 
 int log_start()
 {
-  clock_gettime(CLOCK_REALTIME, &last_log_time);
+  clock_gettime(CLOCK_MONOTONIC, &last_log_time);
 
   char relative_path[PATH_MAX], real_path[PATH_MAX], *c=relative_path; int remain=PATH_MAX_1, len; 
   len = snprintf(c, remain, "%s", log_dir); BudaWriteStep2(c, len, remain);

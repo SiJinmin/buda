@@ -72,6 +72,9 @@ gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 
 ## 已完成的功能
 
+2024年6月23日<br>
+使用systemctl控制网站的运行，保存日志文件<br>
+
 2024年6月22日<br>
 实现http协议的GET /url功能，获取服务端的vue/dist中的静态文件。<br>
 当服务端发现异常时，返回给用户vue/dist/index.html文件的内容。<br>
@@ -82,7 +85,6 @@ gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 
 ## 即将开发的功能
 
-使用systemctl控制服务端的运行，保存日志文件<br>
 实现https协议<br>
 实现服务端的多线程运行<br>
 实现服务端的内容缓存系统，提升运行效率<br>

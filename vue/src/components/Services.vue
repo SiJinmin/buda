@@ -12,7 +12,7 @@ onMounted(() => {
   <div class="grid_c">
     <div class="block" v-for="a in buda.modules">
       <div class="block_inner">
-        <RouterLink :to="a.route">{{ a.title }}</RouterLink>
+        <RouterLink :to="a.route">{{ a.title2 }}</RouterLink>
         <div class="block_content">{{ a.des }}</div>
       </div>
     </div>

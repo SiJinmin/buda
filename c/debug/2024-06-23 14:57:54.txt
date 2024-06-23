@@ -1,9 +1,0 @@
-[2024-06-23 14:57:54][0.217408] web server root path: /home/buda/code/buda/vue/dist
-
-[2024-06-23 14:57:54][0.96586] web server listen port: 8888
-
-[2024-06-23 14:57:54][0.54754] create server listen socket succeed
-
-[2024-06-23 14:57:54][0.27097] bind server listen socket to port 8888 succeed
-
-[2024-06-23 14:57:54][0.17529] server socket starts listening ...
