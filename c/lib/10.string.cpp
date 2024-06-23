@@ -25,7 +25,7 @@ int log_start()
 void log(const char *format, ...)
 {
   char buf[TIME_BUF_SIZE]; long len, sep_sec, sep_nsec; 
-  len = time_text(buf, TIME_BUF_SIZE1); buf[len]=0; struct timespec log_time; clock_gettime(CLOCK_REALTIME, &log_time); 
+  len = time_text(buf, TIME_BUF_SIZE1); buf[len]=0; struct timespec log_time; clock_gettime(CLOCK_MONOTONIC, &log_time); 
   sep_sec=log_time.tv_sec-last_log_time.tv_sec; sep_nsec=log_time.tv_nsec-last_log_time.tv_nsec; if(sep_nsec<0) { sep_nsec+=1000000000; sep_sec--; }
   last_log_time = log_time;
   fprintf(log_file, "[%s][%ld.%ld] ", buf, sep_sec, sep_nsec); 
