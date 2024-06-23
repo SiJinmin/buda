@@ -68,6 +68,7 @@ cd buda/c/release
 gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 ./socket_server -w ../../vue/dist -p 80
 ```
+部署到systemd的service文件请参考 doc/buda.service
 
 
 ## 已完成的功能
