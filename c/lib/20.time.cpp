@@ -2,17 +2,32 @@
 
 
 namespace BUDA
-{
-	
-struct tm *localtime_s(struct tm *result, time_t *timep)
-{
-	return localtime_r(timep, result);
+{	
+
+int time_text(char *r, int max_len)
+{  
+	time_t now; time(&now); struct tm parts, *p = &parts; localtime_r(&now, p);
+  int len = (int)strftime(r, max_len, "%Y-%m-%d %H:%M:%S", p); r[len]=0; return len;
 }
 
-struct tm * gmtime_s(struct tm *result, time_t *timep)
-{
-		return gmtime_r(timep, result);
+int time_text_filename(char *r, int max_len)
+{  
+	time_t now; time(&now); struct tm parts, *p = &parts; localtime_r(&now, p);
+  int len = (int)strftime(r, max_len, "%Y_%m_%d_%H_%M_%S", p); r[len]=0; return len;
 }
+
+int time_text_date(char *r, int max_len)
+{  
+	time_t now; time(&now); struct tm parts, *p = &parts; localtime_r(&now, p);
+  int len = (int)strftime(r, max_len, "%Y-%m-%d", p); r[len]=0; return len;
+}
+
+int time_text_http_response(char *r, int max_len)
+{  
+	time_t now; time(&now); struct tm parts, *p = &parts; localtime_r(&now, p);
+  int len = (int)strftime(r, max_len, "%a, %d %b %Y %H:%M:%S GMT", p); r[len]=0; return len;
+}
+
 
 }
 

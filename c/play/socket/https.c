@@ -86,7 +86,7 @@ int main(int argc, char** argv)
     unsigned int len = sizeof(addr);
     SSL* ssl;
 
-    printf("waiting for a connect...");
+    log("waiting for a connect...");
     int client = accept(sock, (struct sockaddr*)&addr, &len);  if (client < 0) {  perror("Unable to accept"); goto end2;  }
 
     ssl = SSL_new(ctx); SSL_set_fd(ssl, client); if (SSL_accept(ssl) <= 0) { ERR_print_errors_fp(stderr); goto end; }

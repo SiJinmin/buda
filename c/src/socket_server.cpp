@@ -3,7 +3,7 @@
 namespace BUDA
 {
 
-static char web_root[FILE_PATH_SIZE]; static int web_root_len;
+static char web_root[PATH_MAX]; static int web_root_len;
 typedef int (*FUN_process_connection_sock)(int sock, char* buf_recv, int buf_recv_size, char* buf_send, int buf_send_size); 
 
 	
@@ -15,9 +15,9 @@ int show_client_messages_single_thread(int sock, char* buf_recv, int buf_recv_si
   while((recv_size = recv(sock, buf_recv, buf_recv_size1, 0))>0)
 	{
 		buf_recv[recv_size]=0; // set string end
-		printf("[received %ld bytes data]\n%s\n[end of received data]\n", recv_size, buf_recv);
+		log("[received %ld bytes data]\n%s\n[end of received data]", recv_size, buf_recv);
 	}
-	printf("receive from client failed\n"); return -1;
+	log("receive from client failed"); return -1;
 }
 
 
@@ -28,18 +28,19 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, char* buf_se
 	long recv_size=0, buf_recv_size1=buf_recv_size-1; int send_size;
   recv_size = recv(sock, buf_recv, buf_recv_size1, 0);
 	
-	if(recv_size<=0) { printf("receive from client socket failed\n"); goto fail;}
+	if(recv_size<=0) { log("receive from client socket failed"); goto fail;}
 	buf_recv[recv_size]=0; // set string end
-	printf("[received %ld bytes from client]\n%s\n[end of recv]\n", recv_size, buf_recv);
+	log("[received %ld bytes from client]\n%s\n[end of recv]", recv_size, buf_recv);
 
 	if(parse_http_request(buf_recv, &req)) goto fail;
 
   send_size = make_http_response_file(buf_send, buf_send_size, web_root, web_root_len, req.path, NULL); if(send_size<=0) goto fail;	
 	r = send(sock, buf_send, send_size, 0);
-	//if(r==send_size) printf("[sent to client %d bytes]\n", r);
-	buf_send[150]=0;
-	if(r==send_size) printf("[sent to client %d bytes]\n%s\n[end of sent]\n", r, buf_send);
-	else { printf("sent to client error: %d\n", r); goto fail; }
+	//if(r==send_size) log("[sent to client %d bytes]\n", r);
+	//buf_send[150]=0;
+	//if(r==send_size) log("[sent to client %d bytes]\n%s\n[end of sent]\n", r, buf_send);
+	if(r==send_size) log("[sent to client %d bytes]", r);
+	else { log("sent to client error: %d", r); goto fail; }
 
 	return 0;
 	fail: return -1;
@@ -48,8 +49,10 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, char* buf_se
 
 int main(int argc, char * argv[])
 {
+	if(log_start()<0) return -1;
+
 	int r=0; int optc; char *program_name = argv[0]; 
-	FUN_process_connection_sock fun_sock=http_single_thread; char *web_root_input=NULL;
+	FUN_process_connection_sock fun_sock = http_single_thread; char *web_root_input = NULL;
 
 	if(argc==1) goto need_help; else goto command_start;
 	need_help: print_help(program_name);	exit(EXIT_SUCCESS);
@@ -61,19 +64,19 @@ int main(int argc, char * argv[])
 		{
 			case 'm':
 				fun_sock=show_client_messages_single_thread; 
-				printf("server works in client_messages_single_thread mode\n");
+				log("server works in client_messages_single_thread mode");
 				goto command_end;
 			case 'w':
 				web_root_input = optarg; 
-				if(realpath(web_root_input, web_root)!=web_root){ printf("web root path error: %s\n", web_root_input); return -1; }
-				struct stat file_info; r = stat(web_root, &file_info); if (r) { printf("web root does not exists: %s\n", web_root); return -1; }
-				if(!(file_info.st_mode & S_IFDIR)){ printf("web root is not a directory: %s\n", web_root); return -1; }
-				web_root_len=strlen(web_root); printf("web server root path: %s\n", web_root); 
+				if(realpath(web_root_input, web_root)!=web_root){ log("web root path error: %s", web_root_input); return -1; }
+				struct stat file_info; r = stat(web_root, &file_info); if (r) { log("web root does not exists: %s", web_root); return -1; }
+				if(!(file_info.st_mode & S_IFDIR)){ log("web root is not a directory: %s", web_root); return -1; }
+				web_root_len=strlen(web_root); log("web server root path: %s", web_root); 
 				break;
 			case 'p':
 				server_listen_port = atoi(optarg); 
-				if(server_listen_port<1 || server_listen_port>=SOCK_PORT_MAX) { printf("port should in 1 ~ %d\n", SOCK_PORT_MAX); goto need_help; }
-				else printf("web server listen port: %d\n", server_listen_port); 
+				if(server_listen_port<1 || server_listen_port>=SOCK_PORT_MAX) { log("port should in 1 ~ %d", SOCK_PORT_MAX); goto need_help; }
+				else log("web server listen port: %d", server_listen_port); 
 				break;
 			default:
 				goto need_help;
@@ -86,29 +89,29 @@ int main(int argc, char * argv[])
   long client_count=0;	char *client_ip=NULL; int client_port=-1;
 	char buf_recv[SOCK_BUF_RECV_SIZE]; char *buf_send = (char *)malloc(SOCK_BUF_SEND_SIZE);
 
-	if ((listen_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) { perror("create server listen socket failed\n"); goto fail; 	}
-	printf("create server listen socket succeed\n");
+	if ((listen_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) { log("create server listen socket failed"); goto fail; 	}
+	log("create server listen socket succeed");
 
 	server_addr.sin_family = AF_INET; // IPv4
 	server_addr.sin_addr.s_addr = INADDR_ANY;	// 监听所有本地IP地址
 	server_addr.sin_port = htons(server_listen_port);
 	if (bind(listen_sock, (struct sockaddr*)&server_addr, addrlen) == -1) 
-	{ printf("server listen socket bind to port %d failed\n", server_listen_port); goto fail_close; }
-	printf("bind server listen socket to port %d succeed\n", server_listen_port);
+	{ log("server listen socket bind to port %d failed", server_listen_port); goto fail_close; }
+	log("bind server listen socket to port %d succeed", server_listen_port);
 
-	if (listen(listen_sock, SOCK_CONN_QUEUE_MAX) == -1) { perror("server socket start listening failed\n"); goto fail_close; }
-	printf("server socket starts listening ...\n");
+	if (listen(listen_sock, SOCK_CONN_QUEUE_MAX) == -1) { log("server socket start listening failed"); goto fail_close; }
+	log("server socket starts listening ...");
 
 	while((sock	= accept(listen_sock, (struct sockaddr*)&client_addr,	&addrlen_client)) > 0)
 	{			
 		client_count++; client_ip = inet_ntoa(client_addr.sin_addr); client_port = ntohs(client_addr.sin_port);
-		printf("%ld --- server socket accepted a client connection:  %s:%d ---\n", client_count, client_ip, client_port);
+		log("%ld --- server socket accepted a client connection:  %s:%d ---", client_count, client_ip, client_port);
 
 		// if(set_socket_options(sock) == -1) goto end_close_client;
     if(fun_sock(sock, buf_recv, SOCK_BUF_RECV_SIZE, buf_send, SOCK_BUF_SEND_SIZE) < 0) goto end_close_client;
 
 		end_close_client: close(sock);
-		printf("waiting for next client ...\n");
+		log("waiting for next client ...");
 	}
 
 	fail_close: close(listen_sock); 

@@ -49,9 +49,14 @@
 //--------------- macros --------------
 #define BudaZero(T, name) T name; memset(&name, 0, sizeof(name))
 #define BudaFclose(pf) if(pf){ fclose(pf); pf = NULL; }
+#define BudaFree(m) if(m){ free(m); m = NULL; }
 
 #define BudaHex2Dec(c) (c<='9'? (c-'0'):(c<='Z'? (c-55):(c-87)))
 
+#define BudaWriteStep(c, len, remain, sum, fail) c += len; remain -= len; sum += len; if(remain<=0) goto fail;
+#define BudaWriteStep2(c, len, remain) c += len; remain -= len;
+#define BudaPreWrite(max_len, dec, fail) if((max_len-=dec)<0) goto fail;
+#define BudaWriteCheck(max_len, len, fail) if(max_len<=len) goto fail;
 
 namespace BUDA
 {
@@ -62,33 +67,42 @@ static const u_char LOW_BYTE_MASK = 15;
 static const char* HEXS = "0123456789ABCDEF";
 
 static const char *VERSION = "1.0.0";	
-static const int FILE_PATH_SIZE =  6000;
-static const int FILE_PATH_SIZE1 = 5999;
-static const int SOCK_BUF_RECV_SIZE = 10240; // about 10K
-static const int SOCK_BUF_SEND_SIZE = 20001024; // about 20M, default max stack memory is 8M, so must use heap
+static const int PATH_MAX_1 = PATH_MAX - 1;
+static const int TIME_BUF_SIZE = 2048;
+static const int TIME_BUF_SIZE1 = TIME_BUF_SIZE - 1;
+static const char *log_dir = "../../../log/"; // ~/code/log
+
+static const int SOCK_BUF_RECV_SIZE = 8192;     // 8K
+static const int SOCK_BUF_SEND_SIZE = 20008192; // about 20M, default max stack memory is 8M, so must use heap
 static const int SOCK_CONN_QUEUE_MAX = 3;
-static const int SOCK_PORT_MAX=65535;
-static int server_listen_port =  8888;
+static const int SOCK_PORT_MAX = 65535;
 static const char *MODE_show_client_messages = "show_client_messages";
 static const char *MODE_http_single_thread = "http_single_thread";
 
+//--------------- global vars --------------
+static int server_listen_port = 8888;
+static FILE* log_file = NULL;
+static struct timespec last_log_time = {0, 0};
 
 
 //-------------------- string.cpp ---------------------------
+int log_start();
+void log(const char *format, ...);
 /* This function is originally written for parse http request, but can be used by others.
    It gets the first token ended by end in the current line starting from *start.
    If not found, *start remains original value, *token=NULL, return -1.
    If found, set the end char to \0 as the found token end, set *start point to the next char of end char, set *token to the found token, and return 0.*/
 int get_token_by_char_end(char** start, char** token, char end=' ', char line_end='\r');
 int hex2dec(char c);
-int url_encode(u_char *s, u_char *d, int max_len=FILE_PATH_SIZE1);
-int url_decode(u_char *s, u_char *d, int max_len=FILE_PATH_SIZE1);
+int url_encode(u_char *s, u_char *d, int max_len=PATH_MAX_1);
+int url_decode(u_char *s, u_char *d, int max_len=PATH_MAX_1);
 
 
 //--------------------------- time.cpp ---------------------------
-struct tm *gmtime_s(struct tm *result, time_t *timep);
-struct tm *localtime_s(struct tm *result, time_t *timep);
-
+int time_text(char *r, int max_len);
+int time_text_filename(char *r, int max_len);
+int time_text_date(char *r, int max_len);
+int time_text_http_response(char *r, int max_len);
 
 
 //--------------------------- http.cpp ---------------------------
