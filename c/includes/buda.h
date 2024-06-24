@@ -47,7 +47,16 @@
 
 
 //--------------- macros --------------
-#define BudaZero(T, name) T name; memset(&name, 0, sizeof(name))
+
+ 
+#define BudaMc(size) (char*)alloc(size)
+#define BudaM(T) (T*)alloc(sizeof(T))
+#define BudaMn(T, name) T *name = (T*)alloc(sizeof(T))
+#define BudaMn2(T1, name1, T2, name2) BudaMn(T1, name1); BudaMn(T2, name2)
+#define BudaMn3(T1, name1, T2, name2, T3, name3) BudaMn(T1, name1); BudaMn2(T2, name2, T3, name3)
+
+#define BudaZ(T, name) T name; memset(&name, 0, sizeof(name))
+
 #define BudaFclose(pf) if(pf){ fclose(pf); pf = NULL; }
 #define BudaFree(m) if(m){ free(m); m = NULL; }
 
@@ -57,6 +66,8 @@
 #define BudaWriteStep2(c, len, remain) c += len; remain -= len;
 #define BudaPreWrite(max_len, dec, fail) if((max_len-=dec)<0) goto fail;
 #define BudaWriteCheck(max_len, len, fail) if(max_len<=len) goto fail;
+
+#define BudaMax(a, b) ((a)<(b)?(b):(a))
 
 namespace BUDA
 {
@@ -83,6 +94,35 @@ static const char *MODE_http_single_thread = "http_single_thread";
 static int server_listen_port = 8888;
 static FILE* log_file = NULL;
 static struct timespec last_log_time = {0, 0};
+
+
+//-------------------- mem.cpp ---------------------------
+typedef struct mem_chain_block
+{
+  char *mem;
+  struct mem_chain_block *next;
+  int size;
+  int used;
+} MemChainBlock;
+typedef struct mem_chain
+{
+  struct mem_chain_block *first;
+  struct mem_chain_block *last;
+  int max_size;
+  int used;            // sum of allocated mem of blocks
+  int blocks_used;     // sum of used bytes of blocks
+  int block_min_size;
+  int block_count;
+} MemChain;
+
+void* alloc(int size);
+// MUST use free_mem_chain to free heap mem used
+MemChain* create_mem_chain(int max_size=100002048, int block_min_size=2048);
+void free_mem_chain(MemChain *mc);
+// return NULL if failed
+MemChainBlock* mem_chain_add_block(MemChain *mc, int size);
+// return NULL if failed, return the start of used memory if succeed.
+char* use_mem_chain(MemChain *mc, int size);
 
 
 //-------------------- string.cpp ---------------------------

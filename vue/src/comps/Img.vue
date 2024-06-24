@@ -69,24 +69,24 @@ async function GetBlobUrl(big_src) {  return URL.createObjectURL(await fetchBlob
   <div :class="container_class">
     <img :src="img_src" :alt="img.alt" :title="img.alt" :class="img_class" @click="ClickImg"/>
     <div v-if="fullscreen && loading" class="loading">正在加载图片...</div>
-    <div class="img_bottom_bar" v-if="fullscreen">
-      <div @click="ClickNextImg('left')" class="left_img_c">
-        <div>
-          <div v-if="imgs_len>1 && index>0">
-            <img src="@/assets/left.svg" alt="上一张" title="上一张" class="left_img"/>
+    <div class="screen_bottom_bar" v-if="fullscreen">
+      <div @click="ClickNextImg('left')" class="left_img_c flex">
+        <div class="flex big_icon_c">
+          <div v-if="imgs_len>1 && index>0" class="flex hand">
+            <img src="@/assets/left.svg" alt="上一张" title="上一张" class="big_icon"/>
           </div>
         </div>
       </div>
-      <div class="mid_img_c"><div>第{{index+1}}/{{imgs_len}}张</div></div>
-      <div @click="ClickNextImg('right')" class="right_img_c">
-        <div>
-          <div v-if="imgs_len>1 && index<imgs_len-1">
-            <img src="@/assets/right.svg" alt="下一张" title="下一张" class="right_img"/>
+      <div class="flexg flex"><div>第{{index+1}}/{{imgs_len}}张</div></div>
+      <div @click="ClickNextImg('right')" class="right_img_c flex">
+        <div class="flex big_icon_c">
+          <div v-if="imgs_len>1 && index<imgs_len-1" class="flex hand">
+            <img src="@/assets/right.svg" alt="下一张" title="下一张" class="big_icon"/>
           </div>
         </div>
       </div>
     </div>
-    <img v-if="fullscreen" src="@/assets/close.svg" class="close_img" alt="关闭全屏" title="关闭全屏" @click="ClickCloseImg"/>    
+    <img v-if="fullscreen" src="@/assets/close.svg" class="close_img big_icon" alt="关闭全屏" title="关闭全屏" @click="ClickCloseImg"/>    
   </div>
 </template>
 

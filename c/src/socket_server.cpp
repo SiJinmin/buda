@@ -24,7 +24,7 @@ int show_client_messages_single_thread(int sock, char* buf_recv, int buf_recv_si
 /* process a http request, return 0 for succeed, -1 for failure.  */
 int http_single_thread(int sock, char* buf_recv, int buf_recv_size, char* buf_send, int buf_send_size)
 {
-	int r=0; BudaZero(HttpReq, req); 
+	int r=0; BudaZ(HttpReq, req); 
 	long recv_size=0, buf_recv_size1=buf_recv_size-1; int send_size;
   recv_size = recv(sock, buf_recv, buf_recv_size1, 0);
 	
@@ -78,6 +78,8 @@ int main(int argc, char * argv[])
 				if(server_listen_port<1 || server_listen_port>=SOCK_PORT_MAX) { log("port should in 1 ~ %d", SOCK_PORT_MAX); goto need_help; }
 				else log("web server listen port: %d", server_listen_port); 
 				break;
+			case 'l':
+				make_log_view(optarg); exit(EXIT_SUCCESS);
 			default:
 				goto need_help;
 		}
@@ -105,7 +107,7 @@ int main(int argc, char * argv[])
 	while((sock	= accept(listen_sock, (struct sockaddr*)&client_addr,	&addrlen_client)) > 0)
 	{			
 		client_count++; client_ip = inet_ntoa(client_addr.sin_addr); client_port = ntohs(client_addr.sin_port);
-		log("%ld --- server socket accepted a client connection:  %s:%d ---", client_count, client_ip, client_port);
+		log("\n%ld --- server socket accepted a client connection:  %s:%d ---", client_count, client_ip, client_port);
 
 		// if(set_socket_options(sock) == -1) goto end_close_client;
     if(fun_sock(sock, buf_recv, SOCK_BUF_RECV_SIZE, buf_send, SOCK_BUF_SEND_SIZE) < 0) goto end_close_client;

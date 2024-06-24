@@ -1,0 +1,14 @@
+https://sms-activate.io/en/freePrice#activation
+奥地利 austria (+43)(690)10281159
+qiuzenfoguo@gmail.com
+
+
+
+
+Write a Linux C function to open a file and read the file content, until a ] char.
+
+写一个Linux C函数，接收一个文件夹路径为传入参数，获取这个文件夹内的所有文件，将它们的文件名组成一个字符串，用空格隔开，返回这个字符串
+
+用Linux C语言写一个内存动态分配管理链表MemChain，链表由多个内存分配单元MemChainBlock组成。
+在MemChain中设置每次分配内存的最小数量、最大能分配的总内存数量、所有的MemChainBlock已经使用的内存数量、MemChainBlock的个数，记录链表的第一个和最后一个MemChainBlock。
+每个MemChainBlock能记录自己的内存大小和已经使用的内存数量。

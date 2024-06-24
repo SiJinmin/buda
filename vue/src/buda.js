@@ -18,6 +18,7 @@ let services = [
   { title:'招聘信息', module:true, Code: 'Jobs', des:'社区及周边的招聘信息，包括全职、兼职、小时工等各种工作形式。', },
   { title:'房屋租售', module:true, Code: 'Houses', des:'房屋出租、出售、转让信息。', },
   { title:'传记工具', title2:'人物传记整理工具', module:true, Code:'Lifeditor', des:'整理人物传记的小工具，按时间排序，可以自动计算人的年龄，一边叙述人物的真实经历、心理状态和行为造作，一边用佛法分析它们的因果关系。', },
+  { title:'日志查看', Code: 'Log', des:'查看日志', },
 
   { title:'本站内容', Code: 'Home', des:'本站提供的服务项目。', },
   { title:'最新资讯', Code: 'Home', des:'本站所有最新资讯的综合看板。', },

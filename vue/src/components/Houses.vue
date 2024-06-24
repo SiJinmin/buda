@@ -17,7 +17,7 @@ onMounted(() => {
         <div v-if="a.contacts && a.contacts.length" class="contacts_c">
           <div><span class="field_title">联系人</span></div>
           <div class="contacts">
-            <div class="contact" v-for="d in a.contacts">
+            <div class="rm" v-for="d in a.contacts">
               {{ d }}
             </div>
           </div>
@@ -27,7 +27,7 @@ onMounted(() => {
         <div class="community">
           <div>{{ a.community.name }}小区位于{{ a.addr }}<span v-if="a.community.birth">，建成于{{ a.community.birth}}，共有{{ a.community.building_count }}栋建筑，{{ a.community.house_count }}套房子，绿化率为{{ a.community.green }}，容积率为{{ a.community.rate }}，物业费按{{ a.community.fee }}元/平方/月收取，物业公司为{{ a.community.manage }}，开发商为{{ a.community.developer }}。 参考售价为{{ a.sale }}元/平方。</span></div>
         </div>
-        <div class="detail_summary">{{ a.summary }}</div>
+        <div class="bm">{{ a.summary }}</div>
         <BudaImg v-if="a.imgs && a.imgs.length" :imgs="a.imgs.map(name=>({ alt: name, src: `/images/houses/small/${name}`}))" :img_class="{detail_image: true}"/>  
       </div>
     </div>

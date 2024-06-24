@@ -17,16 +17,16 @@ onMounted(() => {
     </div>
     <div class="grid_c">
       <div v-for="a in buda.goods.filter(i=>!i.closed)"  class="block">
-        <div class="block_inner2">
-          <div class="block_left_img">
+        <div class="block2_inner">
+          <div class="block2_left_img">
             <div v-if="a.pics && a.pics.length" v-for="d in a.pics">
               <img :title="d" :src="`/images/goods/small/${d}`" class="detail_image">
             </div>
           </div>
-          <div class="block_right_c">
-            <div class="block_right_title">{{ a.name }}</div>
-            <div class="block_right_des">{{ a.des }}</div>
-            <div class="block_right_money">{{ a.price }} {{ a.price_unit }}</div>
+          <div class="block2_right_c">
+            <div class="block2_right_title">{{ a.name }}</div>
+            <div class="block2_right_des">{{ a.des }}</div>
+            <div class="block2_right_money">{{ a.price }} {{ a.price_unit }}</div>
           </div>
         </div>
       </div>
@@ -36,8 +36,4 @@ onMounted(() => {
 
 <style scoped>
 .service_c{ padding: 0.5rem 2rem 0.5rem 0.5rem; }
-.detail_image{ width:100%; border-radius: 0.5rem; margin: 0 0 0 0; }
-.contacts_c{display: flex;}
-.contacts{ display:flex;}
-.contact{ margin: 0 1rem 0 0; }
 </style>

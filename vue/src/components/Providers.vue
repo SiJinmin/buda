@@ -12,12 +12,12 @@ onMounted(() => {
   <div class="grid_c">
     <div v-for="a in buda.jobs"  class="block">
       <div class="block_inner">
-        <div class="company">{{ a.company }}</div>
+        <div class="title">{{ a.company }}</div>
         <div><span class="field_title">地址</span>{{ a.location }}</div>
         <div v-if="a.contacts && a.contacts.length" class="contacts_c">
           <div><span class="field_title">联系人</span></div>
           <div class="contacts">
-            <div class="contact" v-for="d in a.contacts">
+            <div class="rm" v-for="d in a.contacts">
               {{ d }} 
             </div>
           </div>
@@ -38,9 +38,4 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.company{font-weight: bold;}
-.detail_image{ width:100%; border-radius: 0.5rem; margin: 1rem 0 0 0; }
-.contacts_c{display: flex;}
-.contacts{ display:flex;}
-.contact{ margin: 0 1rem 0 0; }
 </style>

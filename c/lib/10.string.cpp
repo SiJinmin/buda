@@ -37,6 +37,15 @@ void log(const char *format, ...)
   fail: printf("log failed\n"); return;
 }
 	
+int make_log_view(char *filename)
+{
+  char path[PATH_MAX], *c=path; int remain=PATH_MAX_1, len; 
+  len = snprintf(c, remain, "%s%s", log_dir, filename); BudaWriteStep2(c, len, remain);
+  *c=0;
+
+  succeed: return 0;
+}
+
 int get_token_by_char_end(char** start, char** token, char end, char line_end)
 {
   char *old=*start; char* p=old; char c;

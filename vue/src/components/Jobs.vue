@@ -18,12 +18,12 @@ onMounted(() => {
         <div v-if="a.contacts && a.contacts.length" class="contacts_c">
           <div><span class="field_title">联系人</span></div>
           <div class="contacts">
-            <div class="contact" v-for="d in a.contacts">
+            <div class="rm" v-for="d in a.contacts">
               {{ d }}
             </div>
           </div>
         </div>
-        <div class="detail_summary">{{ a.summary }}</div>
+        <div class="bm">{{ a.summary }}</div>
         <BudaImg v-if="a.imgs && a.imgs.length" :imgs="a.imgs.map(name=>({ alt: name, src: `/images/companies/small/${name}`}))" :img_class="{detail_image: true}"/>      
       </div>
     </div>
