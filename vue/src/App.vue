@@ -6,8 +6,8 @@ import { RouterLink, RouterView, useRouter } from 'vue-router'
 const router = useRouter();
 router.afterEach((to, from) => { 
   let code = to.name;
-  let route=buda.services.find(s=>s.code==code); if(route){
-    buda.page.name=route.title;
+  let m=buda.modules.find(s=>s.code==code); if(m){
+    buda.page.module=m;
     console.log('route change :', code, route.title); 
   }
 });
@@ -38,12 +38,12 @@ function CloseSiteMenu(){ SiteMenuShowing.value = false; }
         <img alt="menu" class="menu" src="@/assets/menu.svg" @click.stop="ClickSiteMenu">
       </div>
       <div class="site_menu_c" v-if="SiteMenuShowing">
-        <RouterLink v-for="a in buda.modules" :to="a.route">{{ a.title }}</RouterLink>
+        <RouterLink v-for="a in buda.live_modules" :to="a.route">{{ a.title }}</RouterLink>
       </div>
     </header>
     <div class="site_content_c">
       <div class="page_title_c">
-        <div class="page_title">{{ buda.page.name }}</div>
+        <div class="page_title">{{ buda.page.module.title2 }}</div>
       </div>
       <div class="site_content_inner">
         <RouterView />

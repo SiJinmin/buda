@@ -3,7 +3,6 @@
 
 namespace BUDA
 {
-
 	
 int parse_http_request(char* req, HttpReq* r)
 {
@@ -16,41 +15,48 @@ int parse_http_request(char* req, HttpReq* r)
 }
 
 
-int make_http_response(char* buf, int buf_size, char* content, int content_len, const char* content_type, const char* encoding, int status_no, const char* status_code, char* filename)
+int make_http_response(MemChain* sender, char* content, int content_len, const char* content_type, const char* encoding, int status_no, const char* status_code, char* filename)
 {
 	//"HTTP/1.1 200 OK\r\nDate: Fri, 22 May 2009 06:07:21 GMT\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n" 
-	if(content_len==-1 && content) content_len=strlen(content);
-	char* c = buf; int remain = buf_size-1, len=0, sum=0;
+	reset_mem_chain(sender); MemChainBlock *last=sender->last; int len; char* c;
 
-	len = snprintf(c, remain, "HTTP/1.1 %d %s\r\nDate: ", status_no, status_code); BudaWriteStep(c, len, remain, sum, fail);
-	len = time_text_http_response(c, remain); BudaWriteStep(c, len, remain, sum, fail);
-	len = snprintf(c, remain, "\r\nContent-Length: %d\r\nContent-Type: %s", content_len, content_type); BudaWriteStep(c, len, remain, sum, fail);
-	if(encoding) { len=snprintf(c, remain, "; charset=%s", encoding); BudaWriteStep(c, len, remain, sum, fail); }
-	len = snprintf(c, remain, "\r\n"); BudaWriteStep(c, len, remain, sum, fail);
-	if(filename) { len=snprintf(c, remain, "Content-Disposition: attachment; filename=%s\r\n", filename); BudaWriteStep(c, len, remain, sum, fail); }      
-	len=snprintf(c, remain, "\r\n"); BudaWriteStep(c, len, remain, sum, fail);
-	if(content_len>0 && content){ len=snprintf(c, remain, "%s", content); BudaWriteStep(c, len, remain, sum, fail); }
-	//IdealandMsn(sum + 1, r); memcpy(r, StringBuf, sum);  log_show("http response content type: %s", content_type);return r;
-	c[0]=0;return sum;
+	if(content_len<0) { if(content) content_len=strlen(content); else { log("cannot get content_len for http head"); goto fail; } }
+	use_mem_chain(sender, "HTTP/1.1 %d %s\r\nDate: ", status_no, status_code);
+	len = time_text_http_response(last->mem+last->used, last->size - last->used); use_mem_chain(sender, len);
+	use_mem_chain(sender, "\r\nContent-Length: %d\r\nContent-Type: %s", content_len, content_type);
+	if(!encoding){ if(strncmp(content_type, "text/", 5)==0) encoding="UTF-8"; }  if(encoding){ use_mem_chain(sender, "; charset=%s", encoding); }
+	use_mem_chain(sender, "\r\n");
+	if(filename) { use_mem_chain(sender, "Content-Disposition: attachment; filename=%s\r\n", filename); }      
+	use_mem_chain(sender, "\r\n"); last->mem[last->used]=0; log("made http head: %d bytes\n%s", last->used, last->mem);
+	if(content_len>0 && content){ c = use_mem_chain(sender, content_len, content); if(c==NULL) goto fail; }
+	
+	succeed: return sender->blocks_used;
 	fail: return -1;
 }
 
+FILE* get_file_info(char *path_real, struct ::stat *file_info)
+{
+	FILE* pf=NULL; int r = ::stat(path_real, file_info); 
+	if (r || !(S_IFREG & file_info->st_mode)) { log("file does not exists: %s", path_real); goto fail;  } 	
+	pf = fopen(path_real, "rb"); if (pf == NULL)  { log("could not open file %s to read.", path_real); goto fail; }
 
-#define RedirectToIndexPage url="/index.html"; content_type="text/html"
-#define RedirectToIndexPageGoto url="/index.html"; content_type="text/html"; goto no_redirect
-int make_http_response_file(char* buf, int buf_size, char* web_root, int web_root_len, const char* url, const char* content_type)
+  succeed: return pf;
+  fail: return NULL;
+}
+
+
+int make_http_response_file(MemChain* sender, const char* url, const char* content_type)
 {	
-	if(url[0]=='/' && url[1]==0) { RedirectToIndexPage; }
+	log("make_http_response_file for %s", url);
+	int r=0; char path_input[PATH_MAX], path_real[PATH_MAX]; struct stat file_info; int len, file_size; char* c; FILE* pf=NULL;
 
-	int r=0; char path_input[PATH_MAX], path_real[PATH_MAX]; struct stat file_info; int sum, remain, len, file_size; char* c; FILE* pf=NULL;
+	if(url[0]=='/' && url[1]==0) { goto no_redirect; }
 
-  if(url_decode((u_char*)url, (u_char*)path_real)) { log("decode url failed: %s", url); RedirectToIndexPageGoto;} 
-	else { log("decoded url: %s", path_real); }
-  len = snprintf(path_input, PATH_MAX_1, "%s%s", web_root, path_real); 
-	if(len >= PATH_MAX_1){ log("file path too long: %d", len); RedirectToIndexPageGoto; }
-	if(realpath(path_input, path_real)!=path_real) { log("get file real path error: %s", path_input); RedirectToIndexPageGoto;  }
+  if(url_decode((u_char*)url, (u_char*)path_real)) { goto no_redirect;} else { log("decoded url: %s", path_real); }
+  len = snprintf2(path_input, PATH_MAX_1, "%s%s", web_root, path_real); if(len==-1){ log("get file path failed"); goto no_redirect; }
+	if(realpath(path_input, path_real)!=path_real) { log("get real file path error: %s", path_input); goto no_redirect;  }
 	if(strncmp(web_root, path_real, web_root_len) || path_real[web_root_len]!='/')
-	{ log("file does not under web root: %s(%s)", url, path_real); RedirectToIndexPageGoto; }
+	{ log("file does not under web root: %s(%s)", url, path_real); goto no_redirect; }
 	if(content_type==NULL)
 	{
 		for(int i=0;i<HttpMimesLen;i++)
@@ -59,25 +65,22 @@ int make_http_response_file(char* buf, int buf_size, char* web_root, int web_roo
 			for(int j=0;j<len;j++, ext--, name--)	{	if(*ext != *name) {same=0; break;}	}
 			if(same) { content_type=m->type; log("mime type is %s", content_type); break; }
 		}
-		if(content_type==NULL) { log("unknown mime type: %s", url); RedirectToIndexPageGoto;  }
+		if(content_type==NULL) { log("unknown mime type for: %s", path_real); goto no_redirect;  }
 	}
-	r = stat(path_real, &file_info); 
-	if (r || !(S_IFREG & file_info.st_mode)) { log("file does not exists: %s", path_real); RedirectToIndexPageGoto;  } 	
-	pf = fopen(path_real, "rb"); if (pf == NULL)  { log("could not open file (%s) to read.", path_real); RedirectToIndexPageGoto; }	
-  goto response;
+	pf = get_file_info(path_real, &file_info); if(pf==NULL) goto no_redirect; else goto response;
 
 	no_redirect:
-	snprintf(path_real, PATH_MAX_1, "%s%s", web_root, url);
-	stat(path_real, &file_info); pf = fopen(path_real, "rb"); 
+	url="/index.html"; content_type="text/html"; snprintf2(path_real, PATH_MAX_1, "%s%s", web_root, url); 
+	pf = get_file_info(path_real, &file_info); if(pf==NULL) goto fail; 
 
   response:
-	file_size=file_info.st_size; log("http response file size=%d", file_size);
-	sum = make_http_response(buf, buf_size, NULL, file_size, content_type, NULL); if(sum<0) goto fail;
-	c=buf+sum; remain=buf_size-sum; log("http response head len=%d, remain=%d", sum, remain);
-	if(file_size>remain){ log("file too big for http response(size/remain=%d/%d): %s", file_size, remain, path_real); goto fail; }
-	len=fread(c, 1 , file_size, pf); BudaWriteStep(c, len, remain, sum, fail); log("total http response len=%d", sum);	
+	file_size=file_info.st_size; if(file_size<0) { log("file size error: %d", file_size); goto fail; }
+	log("http response file: %s, size=%d", path_real, file_size);
+	r = make_http_response(sender, NULL, file_size, content_type, NULL); if(r<0) goto fail;
+	if((c=use_mem_chain(sender, file_size))==NULL) goto fail;
+	len=fread(c, 1 , file_size, pf);	
 
-	succeed: BudaFclose(pf); return sum;
+	succeed: BudaFclose(pf); return sender->blocks_used;
 	fail: BudaFclose(pf); return -1;	
 }
 

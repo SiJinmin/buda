@@ -12,12 +12,12 @@ let ui = {
 
 let community = '金银湖科技园';
 let site = { title: '资讯服务' };
-let page ={ name:'' }; // current page
+let page ={ module:{}, }; // current page
 
-let services = [
-  { title:'招聘信息', module:true, Code: 'Jobs', des:'社区及周边的招聘信息，包括全职、兼职、小时工等各种工作形式。', },
-  { title:'房屋租售', module:true, Code: 'Houses', des:'房屋出租、出售、转让信息。', },
-  { title:'传记工具', title2:'人物传记整理工具', module:true, Code:'Lifeditor', des:'整理人物传记的小工具，按时间排序，可以自动计算人的年龄，一边叙述人物的真实经历、心理状态和行为造作，一边用佛法分析它们的因果关系。', },
+let modules = [
+  { title:'招聘信息', live:true, Code: 'Jobs', des:'社区及周边的招聘信息，包括全职、兼职、小时工等各种工作形式。', },
+  { title:'房屋租售', live:true, Code: 'Houses', des:'房屋出租、出售、转让信息。', },
+  { title:'传记工具', title2:'人物传记整理工具', live:true, Code:'Lifeditor', des:'整理人物传记的小工具，按时间排序，可以自动计算人的年龄，一边叙述人物的真实经历、心理状态和行为造作，一边用佛法分析它们的因果关系。', },
   { title:'日志查看', Code: 'Log', des:'查看日志', },
 
   { title:'本站内容', Code: 'Home', des:'本站提供的服务项目。', },
@@ -35,17 +35,17 @@ let services = [
   { title:'交通物流', des:'发布顺风车、专车、货运等用车需求。', },
   { title:'关于本站', Code:'About', des:'本站的服务项目、宗旨、发展历史、未来规划。', },
 ];
-for(let a of services){
+for(let a of modules){
   if(a.Code) a.code=a.Code.toLowerCase(); else a.Code=a.code='';
   if(a.code=='home') a.route='/'; else a.route=`/${a.code}`;
   if(!a.title2) a.title2=a.title;
 }
-let modules=services.filter(s=>s.module);
+let live_modules=modules.filter(s=>s.live);
 
 let buda = reactive({
   ui,
   community, site, page,
-  services, modules,
+  live_modules, modules,
   jobs, houses, goods,
 });
 

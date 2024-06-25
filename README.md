@@ -88,6 +88,9 @@ gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 
 ## 已完成的功能
 
+2024年6月25日<br>
+使用动态内存分配器MemChain进行http response<br>
+
 2024年6月23日<br>
 使用systemctl控制网站的运行，保存日志文件<br>
 人物传记整理工具添加事件日期锁定功能<br>
@@ -101,8 +104,8 @@ gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 
 
 ## 即将开发的功能
+
 log文件采用Html格式<br>
-页面标题采用title2<br>
 Img组件扫动时切换图片<br>
 实现https协议<br>
 实现服务端的多线程运行<br>
@@ -110,6 +113,7 @@ Img组件扫动时切换图片<br>
 实现纯素商城<br>
 实现公司官网模板<br>
 完成人物传记整理工具<br>
+内存使用动态释放较长时间不用的内存块<br>
 
 
 ## 联系作者、捐助作者

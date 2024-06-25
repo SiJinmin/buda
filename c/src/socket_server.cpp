@@ -3,13 +3,15 @@
 namespace BUDA
 {
 
-static char web_root[PATH_MAX]; static int web_root_len;
-typedef int (*FUN_process_connection_sock)(int sock, char* buf_recv, int buf_recv_size, char* buf_send, int buf_send_size); 
+char web_root[PATH_MAX]; 
+int web_root_len = 0; 
+
+typedef int (*FUN_process_connection_sock)(int sock, char* buf_recv, int buf_recv_size, MemChain* sender); 
 
 	
 // server waits for messages from client, and display messages in server console
 // the listen socket and connection sockets work in the same single thread, so the queued clients may be blocked for a very long time.
-int show_client_messages_single_thread(int sock, char* buf_recv, int buf_recv_size, char* buf_send, int buf_send_size)
+int show_client_messages_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* sender)
 {
 	long recv_size=0, buf_recv_size1=buf_recv_size-1;
   while((recv_size = recv(sock, buf_recv, buf_recv_size1, 0))>0)
@@ -22,9 +24,9 @@ int show_client_messages_single_thread(int sock, char* buf_recv, int buf_recv_si
 
 
 /* process a http request, return 0 for succeed, -1 for failure.  */
-int http_single_thread(int sock, char* buf_recv, int buf_recv_size, char* buf_send, int buf_send_size)
+int http_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* sender)
 {
-	int r=0; BudaZ(HttpReq, req); int recv_size=0, send_size;
+	int r=0; BudaZ(HttpReq, req); int recv_size=0; MemChainBlock *mcb=sender->first;
 
   recv_size = recv(sock, buf_recv, buf_recv_size-1, 0);	if(recv_size<=0) { log("receive from client socket failed"); goto fail;}
 	buf_recv[recv_size]=0; log("[received %ld bytes from client]\n%s\n[end of recv]", recv_size, buf_recv);
@@ -33,18 +35,16 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, char* buf_se
 
 	if(http_route(&req)) // if route failed, use the default file as reponse
 	{
-		send_size = make_http_response_file(buf_send, buf_send_size, web_root, web_root_len, req.path, NULL); if(send_size<=0) goto fail;	
+		if(make_http_response_file(sender, req.path, NULL)<=0) goto fail;	
 	}
 	
-	r = send(sock, buf_send, send_size, 0);
+	while(mcb && mcb->used>0) 
+	{ 
+		if(send(sock, mcb->mem, mcb->used, 0) < 1){ log("sent to client error: %d", r); goto fail; } 
+		mcb=mcb->next; 
+	}
 
-	/* const char* test= "HTTP/1.1 200 OK\r\nDate: Fri, 22 May 2009 06:07:21 GMT\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n";
-	send(sock, test, strlen(test)+1, 0);
-	test= "<html><body>hello world 2</body></html>";
-	send(sock, test, strlen(test)+1, 0); */
-
-	if(r==send_size) log("[sent to client %d bytes]", r);
-	else { log("sent to client error: %d", r); goto fail; }
+	log("[sent to client %d bytes]", sender->blocks_used);
 
 	succeed: return 0;
 	fail: return -1;
@@ -91,7 +91,8 @@ int main(int argc, char * argv[])
 	int listen_sock, sock; // sock is the client connection socket
 	struct sockaddr_in server_addr, client_addr; socklen_t addrlen = sizeof(struct sockaddr_in), addrlen_client=0;
   long client_count=0;	char *client_ip=NULL; int client_port=-1;
-	char buf_recv[SOCK_BUF_RECV_SIZE]; char *buf_send = (char *)malloc(SOCK_BUF_SEND_SIZE);
+	char buf_recv[SOCK_BUF_RECV_SIZE];
+	MemChain* sender=create_mem_chain(SOCK_BUF_SEND_SIZE_MAX, SOCK_BUF_SEND_SIZE_INIT);
 
 	if ((listen_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) { log("create server listen socket failed"); goto fail; 	}
 	log("create server listen socket succeed");
@@ -111,8 +112,8 @@ int main(int argc, char * argv[])
 		client_count++; client_ip = inet_ntoa(client_addr.sin_addr); client_port = ntohs(client_addr.sin_port);
 		log("\n%ld --- server socket accepted a client connection:  %s:%d ---", client_count, client_ip, client_port);
 
-		// if(set_socket_options(sock) == -1) goto end_close_client;
-    if(fun_sock(sock, buf_recv, SOCK_BUF_RECV_SIZE, buf_send, SOCK_BUF_SEND_SIZE) < 0) goto end_close_client;
+		if(set_socket_options(sock)) goto end_close_client;
+    if(fun_sock(sock, buf_recv, SOCK_BUF_RECV_SIZE, sender) < 0) goto end_close_client;
 
 		end_close_client: close(sock);
 		log("waiting for next client ...");
@@ -127,6 +128,13 @@ int main(int argc, char * argv[])
 
 int main(int argc, char * argv[])
 {
+	/* char buf[10] , buf_time[10]; buf[9]='a', buf_time[9]='a'; int len; tm t, *p=&t;
+	len =	strftime(buf_time, 10, "123456789", p); printf("len = %d, buf_time=%s\n", len, buf_time); 
+	len =	snprintf(buf, 10, "1234567890"); printf("len = %d, buf=%s\n", len, buf); 
+	return 0; */
+	
+	//len =	snprintf(buf, 10, "12345678901"); printf("len = %d, buf=%s\n", len, buf);
 	//char a=0b10000000; u_char b=0b10000000; a=(a>>4); b=(b>>4); printf("a=%d, b=%d\n", (int)a, (int)b);return 0;
+
   return BUDA::main(argc, argv);
 }

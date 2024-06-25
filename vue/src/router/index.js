@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import buda from '../buda.js'
 
-let {services}=buda;
+let {modules}=buda;
 
-let routes=services.map(s=>({
+let routes=modules.map(s=>({
   path: s.route,
   name: s.code,
   component: () => import(`../views/${s.Code}View.vue`)

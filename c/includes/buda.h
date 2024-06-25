@@ -69,6 +69,9 @@
 
 #define BudaMax(a, b) ((a)<(b)?(b):(a))
 
+
+
+
 namespace BUDA
 {
 
@@ -84,7 +87,8 @@ static const int TIME_BUF_SIZE1 = TIME_BUF_SIZE - 1;
 static const char *log_dir = "../../../log/"; // ~/code/log
 
 static const int SOCK_BUF_RECV_SIZE = 8192;     // 8K
-static const int SOCK_BUF_SEND_SIZE = 20008192; // about 20M, default max stack memory is 8M, so must use heap
+static const int SOCK_BUF_SEND_SIZE_MAX = 200008192; // about 200M, controled by MemChain
+static const int SOCK_BUF_SEND_SIZE_INIT = 108192; // about 10M, it's just the init size, the memory need will be allocated by MemChain
 static const int SOCK_CONN_QUEUE_MAX = 3;
 static const int SOCK_PORT_MAX = 65535;
 static const char *MODE_show_client_messages = "show_client_messages";
@@ -94,6 +98,8 @@ static const char *MODE_http_single_thread = "http_single_thread";
 static int server_listen_port = 8888;
 static FILE* log_file = NULL;
 static struct timespec last_log_time = {0, 0};
+extern char web_root[]; // the real path of web_root dir
+extern int web_root_len; 
 
 
 //-------------------- mem.cpp ---------------------------
@@ -119,18 +125,30 @@ typedef struct mem_chain
 void* alloc(int size);
 // MUST use free_mem_chain to free heap mem used
 MemChain* create_mem_chain(int max_size=100002048, int block_min_size=2048);
+// destroy the whole mem_chain
 void free_mem_chain(MemChain *mc);
+// delete all the blocks except the first one, reset mem_chain to the beginning
+void reset_mem_chain(MemChain *mc);
 // return NULL if failed
 MemChainBlock* mem_chain_add_block(MemChain *mc, int size);
 // If the memory size to use is known to be size, use this function; otherwise, use the next function. 
 // Return NULL if failed, return the start of used memory if succeed.
-char* use_mem_chain(MemChain *mc, int size);
+char* use_mem_chain(MemChain *mc, int size, char* content=NULL);
 // Return NULL if failed, return the start of used memory if succeed.
-char* use_mem_chain(MemChain *mc, char* format, ...);
+char* use_mem_chain(MemChain *mc, const char* format, ...);
 
 
 //-------------------- string.cpp ---------------------------
+
+// check the result len and log error info
+// Return -1 for error, and len for succeed
+int vsnprintf2 (char *s, size_t size, const char *format, va_list args) ;
+// check the result len and log error info
+// Return -1 for error, and len for succeed
+int snprintf2 (char *s, size_t size, const char *format, ...);
+// Pay attention to not log inside itself
 int log_start();
+// Pay attention to not log inside itself
 void log(const char *format, ...);
 /* This function is originally written for parse http request, but can be used by others.
    It gets the first token ended by end in the current line starting from *start.
@@ -143,10 +161,33 @@ int url_decode(u_char *s, u_char *d, int max_len=PATH_MAX_1);
 
 
 //--------------------------- time.cpp ---------------------------
-int time_text(char *r, int max_len);
+
+/* type=t (time): 2024-06-25 13:40:33
+   type=d (date): 2024-06-25
+   type=w (week): Fri, 22 May 2009 06:07:21 GMT
+   type=f (filename): 2024_06_25_13_40_33
+   use_gmt is bool value, indicate using GMT/Local time
+   disable_log is bool value, indicate using log() in it
+*/
+int time_text(char *r, int max_len, char type='t', int use_gmt=0, int disable_log=0);
+// return time format like 2024_06_25_13_40_33
 int time_text_filename(char *r, int max_len);
+// return time format like 2024-06-25
 int time_text_date(char *r, int max_len);
+// return time format like Fri, 22 May 2009 06:07:21 GMT
 int time_text_http_response(char *r, int max_len);
+
+
+
+//--------------------------- socket.cpp ---------------------------
+
+/* 通过域名获取socket可用的ip地址格式，用于连接server socket 
+   hostname为域名，例如： idealand.space */
+struct in_addr * get_sock_addr(char *hostname);
+/* 查看和设置socket发送和接收数据的超时时长，设置为5秒超时 */
+int set_socket_options(int socket);
+
+
 
 
 //--------------------------- http.cpp ---------------------------
@@ -165,8 +206,8 @@ int parse_http_request(char* req, HttpReq* r);
 /* Return response size if succeed, or -1 for failure.
    encoding should be auto detected and reset by content_type
    content_len = -1 means it should be caculated by content  */
-int make_http_response(char* StringBuf, int StringBufSize, char* content=NULL, int content_len=-1, const char* content_type="text/html", const char* encoding="UTF-8", int status_no=200, const char* status_code="OK", char* filename=NULL);
-int make_http_response_file(char* buf, int buf_size, char* web_root, int web_root_len, const char* url, const char* content_type="text/html");
+int make_http_response(MemChain* sender, char* content=NULL, int content_len=-1, const char* content_type="text/html", const char* encoding="UTF-8", int status_no=200, const char* status_code="OK", char* filename=NULL);
+int make_http_response_file(MemChain* sender, const char* url, const char* content_type="text/html");
 int http_route(HttpReq* req);
 
 

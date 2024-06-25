@@ -12,3 +12,5 @@ Write a Linux C function to open a file and read the file content, until a ] cha
 用Linux C语言写一个内存动态分配管理链表MemChain，链表由多个内存分配单元MemChainBlock组成。
 在MemChain中设置每次分配内存的最小数量、最大能分配的总内存数量、所有的MemChainBlock已经使用的内存数量、MemChainBlock的个数，记录链表的第一个和最后一个MemChainBlock。
 每个MemChainBlock能记录自己的内存大小和已经使用的内存数量。
+
+Linux Cpp程序如何在头文件a.h中定义一个全局变量char g[10]，不要放在class里面，使用namespace buda，在另外一个文件b.cpp中给这个全局变量g用strcpy赋值，在另一个文件c.cpp中printf这个全局变量g？
