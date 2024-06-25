@@ -55,7 +55,7 @@ int make_http_response_file(char* buf, int buf_size, char* web_root, int web_roo
 	{
 		for(int i=0;i<HttpMimesLen;i++)
 		{
-			HttpMime *m=&(HttpMimes[i]); int len=m->ext_len; const char* ext=m->ext+(len-1); const char *name=path_real; name+=(strlen(name)-1); int same=1;
+			const HttpMime *m=&(HttpMimes[i]); int len=m->ext_len; const char* ext=m->ext+(len-1); const char *name=path_real; name+=(strlen(name)-1); int same=1;
 			for(int j=0;j<len;j++, ext--, name--)	{	if(*ext != *name) {same=0; break;}	}
 			if(same) { content_type=m->type; log("mime type is %s", content_type); break; }
 		}

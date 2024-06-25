@@ -8,7 +8,8 @@ namespace BUDA
 
 char *get_filenames_string(const char *dir_path) 
 {
-  DIR *dir; struct dirent *entry;
+    return NULL;
+  /*DIR *dir; struct dirent *entry;
 
   if ((dir = opendir(dir_path)) == NULL) { log("open dir error: %s", dir_path); return NULL; }
 
@@ -48,7 +49,7 @@ char *get_filenames_string(const char *dir_path)
   }
 
   closedir(dir);
-  return filenames_str;
+  return filenames_str;*/
 }
 
 

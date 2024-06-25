@@ -24,25 +24,29 @@ int show_client_messages_single_thread(int sock, char* buf_recv, int buf_recv_si
 /* process a http request, return 0 for succeed, -1 for failure.  */
 int http_single_thread(int sock, char* buf_recv, int buf_recv_size, char* buf_send, int buf_send_size)
 {
-	int r=0; BudaZ(HttpReq, req); 
-	long recv_size=0, buf_recv_size1=buf_recv_size-1; int send_size;
-  recv_size = recv(sock, buf_recv, buf_recv_size1, 0);
-	
-	if(recv_size<=0) { log("receive from client socket failed"); goto fail;}
-	buf_recv[recv_size]=0; // set string end
-	log("[received %ld bytes from client]\n%s\n[end of recv]", recv_size, buf_recv);
+	int r=0; BudaZ(HttpReq, req); int recv_size=0, send_size;
+
+  recv_size = recv(sock, buf_recv, buf_recv_size-1, 0);	if(recv_size<=0) { log("receive from client socket failed"); goto fail;}
+	buf_recv[recv_size]=0; log("[received %ld bytes from client]\n%s\n[end of recv]", recv_size, buf_recv);
 
 	if(parse_http_request(buf_recv, &req)) goto fail;
 
-  send_size = make_http_response_file(buf_send, buf_send_size, web_root, web_root_len, req.path, NULL); if(send_size<=0) goto fail;	
+	if(http_route(&req)) // if route failed, use the default file as reponse
+	{
+		send_size = make_http_response_file(buf_send, buf_send_size, web_root, web_root_len, req.path, NULL); if(send_size<=0) goto fail;	
+	}
+	
 	r = send(sock, buf_send, send_size, 0);
-	//if(r==send_size) log("[sent to client %d bytes]\n", r);
-	//buf_send[150]=0;
-	//if(r==send_size) log("[sent to client %d bytes]\n%s\n[end of sent]\n", r, buf_send);
+
+	/* const char* test= "HTTP/1.1 200 OK\r\nDate: Fri, 22 May 2009 06:07:21 GMT\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n";
+	send(sock, test, strlen(test)+1, 0);
+	test= "<html><body>hello world 2</body></html>";
+	send(sock, test, strlen(test)+1, 0); */
+
 	if(r==send_size) log("[sent to client %d bytes]", r);
 	else { log("sent to client error: %d", r); goto fail; }
 
-	return 0;
+	succeed: return 0;
 	fail: return -1;
 }
 
@@ -78,8 +82,6 @@ int main(int argc, char * argv[])
 				if(server_listen_port<1 || server_listen_port>=SOCK_PORT_MAX) { log("port should in 1 ~ %d", SOCK_PORT_MAX); goto need_help; }
 				else log("web server listen port: %d", server_listen_port); 
 				break;
-			case 'l':
-				make_log_view(optarg); exit(EXIT_SUCCESS);
 			default:
 				goto need_help;
 		}
