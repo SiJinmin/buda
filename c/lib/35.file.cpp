@@ -5,51 +5,72 @@
 namespace BUDA
 {	
 
-
-char *get_filenames_string(const char *dir_path) 
+int realpath2(char* input_path, char *real_path)
 {
-    return NULL;
-  /*DIR *dir; struct dirent *entry;
+    if(realpath(input_path, real_path)!=real_path){ log("get realpath for %s failed", input_path); return -1;} 
+    return 0;
+}
 
-  if ((dir = opendir(dir_path)) == NULL) { log("open dir error: %s", dir_path); return NULL; }
 
-  char *filenames_str = NULL; size_t allocated_size = 0, written_chars = 0;
+int get_file_content(FILE* pf, int file_size, MemChain *mc)
+{
+    char *c=NULL; MemChainBlock* last=mc->last;
+    if((c=use_mem_chain(mc, file_size))==NULL) goto fail_close;
+    if(fread(c, 1, file_size, pf)!=file_size){ log("read content length is not equal to file size"); goto fail_close; }
 
-  while ((entry = readdir(dir)) != NULL) {
-      // Skip non-regular files (directories, symbolic links, etc.)
-      if (entry->d_type != DT_REG) {
-          continue;
-      }
+    success: BudaFclose(pf); return file_size;
+    fail_close: BudaFclose(pf); return -1;
+}
 
-      // Allocate or expand the filenames_str buffer if needed
-      size_t entry_len = strlen(entry->d_name);
-      if (written_chars + entry_len + 2 >= allocated_size) { // +1 for space, +1 for null terminator
-          allocated_size = allocated_size == 0 ? entry_len + 16 : allocated_size * 2;
-          filenames_str = realloc(filenames_str, allocated_size);
-          if (filenames_str == NULL) {
-              perror("realloc");
-              closedir(dir);
-              return NULL;
-          }
-      }
 
-      // Append filename with space
-      memcpy(filenames_str + written_chars, entry->d_name, entry_len);
-      written_chars += entry_len;
-      filenames_str[written_chars++] = ' ';
+int get_file_content(char *path, MemChain *mc)
+{
+    struct ::stat file_info; int file_size=0; char *c=NULL; MemChainBlock* last=mc->last;
+    FILE* pf=get_file_info_open(path, &file_info); if(pf==NULL) return -1; 
+    file_size=file_info.st_size; if(file_size<0) { log("file size error: %d", file_size); goto fail_close; }
+    return get_file_content(pf, file_size, mc);
+
+    fail_close: BudaFclose(pf); return -1;
+}
+
+
+FILE* get_file_info_open(char *path, struct ::stat *file_info)
+{
+    log("get_file_info_open for %s", path);
+    FILE* pf=NULL; int r = ::stat(path, file_info); 
+    if (r || !(S_IFREG & file_info->st_mode)) { log("file does not exists: %s", path); goto fail;  } 	
+    pf = fopen(path, "rb"); if (pf == NULL)  { log("could not open file %s to read.", path); goto fail; }
+
+    succeed: return pf;
+    fail: return NULL;
+}
+
+
+int concat_filename(struct dirent *entry, void* filenames)
+{
+  char* name=entry->d_name;
+  if(use_mem_chain(((MemChain*)filenames), "%s\n", name)==NULL) return -1;
+  return 0;
+}
+
+int get_dir_filenames(const char *dir_path, MemChain *mc)
+{
+    return iterate_dir(dir_path, concat_filename, mc);  
+}
+
+int iterate_dir(const char *dir_path, process_entry processor, void* arg) 
+{
+  DIR *dir=NULL; struct dirent *entry;
+
+  if ((dir = opendir(dir_path)) == NULL) { log("open dir error: %s", dir_path); goto fail; }
+  while ((entry = readdir(dir)) != NULL) 
+  {
+      if (entry->d_type != DT_REG) continue;
+      if(processor(entry, arg)) goto fail;
   }
 
-  // Add null terminator if not empty
-  if (written_chars > 0) {
-      filenames_str[written_chars - 1] = '\0'; // Remove trailing space
-  } else {
-      // Free buffer if no filenames were found
-      free(filenames_str);
-      filenames_str = NULL;
-  }
-
-  closedir(dir);
-  return filenames_str;*/
+  succeed: if(dir) closedir(dir); return 0;
+  fail: if(dir) closedir(dir); return -1;
 }
 
 

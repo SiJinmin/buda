@@ -5,6 +5,10 @@ namespace BUDA
 
 char web_root[PATH_MAX]; 
 int web_root_len = 0; 
+int server_listen_port = 8888;
+char log_dir_real[PATH_MAX];
+FILE* log_file = NULL;
+struct timespec last_log_time = {0, 0};
 
 typedef int (*FUN_process_connection_sock)(int sock, char* buf_recv, int buf_recv_size, MemChain* sender); 
 
@@ -26,25 +30,24 @@ int show_client_messages_single_thread(int sock, char* buf_recv, int buf_recv_si
 /* process a http request, return 0 for succeed, -1 for failure.  */
 int http_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* sender)
 {
-	int r=0; BudaZ(HttpReq, req); int recv_size=0; MemChainBlock *mcb=sender->first;
+	int r=0; BudaZ(HttpReq, req); int recv_size=0; MemChainBlock *mcb=sender->first; 
 
   recv_size = recv(sock, buf_recv, buf_recv_size-1, 0);	if(recv_size<=0) { log("receive from client socket failed"); goto fail;}
 	buf_recv[recv_size]=0; log("[received %ld bytes from client]\n%s\n[end of recv]", recv_size, buf_recv);
 
 	if(parse_http_request(buf_recv, &req)) goto fail;
 
-	if(http_route(&req)) // if route failed, use the default file as reponse
+	if(http_route(&req, sender)==-1) // if route failed, use the default file as reponse
 	{
-		if(make_http_response_file(sender, req.path, NULL)<=0) goto fail;	
+		if(make_http_response_file(sender, req.path, NULL)<0) goto fail;	
 	}
 	
-	while(mcb && mcb->used>0) 
+	while(mcb) 
 	{ 
-		if(send(sock, mcb->mem, mcb->used, 0) < 1){ log("sent to client error: %d", r); goto fail; } 
+		if(mcb->used>0) { if(send(sock, mcb->mem, mcb->used, 0) < 1){ log("sent to client error: %d", r); goto fail; } }
 		mcb=mcb->next; 
 	}
-
-	log("[sent to client %d bytes]", sender->blocks_used);
+	log("[sent to client %d bytes]", sender->content_used);
 
 	succeed: return 0;
 	fail: return -1;
@@ -72,7 +75,7 @@ int main(int argc, char * argv[])
 				goto command_end;
 			case 'w':
 				web_root_input = optarg; 
-				if(realpath(web_root_input, web_root)!=web_root){ log("web root path error: %s", web_root_input); return -1; }
+				if(realpath2(web_root_input, web_root)<0){ return -1; }
 				struct stat file_info; r = stat(web_root, &file_info); if (r) { log("web root does not exists: %s", web_root); return -1; }
 				if(!(file_info.st_mode & S_IFDIR)){ log("web root is not a directory: %s", web_root); return -1; }
 				web_root_len=strlen(web_root); log("web server root path: %s", web_root); 
@@ -92,14 +95,14 @@ int main(int argc, char * argv[])
 	struct sockaddr_in server_addr, client_addr; socklen_t addrlen = sizeof(struct sockaddr_in), addrlen_client=0;
   long client_count=0;	char *client_ip=NULL; int client_port=-1;
 	char buf_recv[SOCK_BUF_RECV_SIZE];
-	MemChain* sender=create_mem_chain(SOCK_BUF_SEND_SIZE_MAX, SOCK_BUF_SEND_SIZE_INIT);
+	MemChain* sender=create_mem_chain(SOCK_BUF_SEND_SIZE_MAX, SOCK_BUF_SEND_SIZE_INIT); if(sender==NULL) goto fail;
 
 	if ((listen_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) { log("create server listen socket failed"); goto fail; 	}
 	log("create server listen socket succeed");
 
-	server_addr.sin_family = AF_INET; // IPv4
-	server_addr.sin_addr.s_addr = INADDR_ANY;	// 监听所有本地IP地址
-	server_addr.sin_port = htons(server_listen_port);
+	server_addr.sin_family = AF_INET; /* IPv4 */ 
+	server_addr.sin_port = htons(server_listen_port); server_addr.sin_addr.s_addr = INADDR_ANY;	// 监听所有本地IP地址
+	
 	if (bind(listen_sock, (struct sockaddr*)&server_addr, addrlen) == -1) 
 	{ log("server listen socket bind to port %d failed", server_listen_port); goto fail_close; }
 	log("bind server listen socket to port %d succeed", server_listen_port);
@@ -113,6 +116,7 @@ int main(int argc, char * argv[])
 		log("\n%ld --- server socket accepted a client connection:  %s:%d ---", client_count, client_ip, client_port);
 
 		if(set_socket_options(sock)) goto end_close_client;
+		reset_mem_chain(sender); 
     if(fun_sock(sock, buf_recv, SOCK_BUF_RECV_SIZE, sender) < 0) goto end_close_client;
 
 		end_close_client: close(sock);

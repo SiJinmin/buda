@@ -67,8 +67,19 @@ play: 随意玩乐的地方，专放乱七八糟可忽略的文件的地方<br>
 ```sh
 cd buda/c/debug
 gcc ../src/socket_server.cpp ../lib/*.cpp -g -o socket_server
-gdb socket_server -w ../../vue/dist -p 80
+gdb --args socket_server -w ../../vue/dist -p 80
 ```
+此外还有一些方便开发用的alias命令，可以放到~/.bash_aliases中
+
+```sh
+lias gitbuda='gitbuda() { cd ~/code/buda; git add -A; git commit -m "$1"; git push; }; gitbuda'
+alias makebudav='cd ~/code/buda/vue && npm run build'
+alias runbudav='cd ~/code/buda/vue && npm run dev'
+alias makebudac='cd ~/code/buda/c/debug && gcc ../src/socket_server.cpp ../lib/*.cpp -g -o socket_server'
+alias runbudac='cd ~/code/buda/c/debug && ./socket_server -w ../../vue/dist -p 8888'
+alias debugbudac='cd ~/code/buda/c/debug && gdb --args ./socket_server -w ../../vue/dist -p 8888'
+```
+提交代码： # gitbuda "commit message"
 
 ### 如何部署？
 ```sh
@@ -88,6 +99,9 @@ gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 
 ## 已完成的功能
 
+2024年6月26日<br>
+日志查看功能完成50%<br>
+
 2024年6月25日<br>
 使用动态内存分配器MemChain进行http response<br>
 
@@ -105,7 +119,8 @@ gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 
 ## 即将开发的功能
 
-log文件采用Html格式<br>
+完成日志查看功能<br>
+实现共享MemChain Pool<br>
 Img组件扫动时切换图片<br>
 实现https协议<br>
 实现服务端的多线程运行<br>

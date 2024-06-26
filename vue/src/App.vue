@@ -8,7 +8,7 @@ router.afterEach((to, from) => {
   let code = to.name;
   let m=buda.modules.find(s=>s.code==code); if(m){
     buda.page.module=m;
-    console.log('route change :', code, route.title); 
+    console.log('route change :', code, m.title); 
   }
 });
 

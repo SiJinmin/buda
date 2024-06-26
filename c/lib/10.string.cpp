@@ -25,7 +25,7 @@ int log_start()
 
   char relative_path[PATH_MAX], real_path[PATH_MAX], *c=relative_path; int remain=PATH_MAX_1, len; 
   len = snprintf(c, remain, "%s", log_dir); BudaWriteStep2(c, len, remain);
-  c = realpath(relative_path, real_path); if(c!=real_path) { printf("get log dir real path error: %s\n", relative_path); goto fail; }
+  if(realpath2(relative_path, real_path)<0) { goto fail; }  else strcpy(log_dir_real, real_path);
 
   c=real_path; remain=PATH_MAX_1; len=strlen(c); BudaWriteStep2(c, len, remain);
   len = snprintf(c, remain, "/"); BudaWriteStep2(c, len, remain);  
@@ -53,14 +53,6 @@ void log(const char *format, ...)
   fail: printf("log failed\n"); return;
 }
 	
-int make_log_view(char *filename)
-{
-  char path[PATH_MAX], *c=path; int remain=PATH_MAX_1, len; 
-  len = snprintf(c, remain, "%s%s", log_dir, filename); BudaWriteStep2(c, len, remain);
-  *c=0;
-
-  succeed: return 0;
-}
 
 int get_token_by_char_end(char** start, char** token, char end, char line_end)
 {

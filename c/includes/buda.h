@@ -95,9 +95,10 @@ static const char *MODE_show_client_messages = "show_client_messages";
 static const char *MODE_http_single_thread = "http_single_thread";
 
 //--------------- global vars --------------
-static int server_listen_port = 8888;
-static FILE* log_file = NULL;
-static struct timespec last_log_time = {0, 0};
+extern int server_listen_port;
+extern char log_dir_real[];
+extern FILE* log_file;
+extern struct timespec last_log_time;
 extern char web_root[]; // the real path of web_root dir
 extern int web_root_len; 
 
@@ -116,7 +117,7 @@ typedef struct mem_chain
   struct mem_chain_block *last;
   int max_size;
   int used;            // sum of allocated mem of blocks
-  int blocks_used;     // sum of used bytes of blocks
+  int content_used;     // sum of used bytes of blocks
   int block_min_size;
   int block_count;
 } MemChain;
@@ -124,6 +125,7 @@ typedef struct mem_chain
 // calloc memory, log fail message
 void* alloc(int size);
 // MUST use free_mem_chain to free heap mem used
+// return NULL for failure
 MemChain* create_mem_chain(int max_size=100002048, int block_min_size=2048);
 // destroy the whole mem_chain
 void free_mem_chain(MemChain *mc);
@@ -131,6 +133,8 @@ void free_mem_chain(MemChain *mc);
 void reset_mem_chain(MemChain *mc);
 // return NULL if failed
 MemChainBlock* mem_chain_add_block(MemChain *mc, int size);
+// return new mc.content_used, mc2 will be destroyed
+int concat_mem_chain(MemChain *mc, MemChain *mc2);
 // If the memory size to use is known to be size, use this function; otherwise, use the next function. 
 // Return NULL if failed, return the start of used memory if succeed.
 char* use_mem_chain(MemChain *mc, int size, char* content=NULL);
@@ -178,6 +182,25 @@ int time_text_date(char *r, int max_len);
 int time_text_http_response(char *r, int max_len);
 
 
+//--------------------------- file.cpp ---------------------------
+
+// return -1 if failed, return 0 for succeed
+int realpath2(char* input_path, char *real_path);
+// return -1 for failure, return file size for sucess
+int get_file_content(FILE* pf, int file_size, MemChain *mc);
+// return -1 for failure, return file size for sucess
+int get_file_content(char *path, MemChain *mc);
+// return NULL if failed, return opened file for success
+FILE* get_file_info_open(char *path_real, struct ::stat *file_info);
+// return -1 if failed, return 0 for succeed
+typedef int (*process_entry)(struct dirent *entry, void* arg);
+// return -1 if failed, return 0 for succeed
+int iterate_dir(const char *dir_path, process_entry processor, void* arg);
+// return -1 if failed, return 0 for succeed
+int concat_filename(struct dirent *entry, void* filenames);
+// return -1 if failed, return 0 for succeed
+int get_dir_filenames(const char *dir_path, MemChain *mc);
+
 
 //--------------------------- socket.cpp ---------------------------
 
@@ -186,8 +209,6 @@ int time_text_http_response(char *r, int max_len);
 struct in_addr * get_sock_addr(char *hostname);
 /* 查看和设置socket发送和接收数据的超时时长，设置为5秒超时 */
 int set_socket_options(int socket);
-
-
 
 
 //--------------------------- http.cpp ---------------------------
@@ -204,11 +225,19 @@ typedef struct http_req
 /* return 0 for succeed, return -1 for failure. */
 int parse_http_request(char* req, HttpReq* r);
 /* Return response size if succeed, or -1 for failure.
-   encoding should be auto detected and reset by content_type
-   content_len = -1 means it should be caculated by content  */
+   if encoding is NULL, it will be auto detected by content_type
+   content_len = -1 means it should be strlen(content)  */
 int make_http_response(MemChain* sender, char* content=NULL, int content_len=-1, const char* content_type="text/html", const char* encoding="UTF-8", int status_no=200, const char* status_code="OK", char* filename=NULL);
+// return -1 for failure, return response total size for success
 int make_http_response_file(MemChain* sender, const char* url, const char* content_type="text/html");
-int http_route(HttpReq* req);
+// return -1 for failure, return response total size for success
+int http_route(HttpReq* req, MemChain* sender);
+// return -1 for failure, return response total size for success
+int http_route_log(HttpReq* req, MemChain* sender);
+// return -1 for failure, return response total size for success
+int http_route_log_file(HttpReq* req, MemChain* sender);
+// return -1 for failure, return response total size for success
+int http_route_log_files(HttpReq* req, MemChain* sender);
 
 
 //--------------------------- help.cpp ---------------------------

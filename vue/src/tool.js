@@ -11,3 +11,13 @@ window.Buda.dom.setAreaH=function (e, fontsize=16, max=null, er=null, freeH=3, m
     if (max&&v>max) v=max; s.height=v+"em"; // console.log('height', s.height, s.minHeight, e.value);    
     if (sr) sr.height=s.height; return v;
 };
+
+
+Object.defineProperty(String, 'Buda_TextToHtml', {
+    enumerable: false,
+    writable: false,
+    value: function (v) {
+      let r = v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/[\r]/g, '').replace(/[\n]/g, '<br>').replace(/[\t]/g, '&nbsp;&nbsp;').replace(/\s/g, '&nbsp;');
+      return r;
+    }
+  }); 

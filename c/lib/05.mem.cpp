@@ -23,8 +23,17 @@ namespace BUDA
     log("mem_chain_add_block %d", size);
     if(size+mc->used > mc->max_size) { log("mem_chain reached max_size: %d", mc->max_size); return NULL; }
     BudaMn(MemChainBlock, mcb); if(mcb == NULL) return NULL;
-    mcb->mem=BudaMc(size); if(mcb->mem == NULL) return NULL; mcb->size=size; mc->used+=size; mc->block_count++; mc->last->next=mcb; mc->last=mcb;
+    mcb->mem=BudaMc(size); if(mcb->mem == NULL) return NULL; 
+    mcb->size=size; mc->used+=size; mc->block_count++; mc->last->next=mcb; mc->last=mcb;
     return mcb;
+  }
+
+  int concat_mem_chain(MemChain *mc, MemChain *mc2)
+  {
+    log("concat_mem_chain %d:%d", mc->content_used, mc2->content_used);
+    mc->last->next = mc2->first; mc->last=mc2->last; mc->block_count+=mc2->block_count; mc->content_used+=mc2->content_used; mc->used+=mc2->used;
+    BudaFree(mc2);
+    return mc->content_used;
   }
 
   void free_mem_chain(MemChain *mc)
@@ -40,19 +49,19 @@ namespace BUDA
     log("reset_mem_chain %d/%d", mc->max_size, mc->block_min_size);
     MemChainBlock *first=mc->first; MemChainBlock *mcb=first->next, *next; 
     while(mcb) { next=mcb->next; BudaFree(mcb->mem); BudaFree(mcb); mcb=next; }
-    mc->block_count=1; mc->blocks_used=0; mc->last=first; mc->used=first->size;
+    mc->block_count=1; mc->content_used=0; mc->last=first; mc->used=first->size;
     first->next=NULL; first->used=0;
   }
 
   char* use_mem_chain(MemChain *mc, int size, char* content)
   {
-    log("use_mem_chain %d bytes", size);
+    // log("use_mem_chain %d bytes", size);
     MemChainBlock *last=mc->last;
     if(last->used + size > last->size)
     {
       int asize=BudaMax(mc->block_min_size, size); last = mem_chain_add_block(mc, asize); if(last==NULL) return NULL;
     }
-    char* write_start=last->mem + last->used; last->used += size; mc->blocks_used+=size;
+    char* write_start=last->mem + last->used; last->used += size; mc->content_used+=size;
     if(content) memcpy(write_start, content, size);
     return write_start;
   }
@@ -68,8 +77,8 @@ namespace BUDA
     }
     else
     {
-      last->used += len; mc->blocks_used+=len;
-      log("use_mem_chain %d bytes : \n%s", len, write_start);
+      last->used += len; mc->content_used+=len;
+      // log("use_mem_chain %d bytes : \n%s", len, write_start);
     }
     return write_start;
   }
