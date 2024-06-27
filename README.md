@@ -99,6 +99,10 @@ gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 
 ## 已完成的功能
 
+2024年6月27日<br>
+添加创业聚会模块<br>
+日志查看功能完成80%<br>
+
 2024年6月26日<br>
 日志查看功能完成50%<br>
 
