@@ -27,20 +27,29 @@ onMounted(async () => {
 onUnmounted(()=>{   
 });
 
-
+let disable_touch=false;
 async function ClickImg(){
-  if(fullscreen.value) return; fullscreen.value=true; document.body.style.overflow = 'hidden'; // 隐藏页面滚动条
-  await nextTick(); await GetNextImgBig();
+  if(fullscreen.value) return; disable_touch=true; 
+  fullscreen.value=true; document.body.style.overflow = 'hidden'; // 隐藏页面滚动条
+  await nextTick(); await GetNextImgBig(); disable_touch=false;
 }
-function ClickCloseImg(){
-  fullscreen.value=false; document.body.style.overflow = ''; // 恢复页面滚动条
+async function ClickCloseImg(){
+  disable_touch=true; fullscreen.value=false; document.body.style.overflow = ''; await nextTick(); disable_touch=false;
 }
 async function ClickNextImg(type){ 
+  disable_touch=true; 
   let v=index.value; if(type=='left') { v--; if(v<0) v=0; } else { v++; if(v>=imgs_len) v=imgs_len-1; }
   index.value=v; let img=imgs[v]; loading.value=true; await GetImgBig(img); loading.value=false; img_src.value=img.big; 
-  await nextTick(); await GetNextImgBig();
+  await nextTick(); await GetNextImgBig(); disable_touch=false;
 }
 
+function SwipeImg(type)
+{ 
+  if(!fullscreen.value || disable_touch) return;
+  console.log('swipe', type); ClickNextImg(type);
+}
+function PressImg(){ console.log('press image'); }
+function touchHandler() { console.log('touch'); }
 function GetImgBlobUrl(img) {  
   /*const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height;
   const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0);
@@ -67,7 +76,7 @@ async function GetBlobUrl(big_src) {  return URL.createObjectURL(await fetchBlob
 
 <template>
   <div :class="container_class">
-    <img :src="img_src" :alt="img.alt" :title="img.alt" :class="img_class" @click="ClickImg"/>
+    <img v-touch:press="PressImg" v-touch:swipe.left="SwipeImg('left')"  v-touch:swipe.right="SwipeImg('right')"  :src="img_src" :alt="img.alt" :title="img.alt" :class="img_class" @click="ClickImg"/>
     <div v-if="fullscreen && loading" class="loading">正在加载图片...</div>
     <div class="screen_bottom_bar" v-if="fullscreen">
       <div @click="ClickNextImg('left')" class="left_img_c flex">

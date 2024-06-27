@@ -29,7 +29,7 @@ struct in_addr * get_sock_addr(char *hostname)
 
 int set_socket_options(int socket)
 {
-    log("set_socket_options");
+    // log("set_socket_options");
     static socklen_t len = sizeof(struct timeval); struct timeval SocketTimeout, RecvTimeout, SendTimeout; 
 	SocketTimeout.tv_sec = 5; SocketTimeout.tv_usec = 0; 
 	RecvTimeout.tv_sec = RecvTimeout.tv_usec = 0; SendTimeout.tv_sec = SendTimeout.tv_usec = 0;

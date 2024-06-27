@@ -34,7 +34,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-a, .link { text-decoration: none; color: var(--color-link); cursor:pointer;  }
+a, .link { display:inline-block; text-decoration: none; color: var(--color-link); cursor:pointer;   }
 img{ display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
 
 input, textarea { display:inline-block; outline: none; font-size: var(--size-font);  border: solid var(--color-border) var(--size-border-width); padding: var(--size-input-padding); }
@@ -61,7 +61,6 @@ input:focus, textarea:focus { border-color: var(--color-site-title); border-widt
 .title{font-weight: bold;}
 .big_icon{ width: 3rem; height: 3rem; cursor:pointer; }
 .big_icon_c { width: 3.5rem; }
-.contacts_c{display: flex;}
 .contacts{ display:flex; flex-wrap: wrap;}
 .button, button { display:block; background-color: var(--color-site-title); color: var(--color-bg); font-weight: bold; font-size: 1.2rem; border: none; border-radius: 0em; padding: 0.1em 1em; cursor:pointer; }
 
@@ -73,7 +72,9 @@ input:focus, textarea:focus { border-color: var(--color-site-title); border-widt
 .screen_bottom_bar{position:fixed; bottom: 0; width: 100vw; display: flex; color: var(--color-site-title); align-items: center; font-size: 1.5rem;}
 
 /* view field */
+.field{ display:flex;}
 .field_title{ margin: 0 0.5em 0 0;  display: inline-block; font-weight: bold; white-space: nowrap; }
+.field_content{ display: inline-block; }
 
 /* editor field */
 .field_editor, .field_editor_multilines, .field_editor_verticle { display: flex; align-items: center; padding: 0.5em 0; }
@@ -100,17 +101,24 @@ input:focus, textarea:focus { border-color: var(--color-site-title); border-widt
 
 /* list item */
 .block { padding: var(--size-list-item-gap); }
-
 .block_inner { background-color: var(--color-block);  padding: 0.8rem; height: 100%;  }
-
 .block2_inner { background-color: var(--color-block);  height: 100%; display:flex; align-items: flex-start; }
 .block2_left_img{ width: 30%; margin: 0.3rem 1rem 0.3rem 0.3rem;}
 .block2_right_c{padding: 0.3rem 0 0 0;}
 .block2_right_title{font-weight: bold;}
 .block2_right_des{ color:var(--color-text-light); font-size: 90%; }
 .block2_right_money{ color:var(--color-text-high); }
-
 .detail_image{ width:100%; border-radius: 0.5rem; cursor: pointer; }
+.block .title { padding: 0 0 0.4rem 0; }
+
+/**/
+.detail_page_img{ margin: 1rem 0; border-radius: 1rem; }
+
+/* log */
+
+.log_record{padding: 0.3rem; display: flex; }
+.log_time{min-width: 20rem;}
+.log_record_content{}
 
 /*--------------------page layout---------------------*/
 .page_title_c{ display:flex; justify-content: center; }

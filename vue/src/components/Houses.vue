@@ -14,7 +14,7 @@ onMounted(() => {
     <div v-for="a in buda.houses.filter(i=>!i.closed)"  class="block">
       <div class="block_inner">
         <div class="title">{{ a.community.name }}{{a.area}}平米{{ a.fitment }}{{ a.format }}出租，{{ a.price }}元/月</div>
-        <div v-if="a.contacts && a.contacts.length" class="contacts_c">
+        <div v-if="a.contacts && a.contacts.length" class="field">
           <div><span class="field_title">联系人</span></div>
           <div class="contacts">
             <div class="rm" v-for="d in a.contacts">

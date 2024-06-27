@@ -1,9 +1,10 @@
 let jobs=[   
   { 
-    company:"晟建环境科技",
-    location:'金银湖科技园15栋3单元202',
+    
+    company:"晟建环境科技有限公司",
+    location:'金银湖科技园15栋2单元202',
     summary:'招销售污水处理设备和施工工程的业务员，可兼职，提成十分丰厚。',
-    imgs:['晟建环境科技.jpg'],
+    imgs:['晟建.webp', '晟建会议室.webp', '晟建办公室.webp'],
     env:[],
     contacts:['微信群@晟建'],
   },

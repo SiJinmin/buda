@@ -14,15 +14,17 @@ onMounted(() => {
       <div class="block_inner">
         <div class="title">{{ a.company }}</div>
         <div><span class="field_title">地址</span>{{ a.location }}</div>
-        <div v-if="a.contacts && a.contacts.length" class="contacts_c">
-          <div><span class="field_title">联系人</span></div>
+        <div v-if="a.contacts && a.contacts.length" class="field">
+          <div class="field_title">联系人</div>
           <div class="contacts">
             <div class="rm" v-for="d in a.contacts">
               {{ d }} 
             </div>
           </div>
         </div>
-        <div>{{ a.summary }}</div>
+        <div>
+          <div>{{ a.summary }}</div>
+        </div>
         <ul>
           <li v-for="(s, index) in a.ServiceItems" :key="index">{{ s }}</li>
         </ul>

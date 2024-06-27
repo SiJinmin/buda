@@ -16,8 +16,9 @@ window.Buda.dom.setAreaH=function (e, fontsize=16, max=null, er=null, freeH=3, m
 Object.defineProperty(String, 'Buda_TextToHtml', {
     enumerable: false,
     writable: false,
-    value: function (v) {
-      let r = v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/[\r]/g, '').replace(/[\n]/g, '<br>').replace(/[\t]/g, '&nbsp;&nbsp;').replace(/\s/g, '&nbsp;');
+    value: function (v, keep_space) {
+      let r = v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/[\r]/g, '');
+      if(!keep_space) r=r.replace(/[\n]/g, '<br>').replace(/[\t]/g, '&nbsp;&nbsp;').replace(/\s/g, '&nbsp;');
       return r;
     }
   }); 
