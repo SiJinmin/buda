@@ -36,7 +36,7 @@ int get_file_content(char *path, MemChain *mc)
 
 FILE* get_file_info_open(char *path, struct ::stat *file_info)
 {
-    log("get_file_info_open for %s", path);
+    // log("get_file_info_open for %s", path);
     FILE* pf=NULL; int r = ::stat(path, file_info); 
     if (r || !(S_IFREG & file_info->st_mode)) { log("file does not exists: %s", path); goto fail;  } 	
     pf = fopen(path, "rb"); if (pf == NULL)  { log("could not open file %s to read.", path); goto fail; }

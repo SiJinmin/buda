@@ -46,7 +46,7 @@ namespace BUDA
 
   void reset_mem_chain(MemChain *mc)
   {
-    log("reset_mem_chain %d/%d", mc->max_size, mc->block_min_size);
+    // log("reset_mem_chain %d/%d", mc->max_size, mc->block_min_size);
     MemChainBlock *first=mc->first; MemChainBlock *mcb=first->next, *next; 
     while(mcb) { next=mcb->next; BudaFree(mcb->mem); BudaFree(mcb); mcb=next; }
     mc->block_count=1; mc->content_used=0; mc->last=first; mc->used=first->size;

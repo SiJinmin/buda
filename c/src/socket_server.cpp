@@ -113,7 +113,7 @@ int main(int argc, char * argv[])
 	while((sock	= accept(listen_sock, (struct sockaddr*)&client_addr,	&addrlen_client)) > 0)
 	{			
 		client_count++; client_ip = inet_ntoa(client_addr.sin_addr); client_port = ntohs(client_addr.sin_port);
-		log("\n%ld --- server socket accepted a client connection:  %s:%d ---", client_count, client_ip, client_port);
+		log("%ld --- server socket accepted a client connection:  %s:%d ---", client_count, client_ip, client_port);
 
 		if(set_socket_options(sock)) goto end_close_client;
 		reset_mem_chain(sender); 

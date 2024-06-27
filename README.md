@@ -119,11 +119,12 @@ gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 
 ## 即将开发的功能
 
+实现Connection: keep-alive<br>
 完成日志查看功能<br>
 实现共享MemChain Pool<br>
 Img组件扫动时切换图片<br>
 实现https协议<br>
-实现服务端的多线程运行<br>
+实现服务端的多线程运行，开启线程前后检查每个线程消耗的内存数量<br>
 实现服务端的内容缓存系统，提升运行效率<br>
 实现纯素商城<br>
 实现公司官网模板<br>

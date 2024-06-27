@@ -22,7 +22,7 @@
 }
 
 
-*,*::before,*::after { box-sizing: border-box; margin: 0; font-weight: normal; }
+*,*::before,*::after { box-sizing: border-box; margin: 0; font-weight: normal; word-break: break-all; }
 html, body{ min-height: 100vh; margin:0; padding:0; font-size: var(--size-font); }
 body {  
   background: var(--color-bg);
@@ -53,6 +53,7 @@ input:focus, textarea:focus { border-color: var(--color-site-title); border-widt
 .bm{ margin: 0 0 1rem 0;}
 .rm{ margin: 0 1rem 0 0; }
 .pad{ padding: 1rem;}
+.nowrap{ white-space: nowrap;}
 
 
 
@@ -91,6 +92,11 @@ input:focus, textarea:focus { border-color: var(--color-site-title); border-widt
 .field_editor_input_search{ width: calc(100vw - 5rem); max-width: 25rem; border: none; }
 .field_editor_input_4chars{ width: 5em; }
 .field_editor_input_2chars{ width: 3em; }
+
+/* radio */
+.radio_list{ display:flex; align-items: center; }
+.radio_list_item{ display:flex; align-items: center; padding: 0.5em 1em 0.5em 0; }
+.radio_list_item label{display:inline; margin: 0 0 0 0.2em;}
 
 /* grid */
 .grid_c { --ColumnCount: 1; padding: var(--size-list-item-gap); display:grid; grid-template-columns: repeat(var(--ColumnCount), 1fr);  }
