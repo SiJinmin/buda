@@ -97,6 +97,22 @@ gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 部署到systemd的service文件请参考 doc/buda.service
 
 
+## 即将开发的功能
+
+活动详情页面居中显示<br>
+实现Connection: keep-alive<br>
+完成日志查看功能<br>
+实现共享MemChain Pool<br>
+Img组件扫动时切换图片<br>
+实现https协议<br>
+实现服务端的多线程运行，开启线程前后检查每个线程消耗的内存数量<br>
+实现服务端的内容缓存系统，提升运行效率<br>
+实现纯素商城<br>
+实现公司官网模板<br>
+完成人物传记整理工具<br>
+内存使用动态释放较长时间不用的内存块<br>
+
+
 ## 已完成的功能
 
 2024年6月27日<br>
@@ -119,21 +135,6 @@ gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 完成网站标题、菜单的现实，招聘信息和租房信息的列表页面。<br>
 完成图片显示组件，可全屏观看、上一张、下一张图片。<br>
 人物传记整理工具，完成30%<br>
-
-
-## 即将开发的功能
-
-实现Connection: keep-alive<br>
-完成日志查看功能<br>
-实现共享MemChain Pool<br>
-Img组件扫动时切换图片<br>
-实现https协议<br>
-实现服务端的多线程运行，开启线程前后检查每个线程消耗的内存数量<br>
-实现服务端的内容缓存系统，提升运行效率<br>
-实现纯素商城<br>
-实现公司官网模板<br>
-完成人物传记整理工具<br>
-内存使用动态释放较长时间不用的内存块<br>
 
 
 ## 联系作者、捐助作者

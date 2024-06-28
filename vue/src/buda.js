@@ -13,7 +13,7 @@ let ui = {
 
 let community = '金银湖科技园';
 let site = { title: '资讯服务' };
-let page ={ module:{}, }; // current page
+let page ={ module:{}, msg:'', }; // current page
 
 let modules = [
   { title:'招聘信息', Code: 'Jobs', live:true, menu: true, des:'社区及周边的招聘信息，包括全职、兼职、小时工等各种工作形式。', },

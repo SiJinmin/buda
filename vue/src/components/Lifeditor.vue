@@ -102,22 +102,22 @@ onMounted(() => {
       <div>
         <div v-for="(e, ei) in life.events" class="field_editor_verticle">
           <div>
-            <img src="@/assets/add.svg" @click="AddEvent(e, ei)" class="add_img">
+            <img src="@/assets/ico/add.svg" @click="AddEvent(e, ei)" class="mid_ico_button bm">
           </div>
           <div>
             <div class="event_head">
               <BudaDate v-model:year="e.date.year" v-model:month="e.date.month" v-model:day="e.date.day" :func="save" />
-              <img v-if="e.lock_date" title="日期已被锁定，不再提取内容中的日期" src="@/assets/lock_color.svg" class="lock_img" @click="e.lock_date=!e.lock_date" />
-              <img v-else  title="从输入内容中自动提取日期" src="@/assets/unlock.svg" class="lock_img" @click="e.lock_date=!e.lock_date" />
+              <img v-if="e.lock_date" title="日期已被锁定，不再提取内容中的日期" src="@/assets/ico/lock_color.svg" class="ico_button" @click="e.lock_date=!e.lock_date" />
+              <img v-else  title="从输入内容中自动提取日期" src="@/assets/ico/unlock.svg" class="ico_button" @click="e.lock_date=!e.lock_date" />
               <div class="event_age">{{ Age(e) }}岁</div>
               <div class="sep_div"></div>
-              <img title="删除本事件" src="@/assets/delete_left.svg" class="delete_img" @click="DeleteEvent(ei)" />
+              <img title="删除本事件" src="@/assets/ico/delete_left.svg" class="mid_ico_button" @click="DeleteEvent(ei)" />
             </div>
             <div class="field_editor_content"><BudaInput v-model="e.content" @input="event_content_input($event, ei)" type="textarea" :input_classes="{field_editor_input_long:true}" :func="save"/></div>
           </div>
         </div>
         <div>
-          <img src="@/assets/add.svg" @click="AddEvent()" class="add_img">
+          <img src="@/assets/ico/add.svg" @click="AddEvent()" class="mid_ico_button bm">
         </div>
       </div> 
       <div class="field_editor_multilines">
@@ -134,9 +134,6 @@ onMounted(() => {
 
 <style scoped>
 .sep_div{flex-grow:1;}
-.delete_img{ width: 1.5rem; height: 1.5rem; cursor:pointer; }
-.lock_img{ width: 1rem; height: 1rem; cursor:pointer; }
-.add_img{ margin: 0 0 1em 0; width: 2em; height: 2em; cursor: pointer; }
 .event_head { display: flex; flex-wrap: wrap; align-items: center;}
 .event_age{ margin: 0 1em;}
 </style>
