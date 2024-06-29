@@ -4,6 +4,54 @@
 
 namespace BUDA
 {	
+    
+    
+char* dir_create(char* path)
+{
+    if (file_dir_exist(path, 2) == 0) { return path; }
+    int r = mkdir(path, 0700); // owner can read, write and execute
+    if (r) { log("create dir fail: %s", path); goto fail; } 
+    // log("create dir succeed(%d): %s", r, path); return path;
+
+    succeed: return path;
+    fail: return NULL;
+}
+
+
+    
+char* dir_create(char* name, char* parent)
+{
+    char* path = NULL, path_relative[PATH_MAX], parent_real[PATH_MAX]; int r=0, len=0, parent_len=0;
+    
+    if(name==NULL || parent==NULL || strlen(name)<1 || strlen(parent)<1) { log("dir name and parent path cannot be NULL or empty"); goto fail; }
+    if(realpath2(parent, parent_real)){ goto fail; } 
+    if ((r = file_dir_exist(parent_real, 2)) < 0) { log("parent dir(%s) do not exists, cannot create dir in it.", parent_real); goto fail; }        
+    if(snprintf2(path_relative, PATH_MAX_1, "%s/%s", parent_real, name)<2) goto fail;
+
+    path=BudaMc(PATH_MAX); if(path==NULL){ goto fail; }
+    if(realpath2(path_relative, path)){ goto fail_free; }
+    parent_len=strlen(parent_real); 
+    if(strncmp(path, parent_real, parent_len) || (parent_len>1 && path[parent_len]!='/')){ log("create dir name error: %s", name); goto fail_free; }
+
+    if(file_dir_exist(path, 2) == 0) { goto succeed; }
+    r = mkdir(path, 0700); // owner can read, write and execute
+    if (r) { log("create dir fail: %s", path); goto fail_free; } 
+    // log("create dir succeed(%d): %s", r, path); return path;
+
+    succeed: return path;
+    fail_free: BudaFree(path); fail: return NULL;
+}
+
+
+int file_dir_exist(const char* path, int file_dir)
+{
+    int r = 0;
+    struct stat status; r = stat(path, &status); if (r) return -1;
+    if ((file_dir == 2 || file_dir == 3) && (status.st_mode & S_IFDIR)) return 0;
+    if ((file_dir == 1 || file_dir == 3) && (S_IFREG & status.st_mode)) return 0;
+    return -1;
+}
+
 
 int realpath2(char* input_path, char *real_path)
 {

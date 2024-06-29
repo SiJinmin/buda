@@ -1,33 +1,51 @@
-# buda 社区资讯服务网站
+# buda community services website
 
-本项目是开发一个提供社区资讯服务的网站，前端用vue3开发，后端用C/C++语言自建http服务器。<br>
-buda是「佛」的英文Budda的简写，意谓推崇大乘佛法「慈悲喜舍、普度众生」的精神。<br>
-为了将来最大限度地满足高并发性访问和大量视频、文件的下载，提高服务器的运行效率和灵活性，用C/C++语言开发了专属的http服务器。<br>
-
-
-## 主要功能
-
-### 招聘信息列表
-支持全屏显示浏览一组图片。
-
-### 房屋出租信息列表
-支持全屏显示浏览一组图片。
-
-### 人物传记整理工具
-自动调整输入框的高度。<br>
-输入内容时自动保存，红色文字表示即将在5秒内自动保存。<br>
-自动提取内容中的年月日设置事件发生的日期，支持日期锁定。<br>
-自动计算事件发生时的人物年龄。<br>
+This project is a community services website, use vue3 for frontend, and build a http server by C/C++.<br>
+buda is the brief 「Budda」, it means we like the Budda spirit of 「give happiness and resolve suffering, help all the people realize their ideal.」（「慈悲喜舍、普度众生」）<br>
+In order to satisfy the high visits and huge video files download in the future, and for the performance and flexibility of server, we make a dedicated http server for this website by C/C++.<br>
 
 
-## 目录结构
+## main functions
 
-buda/c: 网站后端，用C/C++语言自建的专用于本站的http服务器，实现了本站需要的极少量的http服务协议，并非http协议的完整实现，以后也不打算成为通用性http服务器。<br>
-buda/vue: 网站前端，用Vue3开发。<br>
-buda/node: 偶尔使用的一些nodejs脚本小工具，与本站无关，可以忽略。<br>
+### jobs list
+### houses list
+### parties list
+
+### human life story edit tool
+auto adjust input area height.<br>
+auto save user input content into local storage, the red color text means it shall be saved in 5 seconds.<br>
+auto get the event time from input content, support time locking.<br>
+auto compute the human age for events.<br>
+
+### log record and view
+view log from http://<server>/log , you need to input admin password in config file. There are 4 view modes:
+1. raw: raw log record, txt format, hard to read, but it's completed.
+2. align: make the raw mode look better, left column displays time, right column displays log content. It's also completed.
+3. requests: combine multiple log records into a http request, then display only http requests. It will hide many other information, focus on http requests display.
+4. users: sort and combine http requests into users by user-agents of http requests, in order to check the actions of a user.
+
+### config file: /etc/buda.conf
+
+It's ok if the config file is missing, then the following default values will be used.
+
+```
+# admin password
+pw=buda
+```
+
+### log files: /var/log/buda/
+
+log files are in /var/log/buda/.
 
 
-## 前端
+## source code arch
+
+buda/c: website backend, including the http server by C/C++. It's not full implementation of http protocol, just some functions we need in this website. <br>
+buda/vue: website frontend, by Vue3.<br>
+buda/node: some script tools by nodejs, you can ignore it. <br>
+
+
+## about frontend
 
 ```sh
 cd buda/vue
@@ -37,83 +55,110 @@ npm run build
 ```
 
 
-## 服务端
+## about backend
 
-服务端位于 buda/c 文件夹中。
+it's in buda/c.
 
-### 开发思路说明
+### code principles
 
-主要使用C语言开发，使用了极少量的C++语言特性，绝大部分为纯C语言代码，尽量不用C++的语言特性，为什么要这样呢？
-1. 我们希望尽可能清晰地掌握每一句代码的运行原理，以便出现问题时能快速解决。
-2. 我们不推崇将函数绑定到一个类的OOP编程思想，而认为，函数通常都具有跨类的通用性，不应该专属于某一个类，因此，我们仅仅使用了C语言的struct来表示一个对象的数据，而让所有的函数以库的形式分类放置。
-
-使用的极少量C++语言特性：
+We try to just use C, but use C++ as little as possilbe. The C++ features we use are:
 1. namespace
-2. 函数设置参数的default value
+2. function default value
 
-### 文件目录说明
-release: 存放不带debug信息的可执行文件的地方<br>
-debug: 存放开发时编译出来的带有debug信息的可执行文件的地方<br>
-src: 存放入口源代码的地方<br>
-includes: 存放头文件的地方<br>
-lib: 存放库文件源代码的地方<br>
-play: 随意玩乐的地方，专放乱七八糟可忽略的文件的地方<br>
+### source code arch of buda/c/
 
-### 开发和部署环境
-开发环境：Ubuntu Linux 24.04 AMD 64桌面版，VSCODE最新版<br>
-部署环境：Ubuntu Linux 22/24 不包含xwindow的服务器版<br>
+release: exe file with no debug info<br>
+debug: exe file with debug info<br>
+src: entry source file<br>
+includes: head files<br>
+lib: library source files<br>
+play: for fun, you can ignore it.<br>
 
-### 如何开发？
+### development
+
+Ubuntu Linux 24.04 AMD 64 Desktop，VSCODE<br>
+
 ```sh
+sudo cp buda/buda.conf /etc/
+# then modify /etc/buda.conf to your settings
+cd buda/vue
+npm run build
 cd buda/c/debug
 gcc ../src/socket_server.cpp ../lib/*.cpp -g -o socket_server
+sudo ./socket_server -w ../../vue/dist -p 8888
 gdb --args socket_server -w ../../vue/dist -p 80
 ```
-此外还有一些方便开发用的alias命令，可以放到~/.bash_aliases中
+
+in ~/.bash_aliases
 
 ```sh
-lias gitbuda='gitbuda() { cd ~/code/buda; git add -A; git commit -m "$1"; git push; }; gitbuda'
+alias gitbuda='gitbuda() { cd ~/code/buda; git add -A; git commit -m "$1"; git push; }; gitbuda'
 alias makebudav='cd ~/code/buda/vue && npm run build'
 alias runbudav='cd ~/code/buda/vue && npm run dev'
 alias makebudac='cd ~/code/buda/c/debug && gcc ../src/socket_server.cpp ../lib/*.cpp -g -o socket_server'
 alias runbudac='cd ~/code/buda/c/debug && ./socket_server -w ../../vue/dist -p 8888'
 alias debugbudac='cd ~/code/buda/c/debug && gdb --args ./socket_server -w ../../vue/dist -p 8888'
 ```
-提交代码： # gitbuda "commit message"
+commit to git: # gitbuda "commit message"
 
-### 如何部署？
+
+
+### deployment
+
+Ubuntu Linux 22 cloud server<br>
+
 ```sh
-# 查看防火墙的状态：(国内的云服务器80,443,8080,8443是备案端口，必须备案以后才能从外网访问，注意避免使用)
+# check firewall(80,443,8080,8443 are 备案 ports in China, do not use them before 备案)
 ufw status
 ufw allow 80
-# 查看端口是否被其它程序占用
-apt lsof
+apt install lsof
 lsof -i:80
 
+cp buda/buda.conf /etc/
+# then modify /etc/buda.conf to your settings
+cd buda/vue
+npm run build
 cd buda/c/release
 gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 ./socket_server -w ../../vue/dist -p 80
 ```
-部署到systemd的service文件请参考 doc/buda.service
+For systemctl start buda style, please ref buda/doc/buda.service
 
 
-## 即将开发的功能
 
-活动详情页面居中显示<br>
-实现Connection: keep-alive<br>
-完成日志查看功能<br>
-实现共享MemChain Pool<br>
+## future work plans
+
+网站备案<br>
+完成日志查看功能：
+每隔一定的时间获取一次内存使用量/剩余量、硬盘使用量/剩余量、CPU占有率
+统计和显示任意时间间隔段内的线程的工作时长、空置率、内存使用量（%）、硬盘使用量(%)、CPU占有率、request数量、接收字节数、发送字节数、每个request的平均响应时间、每个字节的平均接收和发送时长<br>
+拼车模块、租车模块<br>
 Img组件扫动时切换图片<br>
+活动详情页面居中显示<br>
 实现https协议<br>
-实现服务端的多线程运行，开启线程前后检查每个线程消耗的内存数量<br>
+实现服务端的多线程运行，开启线程前后检查每个线程消耗的内存数量，线程数量通过CPU核心数决定<br>
 实现服务端的内容缓存系统，提升运行效率<br>
-实现纯素商城<br>
-实现公司官网模板<br>
-完成人物传记整理工具<br>
+实现Connection: keep-alive<br>
 内存使用动态释放较长时间不用的内存块<br>
+实现共享MemChain Pool<br>
+实现纯素商城: 出售娃哈哈、三只松鼠素肉、佛法艺术品、joke咖啡<br>
+实现公司官网模板<br>
+全民分红系统<br>
+完成人物传记整理工具<br>
+实现全民兼职业务员网络系统<br>
+添加文章视频发布、常用信息剪贴板<br>
 
 
-## 已完成的功能
+## completed works
+
+2024-06-29<br>
+In order to share with all the people, change the readme from Chinese to English.<br>
+add /ect/buda.conf as config file.<br>
+change log files to /var/log/buda/<br>
+
+2024年6月28日<br>
+改进创业聚会模块<br>
+日志查看功能完成90%<br>
 
 2024年6月27日<br>
 添加创业聚会模块<br>
@@ -137,14 +182,13 @@ Img组件扫动时切换图片<br>
 人物传记整理工具，完成30%<br>
 
 
-## 联系作者、捐助作者
+## contact us, discucss, denote
 
-欢迎加我为微信好友，讨论网站的开发、社区资讯服务的运营、捐助投资。<br>
-微信：TobeBuda<br>
-支付宝 / Paypal: jinmin.si@outlook.com<br>
-Email: jinmin.si@outlook.com  si.jinmin@gmail.com<br>
-微信公众号：立心成见<br>
+Welcome to concat us by the following ways, discuss the website development and community services system. We also need denote and investments.<br>
+Wechat: TobeBuda<br>
+Email / Alipay / Paypal: jinmin.si@outlook.com<br>
 CSDN：https://blog.csdn.net/qiuzen<br>
 Github: https://github.com/SiJinmin<br>
+微信公众号：立心成见<br>
 
 

@@ -75,35 +75,7 @@
 namespace BUDA
 {
 
-
-//--------------- constants --------------
-static const u_char LOW_BYTE_MASK = 15;
-static const char* HEXS = "0123456789ABCDEF";
-
-static const char *VERSION = "1.0.0";	
-static const int PATH_MAX_1 = PATH_MAX - 1;
-static const int TIME_BUF_SIZE = 2048;
-static const int TIME_BUF_SIZE1 = TIME_BUF_SIZE - 1;
-static const char *log_dir = "../../../log/"; // ~/code/log
-
-static const int SOCK_BUF_RECV_SIZE = 8192;     // 8K
-static const int SOCK_BUF_SEND_SIZE_MAX = 200008192; // about 200M, controled by MemChain
-static const int SOCK_BUF_SEND_SIZE_INIT = 108192; // about 10M, it's just the init size, the memory need will be allocated by MemChain
-static const int SOCK_CONN_QUEUE_MAX = 3;
-static const int SOCK_PORT_MAX = 65535;
-static const char *MODE_show_client_messages = "show_client_messages";
-static const char *MODE_http_single_thread = "http_single_thread";
-
-//--------------- global vars --------------
-extern int server_listen_port;
-extern char log_dir_real[];
-extern FILE* log_file;
-extern struct timespec last_log_time;
-extern char web_root[]; // the real path of web_root dir
-extern int web_root_len; 
-
-
-//-------------------- mem.cpp ---------------------------
+//-------------------- structs ---------------------------
 typedef struct mem_chain_block
 {
   char *mem;
@@ -121,6 +93,50 @@ typedef struct mem_chain
   int block_min_size;
   int block_count;
 } MemChain;
+
+typedef struct http_req
+{
+  char* method;
+  char* path;
+  char* content;
+  int content_len;
+} HttpReq;
+
+typedef struct http_mime
+{
+  const char* ext;
+  const char* type;
+  int ext_len;
+} HttpMime;
+
+//--------------- constants --------------
+extern const u_char BYTE_LOW4_MASK;
+extern char* HEXS;
+extern const HttpMime HttpMimes[];
+extern const int HttpMimesLen;
+
+extern const int PATH_MAX_1;
+extern const int TIME_BUF_SIZE;
+extern const int TIME_BUF_SIZE1;
+extern const int SOCK_BUF_RECV_SIZE;      // 8K
+extern const int SOCK_BUF_SEND_SIZE_MAX;  // about 200M, controled by MemChain
+extern const int SOCK_BUF_SEND_SIZE_INIT; // about 10M, it's just the init size, the memory need will be allocated by MemChain
+extern const int SOCK_CONN_QUEUE_MAX;
+extern const int SOCK_PORT_MAX;
+extern char *VERSION;	
+extern char *conf_path;
+
+extern MemChain *conf;
+extern char* hostname;
+extern char* admin_pw;
+extern char *log_dir;
+extern FILE* log_file;
+extern struct timespec last_log_time;
+extern char web_root[]; // the real path of web_root dir
+extern int web_root_len; 
+extern int server_listen_port;
+
+
 
 // calloc memory, log fail message
 void* alloc(int size);
@@ -150,7 +166,16 @@ int vsnprintf2 (char *s, size_t size, const char *format, va_list args) ;
 // check the result len and log error info
 // Return -1 for error, and len for succeed
 int snprintf2 (char *s, size_t size, const char *format, ...);
+
+// set the next space or newline to 0 as the string end
+// if not found, set pc_end to 0 as string end
+// return the next char of string end
+char* set_next_space_0(char *pc, char *pc_end);
+// get the start of next line from pc
+// return NULL for not found, return next line start for success
+char* next_line(char *pc);
 // Pay attention to not log inside itself
+// return 0 for success, return -1 for failure
 int log_start();
 // Pay attention to not log inside itself
 void log(const char *format, ...);
@@ -183,7 +208,16 @@ int time_text_http_response(char *r, int max_len);
 
 
 //--------------------------- file.cpp ---------------------------
-
+/* caller should make sure the path is safe, no input check inside it.
+   return NULL for faiure; 
+   return path for existence or create success. */
+char* dir_create(char* path);
+/* return NULL for failure, 
+   return created dir real path for create success or existence. 
+   caller should free(r) if not NULL.  */
+char* dir_create(const char* name, const char* parent);
+/* file_dir is 1 for file, 2 for dir, 3 for file or dir. return 0 if exists, -1 for not exist*/
+int file_dir_exist(const char* path, int file_dir);
 // return -1 if failed, return 0 for succeed
 int realpath2(char* input_path, char *real_path);
 // return -1 for failure, return file size for sucess
@@ -212,15 +246,6 @@ int set_socket_options(int socket);
 
 
 //--------------------------- http.cpp ---------------------------
-typedef struct http_req
-{
-  char* method;
-  char* path;
-  char* content;
-  int content_len;
-} HttpReq;
-
-#include "mime.h"
 
 /* return 0 for succeed, return -1 for failure. */
 int parse_http_request(char* req, HttpReq* r);

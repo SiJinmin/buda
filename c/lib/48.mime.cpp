@@ -1,11 +1,10 @@
 
-typedef struct http_mime
+#include "../includes/buda.h"
+
+namespace BUDA
 {
-  const char* ext;
-  const char* type;
-  int ext_len;
-} HttpMime;
-static const HttpMime HttpMimes[]=
+
+const HttpMime HttpMimes[]=
 {
   {"htm", "text/html", 3},
   {"html", "text/html", 4},
@@ -85,4 +84,8 @@ static const HttpMime HttpMimes[]=
   {"3g2", "video/3gpp2", 3},
   {"7z", "application/x-7z-compressed", 2}
 };
-static const int HttpMimesLen=sizeof(HttpMimes)/sizeof(HttpMime);
+
+const int HttpMimesLen=sizeof(HttpMimes)/sizeof(HttpMime);
+
+
+}

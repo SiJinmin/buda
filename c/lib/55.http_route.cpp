@@ -24,7 +24,7 @@ namespace BUDA
     int r=0; MemChain *file_content; char input_path[PATH_MAX]; char real_path[PATH_MAX]; 
 
     char* filename=req->path+strlen("/api/log_file/");
-    if(snprintf2(input_path, PATH_MAX_1, "%s/%s", log_dir_real, filename)<0) goto fail;
+    if(snprintf2(input_path, PATH_MAX_1, "%s%s", log_dir, filename)<0) goto fail;
     if(realpath2(input_path, real_path)<0){  goto fail;}
     file_content=create_mem_chain(); if(file_content==NULL) goto fail; 
     if((r=get_file_content(real_path, file_content)) < 0) goto fail;
@@ -41,7 +41,7 @@ namespace BUDA
     int r=0; 
 
     MemChain *filenames=create_mem_chain(); if(filenames==NULL) goto fail; 
-    if(get_dir_filenames(log_dir_real, filenames)) goto fail;
+    if(get_dir_filenames(log_dir, filenames)) goto fail;
 	  r = make_http_response(sender, NULL, filenames->content_used, "text/plain"); if(r<0) goto fail;
     r=concat_mem_chain(sender, filenames);
 

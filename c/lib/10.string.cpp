@@ -19,20 +19,45 @@ int snprintf2 (char *s, size_t size, const char *format, ...)
 }
 
 
+
+char* set_next_space_0(char *pc, char *pc_end)
+{
+  char c;
+  while( (c=*pc) &&  pc<pc_end)
+  {
+    if(c==' ' || c=='\r' || c=='\n') {*pc=0; return ++pc;} else pc++;
+  }
+  *pc_end=0; return ++pc_end;
+}
+
+char* next_line(char *pc)
+{
+  char c; int found=false;
+  while(c=*pc)
+  {
+    if(c=='\r' || c=='\n') { found=true; pc++; } else { if(found) return pc; else pc++; }
+  }
+  return NULL;
+}
+
+
 int log_start()
 {  
-  clock_gettime(CLOCK_MONOTONIC, &last_log_time);
+  int r=0; char real_path[PATH_MAX], *c=real_path; int remain=PATH_MAX_1, len; 
+  
+  struct stat status; r = stat(log_dir, &status); if (r) goto create_log_dir;
+  if (status.st_mode & S_IFDIR) goto create_log_file; else goto create_log_dir;
 
-  char relative_path[PATH_MAX], real_path[PATH_MAX], *c=relative_path; int remain=PATH_MAX_1, len; 
-  len = snprintf(c, remain, "%s", log_dir); BudaWriteStep2(c, len, remain);
-  if(realpath2(relative_path, real_path)<0) { goto fail; }  else strcpy(log_dir_real, real_path);
+  create_log_dir: r = mkdir(log_dir, 0700); // owner can read, write and execute
+  if (r) { printf("create dir fail: %s\n", log_dir); goto fail; }   
 
-  c=real_path; remain=PATH_MAX_1; len=strlen(c); BudaWriteStep2(c, len, remain);
-  len = snprintf(c, remain, "/"); BudaWriteStep2(c, len, remain);  
+  create_log_file: len = snprintf(c, remain, "%s", log_dir); BudaWriteStep2(c, len, remain);
   len = time_text(c, remain, 'f', false, true); BudaWriteStep2(c, len, remain); 
   len = snprintf(c, remain, ".txt"); BudaWriteStep2(c, len, remain);  
   log_file = fopen(real_path, "ab"); if (log_file == NULL) { printf("Failed to open file: %s\n", real_path); goto fail; }
   printf("created log file: %s\n", real_path);
+
+  clock_gettime(CLOCK_MONOTONIC, &last_log_time);
 
   succeed: return 0;
   fail: return -1;
@@ -91,7 +116,7 @@ int url_encode(u_char *s, u_char *d, int max_len)
     else 
     {
       BudaPreWrite(max_len, 3, fail);
-      *(pd++) = '%'; *(pd++) = HEXS[c >> 4]; *(pd++) = HEXS[c & LOW_BYTE_MASK]; 
+      *(pd++) = '%'; *(pd++) = HEXS[c >> 4]; *(pd++) = HEXS[c & BYTE_LOW4_MASK]; 
     }
   }
   *pd=0;

@@ -3,15 +3,52 @@
 namespace BUDA
 {
 
-char web_root[PATH_MAX]; 
+//------------global externs definitions-------------
+
+const u_char BYTE_LOW4_MASK = 15;
+char* HEXS = (char*)"0123456789ABCDEF";
+
+const int PATH_MAX_1 = PATH_MAX - 1;
+const int TIME_BUF_SIZE = 2048;
+const int TIME_BUF_SIZE1 = TIME_BUF_SIZE - 1;
+const int SOCK_BUF_RECV_SIZE = 8192;
+const int SOCK_BUF_SEND_SIZE_MAX = 200008192;
+const int SOCK_BUF_SEND_SIZE_INIT = 10008192;
+const int SOCK_CONN_QUEUE_MAX = 3;
+const int SOCK_PORT_MAX = 65535;
+char *VERSION = (char*)"1.0.0";	
+char *conf_path = (char*)"/etc/buda.conf";
+
+char *log_dir = (char*)"/var/log/buda/";
+FILE* log_file=NULL;
+struct timespec last_log_time = {0, 0};
+MemChain *conf=NULL;
+char* admin_pw=(char*)"buda";
+char web_root[PATH_MAX]="../../vue/dist/"; 
 int web_root_len = 0; 
 int server_listen_port = 8888;
-char log_dir_real[PATH_MAX];
-FILE* log_file = NULL;
-struct timespec last_log_time = {0, 0};
+
+//------------end of global externs definitions-------------
+
+void read_conf()
+{
+	conf = create_mem_chain(); if(conf==NULL) return;
+	if(get_file_content((char*)conf_path, conf) > 0) 
+	{
+		MemChainBlock* last=conf->last; char *pc=last->mem, *pc_end=pc + last->used, c;
+		while(pc < pc_end)
+		{
+			c=*pc; if(c=='#' || c=='\r' || c=='\n') {pc=next_line(pc); if(pc==NULL) break; else continue;}
+			if(strncmp(pc, "pw=", 3)==0 && pc+3<pc_end)
+			{
+				admin_pw=pc+3; pc=set_next_space_0(pc, pc_end);
+			} else pc++;
+		}
+		// printf("admin_pw: %s\n", admin_pw);
+	}
+}
 
 typedef int (*FUN_process_connection_sock)(int sock, char* buf_recv, int buf_recv_size, MemChain* sender); 
-
 	
 // server waits for messages from client, and display messages in server console
 // the listen socket and connection sockets work in the same single thread, so the queued clients may be blocked for a very long time.
@@ -25,7 +62,6 @@ int show_client_messages_single_thread(int sock, char* buf_recv, int buf_recv_si
 	}
 	log("receive from client failed"); return -1;
 }
-
 
 /* process a http request, return 0 for succeed, -1 for failure.  */
 int http_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* sender)
@@ -57,6 +93,7 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* se
 int main(int argc, char * argv[])
 {
 	if(log_start()<0) return -1;
+	read_conf(); return 0;
 
 	int r=0; int optc; char *program_name = argv[0]; 
 	FUN_process_connection_sock fun_sock = http_single_thread; char *web_root_input = NULL;
