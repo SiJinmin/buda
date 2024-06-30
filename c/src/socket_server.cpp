@@ -96,7 +96,7 @@ int main(int argc, char * argv[])
 {
 	if(log_start()<0) return -1;
 	if(compile_regex(pattern_log_time, &regex_log_time)) return -1;
-	read_conf(); return 0;
+	read_conf(); //return 0;
 
 	int r=0; int optc; char *program_name = argv[0]; 
 	FUN_process_connection_sock fun_sock = http_single_thread; char *web_root_input = NULL;
