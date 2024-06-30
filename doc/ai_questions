@@ -1,7 +1,14 @@
 
 
 总分
-Mistral 21分    Gemini 22分    Chatgpt 19分    Claude 19分    Llama 18分
+Mistral 31分    Gemini 27分    Chatgpt 19分    Claude 28分    Llama 25分
+文心一言  9分    通问千义  9分
+
+
+用Linux C语言写一个函数 int search_first(char *content, char *pattern, char **startPtr, char **endPtr) ，判断content中是否存在匹配正则表达式pattern的内容，如果存在，将匹配内容的开始和结束指针存入startPtr和endPtr
+// 正则表达式判断字符串char *content中是否含有类似"[2024-06-29 23:44:03][0.291508]"格式的内容，并返回这段内容的开始和结束的指针。
+Mistral 10分    Gemini  5分    Chatgpt  0分    Claude  9分    Llama  7分
+文心一言  9分    通问千义  9分
 
 Linux C语言程序中static __thread类型变量的内存什么时候被分配？
 Mistral  7分    Gemini  8分    Chatgpt  5分    Claude  7分    Llama  8分

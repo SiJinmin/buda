@@ -55,7 +55,7 @@ int file_dir_exist(const char* path, int file_dir)
 
 int realpath2(char* input_path, char *real_path)
 {
-    if(realpath(input_path, real_path)!=real_path){ log("get realpath for %s failed", input_path); return -1;} 
+    if(realpath(input_path, real_path)!=real_path){ log("get realpath failed"); return -1;} 
     return 0;
 }
 
@@ -82,12 +82,12 @@ int get_file_content(char *path, MemChain *mc)
 }
 
 
-FILE* get_file_info_open(char *path, struct ::stat *file_info)
+FILE* get_file_info_open(char *input_path, struct ::stat *file_info)
 {
     // log("get_file_info_open for %s", path);
-    FILE* pf=NULL; int r = ::stat(path, file_info); 
-    if (r || !(S_IFREG & file_info->st_mode)) { log("file does not exists: %s", path); goto fail;  } 	
-    pf = fopen(path, "rb"); if (pf == NULL)  { log("could not open file %s to read.", path); goto fail; }
+    FILE* pf=NULL; int r = ::stat(input_path, file_info); 
+    if (r || !(S_IFREG & file_info->st_mode)) { log("file does not exists when try to open"); goto fail;  } 	
+    pf = fopen(input_path, "rb"); if (pf == NULL)  { log("could not open file %s to read.", input_path); goto fail; }
 
     succeed: return pf;
     fail: return NULL;

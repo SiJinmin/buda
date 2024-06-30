@@ -22,6 +22,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <math.h>
+#include <regex.h>
 #include <string.h>
 #include <locale.h>
 #include <signal.h>
@@ -167,6 +168,18 @@ int vsnprintf2 (char *s, size_t size, const char *format, va_list args) ;
 // Return -1 for error, and len for succeed
 int snprintf2 (char *s, size_t size, const char *format, ...);
 
+// caller should provide the regex to receive compiled result
+// return 0 for success , -1 for failure
+int compile_regex(char *pattern, regex_t *regex) ;
+// search the first match pattern in content, return it's start and end pointer
+// return -1 for failure, 0 for no match, 1 for match
+int search_first(char *content, char *pattern, char **startPtr=NULL, char **endPtr=NULL);
+// search the first match pattern in content, return it's start and end pointer
+// return -1 for failure, 0 for no match, 1 for match
+int search_first(char *content, regex_t *regex, char **startPtr, char **endPtr);
+// return -1 for failure, 0 for no match, 1 for match
+int search_log_time(char *content);
+
 // set the next space or newline to 0 as the string end
 // if not found, set pc_end to 0 as string end
 // return the next char of string end
@@ -208,11 +221,12 @@ int time_text_http_response(char *r, int max_len);
 
 
 //--------------------------- file.cpp ---------------------------
-/* caller should make sure the path is safe, no input check inside it.
+/* Make sure the path is not user input info.
    return NULL for faiure; 
    return path for existence or create success. */
 char* dir_create(char* path);
-/* return NULL for failure, 
+/* Make sure the name and parent are not user input info.
+   return NULL for failure, 
    return created dir real path for create success or existence. 
    caller should free(r) if not NULL.  */
 char* dir_create(const char* name, const char* parent);
@@ -222,12 +236,14 @@ int file_dir_exist(const char* path, int file_dir);
 int realpath2(char* input_path, char *real_path);
 // return -1 for failure, return file size for sucess
 int get_file_content(FILE* pf, int file_size, MemChain *mc);
+// Make sure the path is not user input info.
 // return -1 for failure, return file size for sucess
 int get_file_content(char *path, MemChain *mc);
-// return NULL if failed, return opened file for success
-FILE* get_file_info_open(char *path_real, struct ::stat *file_info);
+// return NULL if failed, return open file for success
+FILE* get_file_info_open(char *input_path, struct ::stat *file_info);
 // return -1 if failed, return 0 for succeed
 typedef int (*process_entry)(struct dirent *entry, void* arg);
+// make sure the dir_path is existing
 // return -1 if failed, return 0 for succeed
 int iterate_dir(const char *dir_path, process_entry processor, void* arg);
 // return -1 if failed, return 0 for succeed

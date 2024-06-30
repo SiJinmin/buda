@@ -11,7 +11,7 @@ namespace BUDA
 
   MemChain* create_mem_chain(int max_size, int block_min_size)
   {
-    log("create_mem_chain %d/%d", max_size, block_min_size);
+    // log("create_mem_chain %d/%d", max_size, block_min_size);
     BudaMn(MemChain, mc); BudaMn(MemChainBlock, mcb); if(mc==NULL || mcb == NULL) return NULL;
     mcb->mem=BudaMc(block_min_size); if(mcb->mem == NULL) return NULL; mcb->size=block_min_size; 
     mc->max_size=max_size; mc->used+=mcb->size; mc->block_min_size=block_min_size; mc->first=mc->last=mcb; mc->block_count=1;
@@ -30,7 +30,7 @@ namespace BUDA
 
   int concat_mem_chain(MemChain *mc, MemChain *mc2)
   {
-    log("concat_mem_chain %d:%d", mc->content_used, mc2->content_used);
+    //log("concat_mem_chain %d:%d", mc->content_used, mc2->content_used);
     mc->last->next = mc2->first; mc->last=mc2->last; mc->block_count+=mc2->block_count; mc->content_used+=mc2->content_used; mc->used+=mc2->used;
     BudaFree(mc2);
     return mc->content_used;
@@ -38,7 +38,7 @@ namespace BUDA
 
   void free_mem_chain(MemChain *mc)
   {
-    log("free_mem_chain %d", mc->used);
+    //log("free_mem_chain %d", mc->used);
     int remain_block_count = mc->block_count; MemChainBlock *mcb=mc->first, *next; BudaFree(mc);
     while(mcb) { next=mcb->next; BudaFree(mcb->mem); BudaFree(mcb); remain_block_count--; mcb=next; }
     if(remain_block_count) { log("MemChain block_count broken: %d", remain_block_count); }

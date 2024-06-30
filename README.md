@@ -1,8 +1,12 @@
-# buda community services website
+# buda community services website( buda 社区资讯服务网站 )
 
 This project is a community services website, use vue3 for frontend, and build a http server by C/C++.<br>
-buda is the brief 「Budda」, it means we like the Budda spirit of 「give happiness and resolve suffering, help all the people realize their ideal.」（「慈悲喜舍、普度众生」）<br>
+buda is the brief 「Budda」, it means we like the Budda spirit of 「give happiness and resolve suffering, help all the people realize their ideals.」<br>
 In order to satisfy the high visits and huge video files download in the future, and for the performance and flexibility of server, we make a dedicated http server for this website by C/C++.<br>
+
+本项目是开发一个提供社区资讯服务的网站，前端用vue3开发，后端用C/C++语言自建http服务器。<br>
+buda是「佛」的英文Budda的简写，意谓推崇大乘佛法「慈悲喜舍、普度众生」的精神。<br>
+为了将来最大限度地满足高并发性访问和大量视频、文件的下载，提高服务器的运行效率和灵活性，用C/C++语言开发了专属的http服务器。<br>
 
 
 ## main functions
@@ -57,7 +61,7 @@ npm run build
 
 ## about backend
 
-it's in buda/c.
+Backend is in buda/c.
 
 ### code principles
 
@@ -122,7 +126,7 @@ cd buda/c/release
 gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 ./socket_server -w ../../vue/dist -p 80
 ```
-For systemctl start buda style, please ref buda/doc/buda.service
+For "systemctl start buda" style, please ref buda/doc/buda.service
 
 
 
@@ -130,6 +134,8 @@ For systemctl start buda style, please ref buda/doc/buda.service
 
 网站备案<br>
 完成日志查看功能：
+user input写入单独的文件
+log的写入严格检查
 每隔一定的时间获取一次内存使用量/剩余量、硬盘使用量/剩余量、CPU占有率
 统计和显示任意时间间隔段内的线程的工作时长、空置率、内存使用量（%）、硬盘使用量(%)、CPU占有率、request数量、接收字节数、发送字节数、每个request的平均响应时间、每个字节的平均接收和发送时长<br>
 拼车模块、租车模块<br>
@@ -142,11 +148,13 @@ Img组件扫动时切换图片<br>
 内存使用动态释放较长时间不用的内存块<br>
 实现共享MemChain Pool<br>
 实现纯素商城: 出售娃哈哈、三只松鼠素肉、佛法艺术品、joke咖啡<br>
+日租房<br>
 实现公司官网模板<br>
 全民分红系统<br>
 完成人物传记整理工具<br>
 实现全民兼职业务员网络系统<br>
 添加文章视频发布、常用信息剪贴板<br>
+svg文件格式简化，首页comp集成<br>
 
 
 ## completed works

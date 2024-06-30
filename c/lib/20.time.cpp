@@ -11,7 +11,7 @@ int time_text(char *r, int max_len, char type, int use_gmt, int disable_log)
 	time_t now; time(&now); struct tm parts, *p = &parts; 
   if(use_gmt) gmtime_r(&now, p); else localtime_r(&now, p);
   const char *format="%Y-%m-%d %H:%M:%S";
-  if(type=='f') format="%Y_%m_%d_%H_%M_%S";
+  if(type=='f') format="%Y-%m-%d_%H.%M.%S";
   else if(type=='d') format="%Y-%m-%d";
   else if(type=='w') format="%a, %d %b %Y %H:%M:%S GMT";
   int len = strftime(r, max_len, format, p); 

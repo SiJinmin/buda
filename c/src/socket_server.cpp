@@ -27,6 +27,8 @@ char* admin_pw=(char*)"buda";
 char web_root[PATH_MAX]="../../vue/dist/"; 
 int web_root_len = 0; 
 int server_listen_port = 8888;
+char *pattern_log_time = (char*)"\\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\\]\\[[0-9]+\\.[0-9]+\\]";
+regex_t regex_log_time;
 
 //------------end of global externs definitions-------------
 
@@ -93,6 +95,7 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* se
 int main(int argc, char * argv[])
 {
 	if(log_start()<0) return -1;
+	if(compile_regex(pattern_log_time, &regex_log_time)) return -1;
 	read_conf(); return 0;
 
 	int r=0; int optc; char *program_name = argv[0]; 

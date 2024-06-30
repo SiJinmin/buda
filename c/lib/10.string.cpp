@@ -6,6 +6,7 @@ namespace BUDA
 extern FILE* log_file;
 extern struct timespec last_log_time;
 
+
 int vsnprintf2 (char *s, size_t size, const char *format, va_list args)  
 {
   int len = vsnprintf(s, size, format, args); 
@@ -19,27 +20,31 @@ int snprintf2 (char *s, size_t size, const char *format, ...)
 }
 
 
-
-char* set_next_space_0(char *pc, char *pc_end)
+int compile_regex(char *pattern, regex_t *regex) 
 {
-  char c;
-  while( (c=*pc) &&  pc<pc_end)
-  {
-    if(c==' ' || c=='\r' || c=='\n') {*pc=0; return ++pc;} else pc++;
-  }
-  *pc_end=0; return ++pc_end;
+  if(regcomp(regex, pattern, REG_EXTENDED)) { log("Could not compile regex: %s", pattern); goto fail; }
+  succeed: return 0;
+  fail: regfree(regex); return -1;
 }
-
-char* next_line(char *pc)
+int search_first(char *content, regex_t *regex, char **startPtr, char **endPtr) 
 {
-  char c; int found=false;
-  while(c=*pc)
-  {
-    if(c=='\r' || c=='\n') { found=true; pc++; } else { if(found) return pc; else pc++; }
-  }
-  return NULL;
-}
+  int r; regmatch_t match; int match_count=0;
+  r = regexec(regex, content, 1, &match, 0);
+  if (r==0) { match_count=1; if(startPtr) *startPtr = content+match.rm_so; if(endPtr) *endPtr = content + match.rm_eo; } 
 
+  succeed: return match_count;
+  fail: return -1;
+}
+int search_first(char *content, char *pattern, char **startPtr, char **endPtr) 
+{
+  int r; regex_t regex; regmatch_t match; int match_count=0;
+  r = regcomp(&regex, pattern, REG_EXTENDED); if (r) { log("Could not compile regex: %s", pattern); goto fail; }
+  r = regexec(&regex, content, 1, &match, 0); regfree(&regex); 
+  if (r==0) { match_count=1; if(startPtr) *startPtr = content+match.rm_so; if(endPtr) *endPtr = content + match.rm_eo; } 
+
+  succeed: return match_count;
+  fail: regfree(&regex); return -1;
+}
 
 int log_start()
 {  
@@ -77,8 +82,26 @@ void log(const char *format, ...)
   succeed: return;
   fail: printf("log failed\n"); return;
 }
-	
 
+
+char* set_next_space_0(char *pc, char *pc_end)
+{
+  char c;
+  while( (c=*pc) &&  pc<pc_end)
+  {
+    if(c==' ' || c=='\r' || c=='\n') {*pc=0; return ++pc;} else pc++;
+  }
+  *pc_end=0; return ++pc_end;
+}
+char* next_line(char *pc)
+{
+  char c; int found=false;
+  while(c=*pc)
+  {
+    if(c=='\r' || c=='\n') { found=true; pc++; } else { if(found) return pc; else pc++; }
+  }
+  return NULL;
+}
 int get_token_by_char_end(char** start, char** token, char end, char line_end)
 {
   char *old=*start; char* p=old; char c;
@@ -122,7 +145,7 @@ int url_encode(u_char *s, u_char *d, int max_len)
   *pd=0;
 
   succeed: return 0;
-  fail: log("url_encode failed for %s", (char*)s); return -1;
+  fail: log("url_encode failed"); return -1;
 }
 int url_decode(u_char *s, u_char *d, int max_len)
 {
@@ -141,7 +164,7 @@ int url_decode(u_char *s, u_char *d, int max_len)
   *pd=0;
 
   succeed: return 0;
-  fail: log("url_decode failed for %s", (char*)s); return -1;
+  fail: log("url_decode failed"); return -1;
 }
 
 
