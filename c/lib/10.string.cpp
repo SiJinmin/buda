@@ -20,9 +20,23 @@ int snprintf2 (char *s, size_t size, const char *format, ...)
 }
 
 
+int check_user_input_for_log(char* input)
+{
+  int r = search_first(input, &regex_log_time); if(r>=1) 
+	{ 
+		char filename[PATH_MAX]; int len; if((len=snprintf2(filename, PATH_MAX_1, "%s", log_input_dir))>0)
+		{  
+		  if(time_text(filename+len, PATH_MAX_1-len, 'f')>0) 
+			{ file_write(filename, input, strlen(input)); log("input from user contains forbidden info: %s", filename);  }
+		}
+    return -1;
+	}
+  return 0;
+}
 int compile_regex(char *pattern, regex_t *regex) 
 {
   if(regcomp(regex, pattern, REG_EXTENDED)) { log("Could not compile regex: %s", pattern); goto fail; }
+
   succeed: return 0;
   fail: regfree(regex); return -1;
 }
@@ -48,15 +62,17 @@ int search_first(char *content, char *pattern, char **startPtr, char **endPtr)
 
 int log_start()
 {  
-  int r=0; char real_path[PATH_MAX], *c=real_path; int remain=PATH_MAX_1, len; 
+  int r=0; char real_path[PATH_MAX], *c=real_path; int remain=PATH_MAX_1, len; struct stat status; 
   
-  struct stat status; r = stat(log_dir, &status); if (r) goto create_log_dir;
-  if (status.st_mode & S_IFDIR) goto create_log_file; else goto create_log_dir;
+  r = stat(log_dir, &status); if (!(r==0 && (status.st_mode & S_IFDIR))) 
+  {
+    r = mkdir(log_dir, 0700); // owner can read, write and execute
+    if (r) { printf("create dir fail: %s\n", log_dir); goto fail; }   
+  }
+  r = stat(log_input_dir, &status); if (!(r==0 && (status.st_mode & S_IFDIR))) 
+  { r = mkdir(log_input_dir, 0700); if (r) { printf("create dir fail: %s\n", log_input_dir); goto fail; } }
 
-  create_log_dir: r = mkdir(log_dir, 0700); // owner can read, write and execute
-  if (r) { printf("create dir fail: %s\n", log_dir); goto fail; }   
-
-  create_log_file: len = snprintf(c, remain, "%s", log_dir); BudaWriteStep2(c, len, remain);
+  len = snprintf(c, remain, "%s", log_dir); BudaWriteStep2(c, len, remain);
   len = time_text(c, remain, 'f', false, true); BudaWriteStep2(c, len, remain); 
   len = snprintf(c, remain, ".txt"); BudaWriteStep2(c, len, remain);  
   log_file = fopen(real_path, "ab"); if (log_file == NULL) { printf("Failed to open file: %s\n", real_path); goto fail; }

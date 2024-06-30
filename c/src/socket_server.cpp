@@ -20,6 +20,7 @@ char *VERSION = (char*)"1.0.0";
 char *conf_path = (char*)"/etc/buda.conf";
 
 char *log_dir = (char*)"/var/log/buda/";
+char log_input_dir[30];
 FILE* log_file=NULL;
 struct timespec last_log_time = {0, 0};
 MemChain *conf=NULL;
@@ -59,10 +60,12 @@ int show_client_messages_single_thread(int sock, char* buf_recv, int buf_recv_si
 	long recv_size=0, buf_recv_size1=buf_recv_size-1;
   while((recv_size = recv(sock, buf_recv, buf_recv_size1, 0))>0)
 	{
-		buf_recv[recv_size]=0; // set string end
+		buf_recv[recv_size]=0; if(check_user_input_for_log(buf_recv)) goto fail;
 		log("[received %ld bytes data]\n%s\n[end of received data]", recv_size, buf_recv);
 	}
-	log("receive from client failed"); return -1;
+	log("receive from client failed");  goto fail;
+	
+	fail: return -1;
 }
 
 /* process a http request, return 0 for succeed, -1 for failure.  */
@@ -71,7 +74,8 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* se
 	int r=0; BudaZ(HttpReq, req); int recv_size=0; MemChainBlock *mcb=sender->first; 
 
   recv_size = recv(sock, buf_recv, buf_recv_size-1, 0);	if(recv_size<=0) { log("receive from client socket failed"); goto fail;}
-	buf_recv[recv_size]=0; log("[received %ld bytes from client]\n%s\n[end of recv]", recv_size, buf_recv);
+	buf_recv[recv_size]=0; if(check_user_input_for_log(buf_recv)) goto fail;
+	log("[received %ld bytes from client]\n%s\n[end of recv]", recv_size, buf_recv);
 
 	if(parse_http_request(buf_recv, &req)) goto fail;
 
@@ -94,6 +98,7 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* se
 
 int main(int argc, char * argv[])
 {
+	sprintf(log_input_dir, "%s%s", log_dir, "input/");
 	if(log_start()<0) return -1;
 	if(compile_regex(pattern_log_time, &regex_log_time)) return -1;
 	read_conf(); //return 0;

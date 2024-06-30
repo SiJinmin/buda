@@ -8,9 +8,14 @@ int parse_http_request(char* req, HttpReq* r)
 {
 	if(get_token_by_char_end(&req, &r->method)) goto fail;
 	if(get_token_by_char_end(&req, &r->path)) goto fail;
-	log("parse http request succeed: %s %s", r->method, r->path);
+	
+	char path_real[PATH_MAX]; if(url_decode((u_char*)r->path, (u_char*)path_real)) { goto fail;} else 
+	{ 
+		if(check_user_input_for_log(path_real)) goto fail; 
+		else { strcpy(r->path, path_real); log("parse http request succeed: %s %s", r->method, r->path);	} 
+	}
 
-	return 0;
+	succeed: return 0;
 	fail: log("parse http request failed."); return -1;
 }
 
@@ -41,8 +46,7 @@ int make_http_response_file(MemChain* sender, const char* url, const char* conte
 
 	if(url[0]=='/' && url[1]==0) { goto no_redirect; }
 
-  if(url_decode((u_char*)url, (u_char*)path_real)) { goto no_redirect;} else { log("decoded url: %s", path_real); }
-  len = snprintf2(path_input, PATH_MAX_1, "%s%s", web_root, path_real); if(len==-1){ log("get file path failed"); goto no_redirect; }
+  len = snprintf2(path_input, PATH_MAX_1, "%s%s", web_root, url); if(len==-1){ log("get file path failed"); goto no_redirect; }
 	if(realpath2(path_input, path_real)<0) { goto no_redirect;  }
 	if(strncmp(web_root, path_real, web_root_len) || path_real[web_root_len]!='/')
 	{ log("file does not under web root: %s(%s)", url, path_real); goto no_redirect; }

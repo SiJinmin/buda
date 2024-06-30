@@ -5,6 +5,22 @@
 namespace BUDA
 {	
     
+int realpath2(char* input_path, char *real_path)
+{
+    if(realpath(input_path, real_path)!=real_path){ log("get realpath failed"); return -1;} 
+    return 0;
+}
+
+
+int file_dir_exist(const char* path, int file_dir)
+{
+    int r = 0;
+    struct stat status; r = stat(path, &status); if (r) return -1;
+    if ((file_dir == 2 || file_dir == 3) && (status.st_mode & S_IFDIR)) return 0;
+    if ((file_dir == 1 || file_dir == 3) && (S_IFREG & status.st_mode)) return 0;
+    return -1;
+}
+
     
 char* dir_create(char* path)
 {
@@ -15,10 +31,7 @@ char* dir_create(char* path)
 
     succeed: return path;
     fail: return NULL;
-}
-
-
-    
+}    
 char* dir_create(char* name, char* parent)
 {
     char* path = NULL, path_relative[PATH_MAX], parent_real[PATH_MAX]; int r=0, len=0, parent_len=0;
@@ -42,45 +55,15 @@ char* dir_create(char* name, char* parent)
     fail_free: BudaFree(path); fail: return NULL;
 }
 
-
-int file_dir_exist(const char* path, int file_dir)
+int file_write(char* path, char* buf, int buf_size)
 {
-    int r = 0;
-    struct stat status; r = stat(path, &status); if (r) return -1;
-    if ((file_dir == 2 || file_dir == 3) && (status.st_mode & S_IFDIR)) return 0;
-    if ((file_dir == 1 || file_dir == 3) && (S_IFREG & status.st_mode)) return 0;
-    return -1;
+    int r = 0; FILE* pf = NULL;
+    if ((pf=fopen(path, "wb"))==NULL) { log("could not open file (%s) by mode wb.", path); goto fail; }
+    r = fwrite(buf, 1, buf_size, pf);
+
+    succeed: BudaFclose(pf); return r;
+    fail: return -1;
 }
-
-
-int realpath2(char* input_path, char *real_path)
-{
-    if(realpath(input_path, real_path)!=real_path){ log("get realpath failed"); return -1;} 
-    return 0;
-}
-
-
-int get_file_content(FILE* pf, int file_size, MemChain *mc)
-{
-    char *c=NULL; MemChainBlock* last=mc->last;
-    if((c=use_mem_chain(mc, file_size))==NULL) goto fail_close;
-    if(fread(c, 1, file_size, pf)!=file_size){ log("read content length is not equal to file size"); goto fail_close; }
-
-    success: BudaFclose(pf); return file_size;
-    fail_close: BudaFclose(pf); return -1;
-}
-
-
-int get_file_content(char *path, MemChain *mc)
-{
-    struct ::stat file_info; int file_size=0; char *c=NULL; MemChainBlock* last=mc->last;
-    FILE* pf=get_file_info_open(path, &file_info); if(pf==NULL) return -1; 
-    file_size=file_info.st_size; if(file_size<0) { log("file size error: %d", file_size); goto fail_close; }
-    return get_file_content(pf, file_size, mc);
-
-    fail_close: BudaFclose(pf); return -1;
-}
-
 
 FILE* get_file_info_open(char *input_path, struct ::stat *file_info)
 {
@@ -92,6 +75,24 @@ FILE* get_file_info_open(char *input_path, struct ::stat *file_info)
     succeed: return pf;
     fail: return NULL;
 }
+int get_file_content(FILE* pf, int file_size, MemChain *mc)
+{
+    char *c=NULL; MemChainBlock* last=mc->last;
+    if((c=use_mem_chain(mc, file_size))==NULL) goto fail_close;
+    if(fread(c, 1, file_size, pf)!=file_size){ log("read content length is not equal to file size"); goto fail_close; }
+
+    success: BudaFclose(pf); return file_size;
+    fail_close: BudaFclose(pf); return -1;
+}
+int get_file_content(char *path, MemChain *mc)
+{
+    struct ::stat file_info; int file_size=0; char *c=NULL; MemChainBlock* last=mc->last;
+    FILE* pf=get_file_info_open(path, &file_info); if(pf==NULL) return -1; 
+    file_size=file_info.st_size; if(file_size<0) { log("file size error: %d", file_size); goto fail_close; }
+    return get_file_content(pf, file_size, mc);
+
+    fail_close: BudaFclose(pf); return -1;
+}
 
 
 int concat_filename(struct dirent *entry, void* filenames)
@@ -100,12 +101,10 @@ int concat_filename(struct dirent *entry, void* filenames)
   if(use_mem_chain(((MemChain*)filenames), "%s\n", name)==NULL) return -1;
   return 0;
 }
-
 int get_dir_filenames(const char *dir_path, MemChain *mc)
 {
     return iterate_dir(dir_path, concat_filename, mc);  
 }
-
 int iterate_dir(const char *dir_path, process_entry processor, void* arg) 
 {
   DIR *dir=NULL; struct dirent *entry;

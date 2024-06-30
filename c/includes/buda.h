@@ -131,11 +131,14 @@ extern MemChain *conf;
 extern char* hostname;
 extern char* admin_pw;
 extern char *log_dir;
+extern char log_input_dir[];
 extern FILE* log_file;
 extern struct timespec last_log_time;
 extern char web_root[]; // the real path of web_root dir
 extern int web_root_len; 
 extern int server_listen_port;
+extern char *pattern_log_time;
+extern regex_t regex_log_time;
 
 
 
@@ -168,6 +171,9 @@ int vsnprintf2 (char *s, size_t size, const char *format, va_list args) ;
 // Return -1 for error, and len for succeed
 int snprintf2 (char *s, size_t size, const char *format, ...);
 
+
+// return -1 for invalid user input, 0 for good input with no match
+int check_user_input_for_log(char* input);
 // caller should provide the regex to receive compiled result
 // return 0 for success , -1 for failure
 int compile_regex(char *pattern, regex_t *regex) ;
@@ -176,7 +182,7 @@ int compile_regex(char *pattern, regex_t *regex) ;
 int search_first(char *content, char *pattern, char **startPtr=NULL, char **endPtr=NULL);
 // search the first match pattern in content, return it's start and end pointer
 // return -1 for failure, 0 for no match, 1 for match
-int search_first(char *content, regex_t *regex, char **startPtr, char **endPtr);
+int search_first(char *content, regex_t *regex, char **startPtr=NULL, char **endPtr=NULL);
 // return -1 for failure, 0 for no match, 1 for match
 int search_log_time(char *content);
 
@@ -198,7 +204,9 @@ void log(const char *format, ...);
    If found, set the end char to \0 as the found token end, set *start point to the next char of end char, set *token to the found token, and return 0.*/
 int get_token_by_char_end(char** start, char** token, char end=' ', char line_end='\r');
 int hex2dec(char c);
+// return -1 for failure, 0 for success
 int url_encode(u_char *s, u_char *d, int max_len=PATH_MAX_1);
+// return -1 for failure, 0 for success
 int url_decode(u_char *s, u_char *d, int max_len=PATH_MAX_1);
 
 
@@ -210,17 +218,27 @@ int url_decode(u_char *s, u_char *d, int max_len=PATH_MAX_1);
    type=f (filename): 2024_06_25_13_40_33
    use_gmt is bool value, indicate using GMT/Local time
    disable_log is bool value, indicate using log() in it
+   return -1 for failure, return written lengh for success
 */
 int time_text(char *r, int max_len, char type='t', int use_gmt=0, int disable_log=0);
-// return time format like 2024_06_25_13_40_33
+// time format like 2024_06_25_13_40_33
+// return -1 for failure, return written lengh for success
 int time_text_filename(char *r, int max_len);
-// return time format like 2024-06-25
+// time format like 2024-06-25
+// return -1 for failure, return written lengh for success
 int time_text_date(char *r, int max_len);
-// return time format like Fri, 22 May 2009 06:07:21 GMT
+// time format like Fri, 22 May 2009 06:07:21 GMT
+// return -1 for failure, return written lengh for success
 int time_text_http_response(char *r, int max_len);
 
 
 //--------------------------- file.cpp ---------------------------
+// return -1 if failed, return 0 for succeed
+int realpath2(char* input_path, char *real_path);
+
+/* file_dir is 1 for file, 2 for dir, 3 for file or dir. return 0 if exists, -1 for not exist*/
+int file_dir_exist(const char* path, int file_dir);
+
 /* Make sure the path is not user input info.
    return NULL for faiure; 
    return path for existence or create success. */
@@ -230,10 +248,11 @@ char* dir_create(char* path);
    return created dir real path for create success or existence. 
    caller should free(r) if not NULL.  */
 char* dir_create(const char* name, const char* parent);
-/* file_dir is 1 for file, 2 for dir, 3 for file or dir. return 0 if exists, -1 for not exist*/
-int file_dir_exist(const char* path, int file_dir);
-// return -1 if failed, return 0 for succeed
-int realpath2(char* input_path, char *real_path);
+// overwrite the content of this file, create it if not exist
+// return written bytes for success, return -1 for failure
+int file_write(char* path, char* buf, int buf_size);
+
+
 // return -1 for failure, return file size for sucess
 int get_file_content(FILE* pf, int file_size, MemChain *mc);
 // Make sure the path is not user input info.
@@ -241,6 +260,7 @@ int get_file_content(FILE* pf, int file_size, MemChain *mc);
 int get_file_content(char *path, MemChain *mc);
 // return NULL if failed, return open file for success
 FILE* get_file_info_open(char *input_path, struct ::stat *file_info);
+
 // return -1 if failed, return 0 for succeed
 typedef int (*process_entry)(struct dirent *entry, void* arg);
 // make sure the dir_path is existing
