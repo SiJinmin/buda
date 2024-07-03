@@ -5,6 +5,14 @@ Mistral 31分    Gemini 27分    Chatgpt 19分    Claude 28分    Llama 25分
 文心一言  9分    通问千义  9分
 
 
+
+
+
+适合用Linux C语言操作、能在多台服务器上实时同步更新的开源数据库有哪些？
+Mistral 10分    Gemini  5分    Chatgpt  0分    Claude  9分    Llama  7分
+文心一言  9分    通问千义  9分    月之暗面  0分    讯飞星火  0分   华为    0分
+
+
 用Linux C语言写一个函数 int search_first(char *content, char *pattern, char **startPtr, char **endPtr) ，判断content中是否存在匹配正则表达式pattern的内容，如果存在，将匹配内容的开始和结束指针存入startPtr和endPtr
 // 正则表达式判断字符串char *content中是否含有类似"[2024-06-29 23:44:03][0.291508]"格式的内容，并返回这段内容的开始和结束的指针。
 Mistral 10分    Gemini  5分    Chatgpt  0分    Claude  9分    Llama  7分

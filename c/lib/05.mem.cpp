@@ -2,11 +2,11 @@
 
 namespace BUDA
 {
-  void* alloc(int size)
+  char* calloc2(int size)
   {
-    if (size <= 0) { log("alloc size cannot be less than 1\n"); return NULL; }
-    void* r = calloc(1, size); if (!r) { log("alloc %d bytes memory failed.\n", size); return NULL; }  
-    return r;
+    if (size <= 0) { log("alloc size cannot be less than 1: %d", size); return NULL; }
+    void* r = calloc(1, size); if (!r) { log("alloc %d bytes memory failed.", size); return NULL; }  
+    return (char*)r;
   }
 
   MemChain* create_mem_chain(int max_size, int block_min_size)
@@ -20,10 +20,9 @@ namespace BUDA
 
   MemChainBlock* mem_chain_add_block(MemChain *mc, int size)
   {
-    log("mem_chain_add_block %d", size);
+    log("mem_chain_add_block: %d", size);
     if(size+mc->used > mc->max_size) { log("mem_chain reached max_size: %d", mc->max_size); return NULL; }
-    BudaMn(MemChainBlock, mcb); if(mcb == NULL) return NULL;
-    mcb->mem=BudaMc(size); if(mcb->mem == NULL) return NULL; 
+    BudaMn(MemChainBlock, mcb); if(mcb == NULL) return NULL;  mcb->mem=BudaMc(size); if(mcb->mem == NULL) return NULL; 
     mcb->size=size; mc->used+=size; mc->block_count++; mc->last->next=mcb; mc->last=mcb;
     return mcb;
   }

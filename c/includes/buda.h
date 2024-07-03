@@ -50,9 +50,9 @@
 //--------------- macros --------------
 
  
-#define BudaMc(size) (char*)alloc(size)
-#define BudaM(T) (T*)alloc(sizeof(T))
-#define BudaMn(T, name) T *name = (T*)alloc(sizeof(T))
+#define BudaMc(size) (char*)calloc2(size)
+#define BudaM(T) (T*)calloc2(sizeof(T))
+#define BudaMn(T, name) T *name = (T*)calloc2(sizeof(T))
 #define BudaMn2(T1, name1, T2, name2) BudaMn(T1, name1); BudaMn(T2, name2)
 #define BudaMn3(T1, name1, T2, name2, T3, name3) BudaMn(T1, name1); BudaMn2(T2, name2, T3, name3)
 
@@ -143,7 +143,9 @@ extern regex_t regex_log_time;
 
 
 // calloc memory, log fail message
-void* alloc(int size);
+// caller should make sure the size >= 1
+// return NULL for failure
+char* calloc2(int size);
 // MUST use free_mem_chain to free heap mem used
 // return NULL for failure
 MemChain* create_mem_chain(int max_size=100002048, int block_min_size=2048);

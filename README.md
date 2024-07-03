@@ -134,7 +134,6 @@ For "systemctl start buda" style, please ref buda/doc/buda.service
 
 网站备案<br>
 完成日志查看功能：
-user input写入单独的文件
 log的写入严格检查
 每隔一定的时间获取一次内存使用量/剩余量、硬盘使用量/剩余量、CPU占有率
 统计和显示任意时间间隔段内的线程的工作时长、空置率、内存使用量（%）、硬盘使用量(%)、CPU占有率、request数量、接收字节数、发送字节数、每个request的平均响应时间、每个字节的平均接收和发送时长<br>
@@ -158,6 +157,10 @@ svg文件格式简化，首页comp集成<br>
 
 
 ## completed works
+
+2024-06-30<br>
+write invalid user input into individual log file, and stop response
+add a job
 
 2024-06-29<br>
 In order to share with all the people, change the readme from Chinese to English.<br>

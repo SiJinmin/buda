@@ -60,6 +60,7 @@ int search_first(char *content, char *pattern, char **startPtr, char **endPtr)
   fail: regfree(&regex); return -1;
 }
 
+
 int log_start()
 {  
   int r=0; char real_path[PATH_MAX], *c=real_path; int remain=PATH_MAX_1, len; struct stat status; 
@@ -83,7 +84,6 @@ int log_start()
   succeed: return 0;
   fail: return -1;
 }
-
 void log(const char *format, ...)
 {
   char buf[TIME_BUF_SIZE]; int len; long sep_sec, sep_nsec; 
