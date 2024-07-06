@@ -55,15 +55,17 @@ char* dir_create(char* name, char* parent)
     fail_free: BudaFree(path); fail: return NULL;
 }
 
-int file_write(char* path, char* buf, int buf_size)
+
+int file_write(char* path, const char* buf, int buf_size, const char* mode, int keep_open)
 {
     int r = 0; FILE* pf = NULL;
-    if ((pf=fopen(path, "wb"))==NULL) { log("could not open file (%s) by mode wb.", path); goto fail; }
-    r = fwrite(buf, 1, buf_size, pf);
+    if ((pf=fopen(path, mode))==NULL) { log("could not open file (%s) by mode wb.", path); goto fail; }
+    r = fwrite(buf, 1, buf_size, pf); fflush(pf);
 
-    succeed: BudaFclose(pf); return r;
+    succeed: if(!keep_open) BudaFclose(pf); return r;
     fail: return -1;
 }
+
 
 FILE* get_file_info_open(char *input_path, struct ::stat *file_info)
 {

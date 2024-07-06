@@ -1,28 +1,26 @@
-
-let dir="D:\\武汉烟厂\\山东区域\\备档资料\\销区零售终端APP维护清单\\走访档案\\2024年6月\\200户走访档案\\";
-let dir2="D:\\liujuan\\new_gen\\";
-
+ 
+let dir="Z:\\武汉烟厂\\山东区域\\备档资料\\销区零售终端APP维护清单\\走访档案\\2024年6月\\200户走访档案\\修改\\";
+let dir2="Z:\\liujuan\\new_gen4\\";
+ 
 
 const fs = require('fs');
 const path = require('path');
 const ExcelJS = require('exceljs');
-
+ 
 
 // get text in cell
 function gv(cell) {
   let v=cell.value; if(!v) return '';
   v = (v.richText? v.richText.map(({ text }) => text).join(''): v.toString());
-  return v.trim().toLowerCase();
+  return v.trim().toLowerCase().replace(/[(]/g, '（').replace(/[)]/g, '）').replace(/\s/g, '');
 }
-
+ 
 async function make_console(filename, sheetname, list)
 {
   const FilePath = path.join(dir2, `console_${filename}_${sheetname}.js`);    
   const file_content=`
 let sheet_name="${sheetname}";
 let list=${list};
-
-
 let diffs='', diffj=[]; let nl='\\r\\n';
 let noinput=document.getElementById('licensenum');
 function check_one(list, itemno) 
@@ -39,14 +37,14 @@ function check_one(list, itemno)
     if(tds[0].innerText.toLowerCase().trim()!=no) 
     { let msg='许可证不存在2: '+no; console.log(msg); diffs+=(msg+nl+nl); diffj.push(diff); check_one(list, itemno+1); return; }
     
-    if(tds[1].innerText.toLowerCase().trim()!=item.company) 
+    if(tds[1].innerText.toLowerCase().trim().replace(/[(]/g, '（').replace(/[)]/g, '）').replace(/\\s/g, '')!=item.company) 
     { if(!pushed_diff) { pushed_diff=true; diffj.push(diff); } diff.cols.push('company'); diffs+=(no+': '+nl+tds[1].innerText+nl+item.company+nl+nl);}
-    if(tds[2].innerText.toLowerCase().trim()!=item.addr) 
+    if(tds[2].innerText.toLowerCase().trim().replace(/[(]/g, '（').replace(/[)]/g, '）').replace(/\\s/g, '')!=item.addr) 
     { if(!pushed_diff) { pushed_diff=true; diffj.push(diff); } diff.cols.push('addr'); diffs+=(no+': '+nl+tds[2].innerText+nl+item.addr+nl+nl);}
     if(!tds[3].innerText.toLowerCase().includes(item.date)) 
     { if(!pushed_diff) { pushed_diff=true; diffj.push(diff); } diff.cols.push('date');  diffs+=(no+': '+nl+tds[3].innerText+nl+item.date+nl+nl);}
     check_one(list, itemno+1);
-  }, 1000);  
+  }, 2000);  
 }
 check_one(list, 0);
 `;
@@ -59,23 +57,19 @@ async function make_mark(filename, sheetname)
   const file_content=`
 let diffs=
 ;
-
 let filename='${filename}';
 let sheet_name="${sheetname}";
-
-let dir="D:\\\\武汉烟厂\\\\山东区域\\\\备档资料\\\\销区零售终端APP维护清单\\\\走访档案\\\\2024年6月\\\\200户走访档案\\\\";
-
+let dir="${ dir.replace(/\\/g, "\\\\") }";
 const ExcelJS = require('exceljs');
 const fs = require('fs');
  
 let style_red={font:{color:{ argb: 'FFFF0000'}}};
 let style_black={font:{color:{ argb: 'FF000000'}}};
 let style_blue={font:{color:{ argb: 'FF0000FF'}}};
-
 function gv(cell) {
   let v=cell.value; if(!v) return '';
   v = (v.richText? v.richText.map(({ text }) => text).join(''): v.toString());
-  return v.trim().toLowerCase();
+  return v.trim().toLowerCase().replace(/[(]/g, '（').replace(/[)]/g, '）').replace(/\\s/g, '');
 }
  
 async function ProcessSheet(sheet)
@@ -141,13 +135,13 @@ ProcessFile(dir+filename+'.xlsx');
 `;
   fs.writeFileSync(FilePath, file_content);
 }
-
+ 
 async function traverseFolder(folderPath) {
   const items = fs.readdirSync(folderPath);
   for(let item of items)
   {
     console.log(item);
-    if(item.toLowerCase().includes(".xlsx"))
+    if(item.toLowerCase().includes(".xlsx") && item.indexOf("~")<0)
     {
       const filename=item.substring(0, item.length-5); const ExcelFilePath = path.join(folderPath, item);      
       const workbook = new ExcelJS.Workbook(); await workbook.xlsx.readFile(ExcelFilePath);
@@ -190,12 +184,12 @@ async function traverseFolder(folderPath) {
           await make_console(filename, sheet.name, JSON.stringify(result)); await make_mark(filename, sheet.name);
           fs.writeFileSync(`${dir2}${filename}_${sheet.name}_差异.txt`, '');
         } catch (err) {   console.error(err);  }
-
+ 
       }        
       
     }
   }
 }
-
+ 
 traverseFolder(dir);
-
+ 

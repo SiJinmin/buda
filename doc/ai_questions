@@ -1,16 +1,28 @@
 
 
 总分
-Mistral 31分    Gemini 27分    Chatgpt 19分    Claude 28分    Llama 25分
+Mistral 31分    Gemini 27分    Chatgpt 19分    Claude 38分    Llama 25分
 文心一言  9分    通问千义  9分
 
 
+一棵简单的卡通树
+
+请生成一张卡通图片，在下方显示一颗心，从心里长出树根，从树根上方长出一棵树，在树的上面出现一只飞翔的小鸟
+
+请生成一段卡通视频，先在下方显示一颗心，然后从心里长出树根，从树根上方长出一棵树，在树的上面出现一只飞翔的小鸟
 
 
+PostgreSQL如何在多台服务器之间实时同步更新？
 
-适合用Linux C语言操作、能在多台服务器上实时同步更新的开源数据库有哪些？
-Mistral 10分    Gemini  5分    Chatgpt  0分    Claude  9分    Llama  7分
-文心一言  9分    通问千义  9分    月之暗面  0分    讯飞星火  0分   华为    0分
+redis是用什么程序语言开发的？
+redis的发展历史
+Mistral  8分    Gemini  8分    Chatgpt  6分    Claude  9分    Llama  7分
+文心一言  9分    通问千义  9分    月之暗面  7分    讯飞星火  0分   华为    0分
+
+
+适合用Linux C语言操作、支持数组字段和JSON字段、能在多台服务器上实时同步更新的开源数据库有哪些？
+Mistral  8分    Gemini  8分    Chatgpt  6分    Claude  9分    Llama  7分
+文心一言  9分    通问千义  9分    月之暗面  7分    讯飞星火  0分   华为    0分
 
 
 用Linux C语言写一个函数 int search_first(char *content, char *pattern, char **startPtr, char **endPtr) ，判断content中是否存在匹配正则表达式pattern的内容，如果存在，将匹配内容的开始和结束指针存入startPtr和endPtr

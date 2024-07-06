@@ -150,13 +150,8 @@ int url_encode(u_char *s, u_char *d, int max_len)
   u_char c, c_high, c_low, *ps = s, *pd=d; 
   while(c=*(ps++))
   {
-    if(isalnum(c) || c == '/' || c == '.'|| c == '-' || c == '_'|| c == '~') { BudaPreWrite(max_len, 1, fail); *(pd++) = c; }
-    else if (c == ' ') { BudaPreWrite(max_len, 1, fail); *(pd++) = '+'; }
-    else 
-    {
-      BudaPreWrite(max_len, 3, fail);
-      *(pd++) = '%'; *(pd++) = HEXS[c >> 4]; *(pd++) = HEXS[c & BYTE_LOW4_MASK]; 
-    }
+    if(strchr(URL_ALLOW, c)) { BudaPreWrite1(max_len, fail); *(pd++) = c; }
+    else { BudaPreWrite(max_len, 3, fail); *(pd++) = '%'; *(pd++) = HEXS[c >> 4]; *(pd++) = HEXS[c & BYTE_LOW4_MASK]; }
   }
   *pd=0;
 
@@ -165,16 +160,15 @@ int url_encode(u_char *s, u_char *d, int max_len)
 }
 int url_decode(u_char *s, u_char *d, int max_len)
 {
-  u_char c, *ps = s, *pd=d, c_high, c_low;
+  u_char c, *ps=s, *pd=d, c_high, c_low;
   while(c=*(ps++))
   {
-    BudaPreWrite(max_len, 1, fail); 
-    if (c == '+') *(pd++) = ' ';    
-    else if (c != '%') *(pd++) = c;
+    BudaPreWrite1(max_len, fail); 
+    if (c != '%') *(pd++) = c;
     else
     {
       c = *(ps++); c_high=BudaHex2Dec(c); c = *(ps++); c_low=BudaHex2Dec(c); 
-      c = *(pd++) = (c_high<<4) + c_low; //printf("decoded ");
+      c = *(pd++) = ((c_high<<4) | c_low); //printf("decoded ");
     }
   }
   *pd=0;

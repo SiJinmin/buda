@@ -14,6 +14,7 @@
 
 /// common in windows and linux
 #include <stdio.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -66,6 +67,7 @@
 #define BudaWriteStep(c, len, remain, sum, fail) c += len; remain -= len; sum += len; if(remain<=0) goto fail;
 #define BudaWriteStep2(c, len, remain) c += len; remain -= len;
 #define BudaPreWrite(max_len, dec, fail) if((max_len-=dec)<0) goto fail;
+#define BudaPreWrite1(max_len, fail) if((--max_len)<0) goto fail;
 #define BudaWriteCheck(max_len, len, fail) if(max_len<=len) goto fail;
 
 #define BudaMax(a, b) ((a)<(b)?(b):(a))
@@ -77,6 +79,14 @@ namespace BUDA
 {
 
 //-------------------- structs ---------------------------
+
+typedef struct key_value
+{
+  char *key;
+  char *value;
+} KeyValue;
+
+
 typedef struct mem_chain_block
 {
   char *mem;
@@ -95,6 +105,28 @@ typedef struct mem_chain
   int block_count;
 } MemChain;
 
+
+typedef struct link_item
+{
+   void* content;
+   struct link_item *pre;
+   struct link_item *next;   
+} LinkItem;
+typedef struct link
+{
+  struct link_item *first;
+  struct link_item *last;
+  int item_count;
+} Link;
+
+
+typedef struct json
+{
+   char* value; 
+   u_char type; // 0-invalid, n-null, b-false/true, i-32bits.integal, l-64bits.integal, f-float.64bits, s-string, a-array, o-object, d-datetime, t-timenano  
+} Json;
+
+
 typedef struct http_req
 {
   char* method;
@@ -110,9 +142,11 @@ typedef struct http_mime
   int ext_len;
 } HttpMime;
 
+
 //--------------- constants --------------
 extern const u_char BYTE_LOW4_MASK;
 extern char* HEXS;
+extern char* URL_ALLOW;
 extern const HttpMime HttpMimes[];
 extern const int HttpMimesLen;
 
@@ -141,6 +175,14 @@ extern char *pattern_log_time;
 extern regex_t regex_log_time;
 
 
+//-------------------- sys.cpp ---------------------------
+
+void show_sys_info();
+
+
+//-------------------- mem.cpp ---------------------------
+
+typedef void (*free_obj)(void *item);
 
 // calloc memory, log fail message
 // caller should make sure the size >= 1
@@ -162,6 +204,10 @@ int concat_mem_chain(MemChain *mc, MemChain *mc2);
 char* use_mem_chain(MemChain *mc, int size, char* content=NULL);
 // Return NULL if failed, return the start of used memory if succeed.
 char* use_mem_chain(MemChain *mc, const char* format, ...);
+
+
+//-------------------- link.cpp ---------------------------
+
 
 
 //-------------------- string.cpp ---------------------------
@@ -250,9 +296,10 @@ char* dir_create(char* path);
    return created dir real path for create success or existence. 
    caller should free(r) if not NULL.  */
 char* dir_create(const char* name, const char* parent);
-// overwrite the content of this file, create it if not exist
+// mode=wb: overwrite the content of this file, create it if not exist
+// mode=ab: append to the content of this file, create it if not exist
 // return written bytes for success, return -1 for failure
-int file_write(char* path, char* buf, int buf_size);
+int file_write(char* path, const char* buf, int buf_size, const char* mode="wb", int keep_open=0);
 
 
 // return -1 for failure, return file size for sucess
@@ -272,6 +319,12 @@ int iterate_dir(const char *dir_path, process_entry processor, void* arg);
 int concat_filename(struct dirent *entry, void* filenames);
 // return -1 if failed, return 0 for succeed
 int get_dir_filenames(const char *dir_path, MemChain *mc);
+
+
+//--------------------------- json.cpp ---------------------------
+
+void save_json(Json *j, char* file_path);
+void json_tests();
 
 
 //--------------------------- socket.cpp ---------------------------

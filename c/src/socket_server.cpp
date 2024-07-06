@@ -7,6 +7,7 @@ namespace BUDA
 
 const u_char BYTE_LOW4_MASK = 15;
 char* HEXS = (char*)"0123456789ABCDEF";
+char* URL_ALLOW = (char*)"abcdefghijklmnopqrstuvwxyz/:#?&=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ+-,._*~@!$^()[]{}';|";
 
 const int PATH_MAX_1 = PATH_MAX - 1;
 const int TIME_BUF_SIZE = 2048;
@@ -98,6 +99,8 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* se
 
 int main(int argc, char * argv[])
 {
+	// show_sys_info(); json_tests(); return 0;
+
 	sprintf(log_input_dir, "%s%s", log_dir, "input/");
 	if(log_start()<0) return -1;
 	if(compile_regex(pattern_log_time, &regex_log_time)) return -1;

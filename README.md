@@ -8,6 +8,11 @@ In order to satisfy the high visits and huge video files download in the future,
 buda是「佛」的英文Budda的简写，意谓推崇大乘佛法「慈悲喜舍、普度众生」的精神。<br>
 为了将来最大限度地满足高并发性访问和大量视频、文件的下载，提高服务器的运行效率和灵活性，用C/C++语言开发了专属的http服务器。<br>
 
+## supported arch
+
+We develop it on Ubuntu Linux x64 system. 32-bit system or Windows system cannot compile and run it.
+We compile it by gcc. Other compilers are not tested.
+
 
 ## main functions
 
@@ -137,6 +142,8 @@ For "systemctl start buda" style, please ref buda/doc/buda.service
 log的写入严格检查
 每隔一定的时间获取一次内存使用量/剩余量、硬盘使用量/剩余量、CPU占有率
 统计和显示任意时间间隔段内的线程的工作时长、空置率、内存使用量（%）、硬盘使用量(%)、CPU占有率、request数量、接收字节数、发送字节数、每个request的平均响应时间、每个字节的平均接收和发送时长<br>
+使用cmake<br>
+内存分配和释放记录<br>
 拼车模块、租车模块<br>
 Img组件扫动时切换图片<br>
 活动详情页面居中显示<br>
