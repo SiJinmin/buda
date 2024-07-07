@@ -11,8 +11,8 @@ int parse_http_request(char* req, HttpReq* r)
 	
 	char path_real[PATH_MAX]; if(url_decode((u_char*)r->path, (u_char*)path_real)) { goto fail;} else 
 	{ 
-		if(check_user_input_for_log(path_real)) goto fail; 
-		else { strcpy(r->path, path_real); log("parse http request succeed: %s %s", r->method, r->path);	} 
+		// if(check_user_input_for_log(path_real)) goto fail; 
+		strcpy(r->path, path_real); log("parse http request succeed: %s %s", r->method, r->path);
 	}
 
 	succeed: return 0;
@@ -26,14 +26,14 @@ int make_http_response(MemChain* sender, char* content, int content_len, const c
 	MemChainBlock *last=sender->last; int len; char* c;
 
 	if(content_len<0) { if(content) content_len=strlen(content); else { log("cannot get content_len for http head"); goto fail; } }
-	use_mem_chain(sender, "HTTP/1.1 %d %s\r\nDate: ", status_no, status_code);
-	len = time_text_http_response(last->mem+last->used, last->size - last->used); use_mem_chain(sender, len);
-	use_mem_chain(sender, "\r\nContent-Length: %d\r\nContent-Type: %s", content_len, content_type);
-	if(!encoding){ if(strncmp(content_type, "text/", 5)==0) encoding="UTF-8"; }  if(encoding){ use_mem_chain(sender, "; charset=%s", encoding); }
-	use_mem_chain(sender, "\r\n");
-	if(filename) { use_mem_chain(sender, "Content-Disposition: attachment; filename=%s\r\n", filename); }      
-	use_mem_chain(sender, "\r\n"); last->mem[last->used]=0; log("made http head: %d bytes\n%s", last->used, last->mem);
-	if(content_len>0 && content){ c = use_mem_chain(sender, content_len, content); if(c==NULL) goto fail; }
+	mem_chain_use(sender, "HTTP/1.1 %d %s\r\nDate: ", status_no, status_code);
+	len = time_text_http_response(last->mem+last->used, last->size - last->used); mem_chain_use(sender, len);
+	mem_chain_use(sender, "\r\nContent-Length: %d\r\nContent-Type: %s", content_len, content_type);
+	if(!encoding){ if(strncmp(content_type, "text/", 5)==0) encoding="UTF-8"; }  if(encoding){ mem_chain_use(sender, "; charset=%s", encoding); }
+	mem_chain_use(sender, "\r\n");
+	if(filename) { mem_chain_use(sender, "Content-Disposition: attachment; filename=%s\r\n", filename); }      
+	mem_chain_use(sender, "\r\n"); last->mem[last->used]=0; log("made http head: %d bytes\n%s", last->used, last->mem);
+	if(content_len>0 && content){ c = mem_chain_use(sender, content_len, content); if(c==NULL) goto fail; }
 	
 	succeed: return sender->content_used;
 	fail: return -1;

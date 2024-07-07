@@ -20,19 +20,6 @@ int snprintf2 (char *s, size_t size, const char *format, ...)
 }
 
 
-int check_user_input_for_log(char* input)
-{
-  int r = search_first(input, &regex_log_time); if(r>=1) 
-	{ 
-		char filename[PATH_MAX]; int len; if((len=snprintf2(filename, PATH_MAX_1, "%s", log_input_dir))>0)
-		{  
-		  if(time_text(filename+len, PATH_MAX_1-len, 'f')>0) 
-			{ file_write(filename, input, strlen(input)); log("input from user contains forbidden info: %s", filename);  }
-		}
-    return -1;
-	}
-  return 0;
-}
 int compile_regex(char *pattern, regex_t *regex) 
 {
   if(regcomp(regex, pattern, REG_EXTENDED)) { log("Could not compile regex: %s", pattern); goto fail; }

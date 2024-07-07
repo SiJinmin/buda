@@ -54,6 +54,7 @@
 #define BudaMc(size) (char*)calloc2(size)
 #define BudaM(T) (T*)calloc2(sizeof(T))
 #define BudaMn(T, name) T *name = (T*)calloc2(sizeof(T))
+#define BudaMnl(T, name, mem) T *name = (T*)calloc2(sizeof(T), mem)
 #define BudaMn2(T1, name1, T2, name2) BudaMn(T1, name1); BudaMn(T2, name2)
 #define BudaMn3(T1, name1, T2, name2, T3, name3) BudaMn(T1, name1); BudaMn2(T2, name2, T3, name3)
 
@@ -61,6 +62,7 @@
 
 #define BudaFclose(pf) if(pf){ fclose(pf); pf = NULL; }
 #define BudaFree(m) if(m){ free(m); m = NULL; }
+#define BudaF(mem) LinkItem* mem_item=mem->first; while(mem_item){ free(mem_item->content); mem_item=mem_item->next; } link_free(mem)
 
 #define BudaHex2Dec(c) (c<='9'? (c-'0'):(c<='Z'? (c-55):(c-87)))
 
@@ -82,8 +84,8 @@ namespace BUDA
 
 typedef struct key_value
 {
-  char *key;
-  char *value;
+  const char *key;
+  const char *value;
 } KeyValue;
 
 
@@ -114,6 +116,9 @@ typedef struct link_item
 } LinkItem;
 typedef struct link
 {
+  // if mem==NULL, use link_free(this) to free all the memory of self and children nodes; 
+  // if mem!=NULL, use mem to free memory of self and children nodes.
+  struct link *mem; 
   struct link_item *first;
   struct link_item *last;
   int item_count;
@@ -122,8 +127,9 @@ typedef struct link
 
 typedef struct json
 {
-   char* value; 
-   u_char type; // 0-invalid, n-null, b-false/true, i-32bits.integal, l-64bits.integal, f-float.64bits, s-string, a-array, o-object, d-datetime, t-timenano  
+   const char* value; 
+   // 0-invalid, n-null, b-false/true, i-32bits.integal, l-64bits.integal, f-float.64bits, s-string, a-array, o-object, d-datetime, t-timenano  
+   u_char type; 
 } Json;
 
 
@@ -182,32 +188,34 @@ void show_sys_info();
 
 //-------------------- mem.cpp ---------------------------
 
-typedef void (*free_obj)(void *item);
-
 // calloc memory, log fail message
 // caller should make sure the size >= 1
 // return NULL for failure
-char* calloc2(int size);
-// MUST use free_mem_chain to free heap mem used
+char* calloc2(int size, Link *mem=NULL);
+// MUST use mem_chain_free to free heap mem used
 // return NULL for failure
-MemChain* create_mem_chain(int max_size=100002048, int block_min_size=2048);
+MemChain* mem_chain_create(int max_size=100002048, int block_min_size=2048);
 // destroy the whole mem_chain
-void free_mem_chain(MemChain *mc);
+void mem_chain_free(MemChain *mc);
 // delete all the blocks except the first one, reset mem_chain to the beginning
-void reset_mem_chain(MemChain *mc);
+void mem_chain_reset(MemChain *mc);
 // return NULL if failed
 MemChainBlock* mem_chain_add_block(MemChain *mc, int size);
 // return new mc.content_used, mc2 will be destroyed
-int concat_mem_chain(MemChain *mc, MemChain *mc2);
+int mem_chain_concat(MemChain *mc, MemChain *mc2);
 // If the memory size to use is known to be size, use this function; otherwise, use the next function. 
 // Return NULL if failed, return the start of used memory if succeed.
-char* use_mem_chain(MemChain *mc, int size, char* content=NULL);
+char* mem_chain_use(MemChain *mc, int size, char* content=NULL);
 // Return NULL if failed, return the start of used memory if succeed.
-char* use_mem_chain(MemChain *mc, const char* format, ...);
+char* mem_chain_use(MemChain *mc, const char* format, ...);
 
 
 //-------------------- link.cpp ---------------------------
-
+Link* link_create(Link *mem=NULL);
+LinkItem* link_append_item(Link *link, void* content);
+int link_concat(Link *link, Link *link2);
+void link_free(Link *link);
+void link_reset(Link *link);
 
 
 //-------------------- string.cpp ---------------------------
@@ -221,7 +229,7 @@ int snprintf2 (char *s, size_t size, const char *format, ...);
 
 
 // return -1 for invalid user input, 0 for good input with no match
-int check_user_input_for_log(char* input);
+// int check_user_input_for_log(char* input);
 // caller should provide the regex to receive compiled result
 // return 0 for success , -1 for failure
 int compile_regex(char *pattern, regex_t *regex) ;
@@ -282,7 +290,7 @@ int time_text_http_response(char *r, int max_len);
 
 //--------------------------- file.cpp ---------------------------
 // return -1 if failed, return 0 for succeed
-int realpath2(char* input_path, char *real_path);
+int realpath2(const char* input_path, char *real_path);
 
 /* file_dir is 1 for file, 2 for dir, 3 for file or dir. return 0 if exists, -1 for not exist*/
 int file_dir_exist(const char* path, int file_dir);
@@ -290,25 +298,26 @@ int file_dir_exist(const char* path, int file_dir);
 /* Make sure the path is not user input info.
    return NULL for faiure; 
    return path for existence or create success. */
-char* dir_create(char* path);
+const char* dir_create(const char* path);
 /* Make sure the name and parent are not user input info.
    return NULL for failure, 
-   return created dir real path for create success or existence. 
-   caller should free(r) if not NULL.  */
+   return created dir real path for create success or existence.  */
 char* dir_create(const char* name, const char* parent);
+// if ppf is provided, the FILE* will keep open and return to ppf; otherwise, the file will be closed.
 // mode=wb: overwrite the content of this file, create it if not exist
 // mode=ab: append to the content of this file, create it if not exist
 // return written bytes for success, return -1 for failure
-int file_write(char* path, const char* buf, int buf_size, const char* mode="wb", int keep_open=0);
+int file_write(const char* path, const char* buf=NULL, int buf_size=0, const char* mode="wb", FILE **ppf=NULL);
+void file_write(FILE* pf, const char* buf, int buf_size);
 
 
 // return -1 for failure, return file size for sucess
 int get_file_content(FILE* pf, int file_size, MemChain *mc);
 // Make sure the path is not user input info.
 // return -1 for failure, return file size for sucess
-int get_file_content(char *path, MemChain *mc);
+int get_file_content(const char *path, MemChain *mc);
 // return NULL if failed, return open file for success
-FILE* get_file_info_open(char *input_path, struct ::stat *file_info);
+FILE* get_file_info_open(const char *input_path, struct ::stat *file_info);
 
 // return -1 if failed, return 0 for succeed
 typedef int (*process_entry)(struct dirent *entry, void* arg);
@@ -323,8 +332,19 @@ int get_dir_filenames(const char *dir_path, MemChain *mc);
 
 //--------------------------- json.cpp ---------------------------
 
-void save_json(Json *j, char* file_path);
+void json_save(Json *j, const char* file_path);
 void json_tests();
+
+Json *json_make_time(Link *mem);
+Json *json_make_string(const char* content, Link *mem);
+KeyValue *json_make_kv_time(const char* name, Link *mem);
+KeyValue *json_make_kv_string(const char* name, const char* content, Link *mem);
+Json *json_make_obj(Link *mem, ...);
+
+void json_write(Json *j, FILE *pf, int pad=0);
+void json_write_long(FILE *pf, const char *value);
+void json_write_string(FILE *pf, const char *value);
+void json_write_object(FILE *pf, const char *value, int pad=0);
 
 
 //--------------------------- socket.cpp ---------------------------

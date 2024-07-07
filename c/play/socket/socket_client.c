@@ -6,7 +6,6 @@
 
 #include <stdio.h>      // printf
 #include <string.h>	    // strlen(char*)
-#include <stdlib.h>     // free(*memory)
 #include <unistd.h>     // close(int file_descriptor): close socket
 #include <sys/socket.h> // socket(), bind(), accept(), etc
 #include <netdb.h>      // gethostbyname(char* domain_name)
@@ -16,7 +15,6 @@
 #define SOCK_BUF_SIZE 10241
 #define SOCK_BUF_SIZE1 10240 // subtract 1 for the null terminator at the buf end
 #define SERVER_DOMAIN_NAME "idealand.space"
-#define BUDA_F(p) if(p){ free(p); p=NULL; } 
 
 int main(int argc, char * argv[])
 {

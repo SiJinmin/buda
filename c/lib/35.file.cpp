@@ -5,7 +5,7 @@
 namespace BUDA
 {	
     
-int realpath2(char* input_path, char *real_path)
+int realpath2(const char* input_path, char *real_path)
 {
     if(realpath(input_path, real_path)!=real_path){ log("get realpath failed"); return -1;} 
     return 0;
@@ -22,7 +22,7 @@ int file_dir_exist(const char* path, int file_dir)
 }
 
     
-char* dir_create(char* path)
+const char* dir_create(const char* path)
 {
     if (file_dir_exist(path, 2) == 0) { return path; }
     int r = mkdir(path, 0700); // owner can read, write and execute
@@ -32,7 +32,7 @@ char* dir_create(char* path)
     succeed: return path;
     fail: return NULL;
 }    
-char* dir_create(char* name, char* parent)
+char* dir_create(const char* name, const char* parent)
 {
     char* path = NULL, path_relative[PATH_MAX], parent_real[PATH_MAX]; int r=0, len=0, parent_len=0;
     
@@ -56,23 +56,28 @@ char* dir_create(char* name, char* parent)
 }
 
 
-int file_write(char* path, const char* buf, int buf_size, const char* mode, int keep_open)
+int file_write(const char* path, const char* buf, int buf_size, const char* mode, FILE **ppf)
 {
     int r = 0; FILE* pf = NULL;
     if ((pf=fopen(path, mode))==NULL) { log("could not open file (%s) by mode wb.", path); goto fail; }
-    r = fwrite(buf, 1, buf_size, pf); fflush(pf);
+    if(buf_size>0) { r = fwrite(buf, 1, buf_size, pf); fflush(pf); }
 
-    succeed: if(!keep_open) BudaFclose(pf); return r;
+    succeed: if(ppf) *ppf=pf; else { BudaFclose(pf); }  return r;
     fail: return -1;
+}
+void file_write(FILE* pf, const char* buf, int buf_size)
+{
+    fwrite(buf, 1, buf_size, pf); fflush(pf);
 }
 
 
-FILE* get_file_info_open(char *input_path, struct ::stat *file_info)
+
+FILE* get_file_info_open(const char *path, struct ::stat *file_info)
 {
     // log("get_file_info_open for %s", path);
-    FILE* pf=NULL; int r = ::stat(input_path, file_info); 
+    FILE* pf=NULL; int r = ::stat(path, file_info); 
     if (r || !(S_IFREG & file_info->st_mode)) { log("file does not exists when try to open"); goto fail;  } 	
-    pf = fopen(input_path, "rb"); if (pf == NULL)  { log("could not open file %s to read.", input_path); goto fail; }
+    pf = fopen(path, "rb"); if (pf == NULL)  { log("could not open file %s to read.", path); goto fail; }
 
     succeed: return pf;
     fail: return NULL;
@@ -80,13 +85,13 @@ FILE* get_file_info_open(char *input_path, struct ::stat *file_info)
 int get_file_content(FILE* pf, int file_size, MemChain *mc)
 {
     char *c=NULL; MemChainBlock* last=mc->last;
-    if((c=use_mem_chain(mc, file_size))==NULL) goto fail_close;
+    if((c=mem_chain_use(mc, file_size))==NULL) goto fail_close;
     if(fread(c, 1, file_size, pf)!=file_size){ log("read content length is not equal to file size"); goto fail_close; }
 
     success: BudaFclose(pf); return file_size;
     fail_close: BudaFclose(pf); return -1;
 }
-int get_file_content(char *path, MemChain *mc)
+int get_file_content(const char *path, MemChain *mc)
 {
     struct ::stat file_info; int file_size=0; char *c=NULL; MemChainBlock* last=mc->last;
     FILE* pf=get_file_info_open(path, &file_info); if(pf==NULL) return -1; 
@@ -100,7 +105,7 @@ int get_file_content(char *path, MemChain *mc)
 int concat_filename(struct dirent *entry, void* filenames)
 {
   char* name=entry->d_name;
-  if(use_mem_chain(((MemChain*)filenames), "%s\n", name)==NULL) return -1;
+  if(mem_chain_use(((MemChain*)filenames), "%s\n", name)==NULL) return -1;
   return 0;
 }
 int get_dir_filenames(const char *dir_path, MemChain *mc)

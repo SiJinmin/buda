@@ -36,7 +36,7 @@ regex_t regex_log_time;
 
 void read_conf()
 {
-	conf = create_mem_chain(); if(conf==NULL) return;
+	conf = mem_chain_create(); if(conf==NULL) return;
 	if(get_file_content((char*)conf_path, conf) > 0) 
 	{
 		MemChainBlock* last=conf->last; char *pc=last->mem, *pc_end=pc + last->used, c;
@@ -61,7 +61,7 @@ int show_client_messages_single_thread(int sock, char* buf_recv, int buf_recv_si
 	long recv_size=0, buf_recv_size1=buf_recv_size-1;
   while((recv_size = recv(sock, buf_recv, buf_recv_size1, 0))>0)
 	{
-		buf_recv[recv_size]=0; if(check_user_input_for_log(buf_recv)) goto fail;
+		buf_recv[recv_size]=0; // if(check_user_input_for_log(buf_recv)) goto fail;
 		log("[received %ld bytes data]\n%s\n[end of received data]", recv_size, buf_recv);
 	}
 	log("receive from client failed");  goto fail;
@@ -75,7 +75,7 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* se
 	int r=0; BudaZ(HttpReq, req); int recv_size=0; MemChainBlock *mcb=sender->first; 
 
   recv_size = recv(sock, buf_recv, buf_recv_size-1, 0);	if(recv_size<=0) { log("receive from client socket failed"); goto fail;}
-	buf_recv[recv_size]=0; if(check_user_input_for_log(buf_recv)) goto fail;
+	buf_recv[recv_size]=0; // if(check_user_input_for_log(buf_recv)) goto fail;
 	log("[received %ld bytes from client]\n%s\n[end of recv]", recv_size, buf_recv);
 
 	if(parse_http_request(buf_recv, &req)) goto fail;
@@ -99,7 +99,7 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* se
 
 int main(int argc, char * argv[])
 {
-	// show_sys_info(); json_tests(); return 0;
+	show_sys_info(); json_tests(); return 0;
 
 	sprintf(log_input_dir, "%s%s", log_dir, "input/");
 	if(log_start()<0) return -1;
@@ -143,7 +143,7 @@ int main(int argc, char * argv[])
 	struct sockaddr_in server_addr, client_addr; socklen_t addrlen = sizeof(struct sockaddr_in), addrlen_client=0;
   long client_count=0;	char *client_ip=NULL; int client_port=-1;
 	char buf_recv[SOCK_BUF_RECV_SIZE];
-	MemChain* sender=create_mem_chain(SOCK_BUF_SEND_SIZE_MAX, SOCK_BUF_SEND_SIZE_INIT); if(sender==NULL) goto fail;
+	MemChain* sender=mem_chain_create(SOCK_BUF_SEND_SIZE_MAX, SOCK_BUF_SEND_SIZE_INIT); if(sender==NULL) goto fail;
 
 	if ((listen_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) { log("create server listen socket failed"); goto fail; 	}
 	log("create server listen socket succeed");
@@ -164,7 +164,7 @@ int main(int argc, char * argv[])
 		log("%ld --- server socket accepted a client connection:  %s:%d ---", client_count, client_ip, client_port);
 
 		if(set_socket_options(sock)) goto end_close_client;
-		reset_mem_chain(sender); 
+		mem_chain_reset(sender); 
     if(fun_sock(sock, buf_recv, SOCK_BUF_RECV_SIZE, sender) < 0) goto end_close_client;
 
 		end_close_client: close(sock);
@@ -180,13 +180,5 @@ int main(int argc, char * argv[])
 
 int main(int argc, char * argv[])
 {
-	/* char buf[10] , buf_time[10]; buf[9]='a', buf_time[9]='a'; int len; tm t, *p=&t;
-	len =	strftime(buf_time, 10, "123456789", p); printf("len = %d, buf_time=%s\n", len, buf_time); 
-	len =	snprintf(buf, 10, "1234567890"); printf("len = %d, buf=%s\n", len, buf); 
-	return 0; */
-	
-	//len =	snprintf(buf, 10, "12345678901"); printf("len = %d, buf=%s\n", len, buf);
-	//char a=0b10000000; u_char b=0b10000000; a=(a>>4); b=(b>>4); printf("a=%d, b=%d\n", (int)a, (int)b);return 0;
-
   return BUDA::main(argc, argv);
 }
