@@ -1,0 +1,8 @@
+{
+  log_c: 0,
+  request_c: 0,
+  visit_c: 0,
+  session_c: 0, 
+  user_c: 0,
+  agent_c: 0,
+}

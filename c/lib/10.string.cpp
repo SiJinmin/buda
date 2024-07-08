@@ -20,6 +20,69 @@ int snprintf2 (char *s, size_t size, const char *format, ...)
 }
 
 
+long get_long_int(char **ppc, char *end1)
+{
+  char *pc=*ppc, c=*pc; long r=0; bool neg=false;  
+  if(c=='+') pc++; else if(c=='-') {neg=true; pc++;} 
+  while((pc<end1) && (c=*pc))
+  {
+    if(c>='0' && c<='9') { r=(r*10)+(c-'0'); ++pc; } else goto succeed;
+  }
+  goto fail;
+
+  succeed: *ppc=pc; return neg ? -r: r;
+  fail: *ppc=end1; return 0;
+}
+char* convert_escaped_string(char **ppc, char *end1)
+{
+  char c, *pc=*ppc; c=*pc; if(c!='"') return 0; ++pc; char *start=pc, *next=pc;
+  while((pc<end1) && (c=*pc))
+  {
+    if(c=='"') {*next=0; pc++; goto succeed;} 
+    else if(c=='\\')
+    {   
+      c=*(++pc); if(pc>=end1) goto fail;
+      if(c=='n'){ *(next++)='\n';  }
+      else if(c=='t'){ *(next++)='\t'; }
+      else if(c=='b'){ *(next++)='\b'; }
+      else if(c=='\''){ *(next++)='\''; }
+      else if(c=='"'){ *(next++)='"'; }
+      else if(c=='\\'){ *(next++)='\\'; }
+      else if(c=='r'){ }
+      else{ *(next++)=c; }
+    }
+    else{ *(next++)=c; }
+    ++pc;
+  }
+  goto fail;
+
+  succeed: *ppc=pc; return start;
+  fail: *ppc=end1; return 0;
+}
+char next_char_not(char **ppc, char* end1, const char *scope)
+{
+  char c, *pc=*ppc;  while((pc<end1) && (c=*pc))
+  {
+    if(NULL == strchr(scope, c)) goto succeed; else ++pc;
+  }
+  goto fail;
+
+  succeed: *ppc=pc; return c;
+  fail: *ppc=end1; return 0;
+}
+char next_char(char **ppc, char* end1, const char *scope)
+{
+  char c, *pc=*ppc; while((pc<end1) && (c=*pc) )
+  {
+    if(strchr(scope, c)) goto succeed; else ++pc;
+  }
+  goto fail;
+
+  succeed: *ppc=pc; return c;
+  fail: *ppc=end1; return 0;
+}
+
+
 int compile_regex(char *pattern, regex_t *regex) 
 {
   if(regcomp(regex, pattern, REG_EXTENDED)) { log("Could not compile regex: %s", pattern); goto fail; }
@@ -52,15 +115,15 @@ int log_start()
 {  
   int r=0; char real_path[PATH_MAX], *c=real_path; int remain=PATH_MAX_1, len; struct stat status; 
   
-  r = stat(log_dir, &status); if (!(r==0 && (status.st_mode & S_IFDIR))) 
+  r = stat(Log_dir, &status); if (!(r==0 && (status.st_mode & S_IFDIR))) 
   {
-    r = mkdir(log_dir, 0700); // owner can read, write and execute
-    if (r) { printf("create dir fail: %s\n", log_dir); goto fail; }   
+    r = mkdir(Log_dir, 0700); // owner can read, write and execute
+    if (r) { printf("create dir fail: %s\n", Log_dir); goto fail; }   
   }
   r = stat(log_input_dir, &status); if (!(r==0 && (status.st_mode & S_IFDIR))) 
   { r = mkdir(log_input_dir, 0700); if (r) { printf("create dir fail: %s\n", log_input_dir); goto fail; } }
 
-  len = snprintf(c, remain, "%s", log_dir); BudaWriteStep2(c, len, remain);
+  len = snprintf(c, remain, "%s", Log_dir); BudaWriteStep2(c, len, remain);
   len = time_text(c, remain, 'f', false, true); BudaWriteStep2(c, len, remain); 
   len = snprintf(c, remain, ".txt"); BudaWriteStep2(c, len, remain);  
   log_file = fopen(real_path, "ab"); if (log_file == NULL) { printf("Failed to open file: %s\n", real_path); goto fail; }
@@ -89,8 +152,7 @@ void log(const char *format, ...)
 
 char* set_next_space_0(char *pc, char *pc_end)
 {
-  char c;
-  while( (c=*pc) &&  pc<pc_end)
+  char c; while( (c=*pc) &&  pc<pc_end)
   {
     if(c==' ' || c=='\r' || c=='\n') {*pc=0; return ++pc;} else pc++;
   }

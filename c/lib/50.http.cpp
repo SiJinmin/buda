@@ -60,16 +60,16 @@ int make_http_response_file(MemChain* sender, const char* url, const char* conte
 		}
 		if(content_type==NULL) { log("unknown mime type for: %s", path_real); goto no_redirect;  }
 	}
-	pf = get_file_info_open(path_real, &file_info); if(pf==NULL) goto no_redirect; else goto response;
+	pf = file_info_open(path_real, &file_info); if(pf==NULL) goto no_redirect; else goto response;
 
 	no_redirect:
 	url="/index.html"; content_type="text/html"; snprintf2(path_real, PATH_MAX_1, "%s%s", web_root, url); 
-	pf = get_file_info_open(path_real, &file_info); if(pf==NULL) goto fail; 
+	pf = file_info_open(path_real, &file_info); if(pf==NULL) goto fail; 
 
   response:
 	file_size=file_info.st_size; log("http response file: %s, size=%d", path_real, file_size);
 	r = make_http_response(sender, NULL, file_size, content_type, NULL); if(r<0) goto fail_close;
-	if(get_file_content(pf, file_size, sender) < 0) goto fail;
+	if(file_content_get(pf, file_size, sender) < 0) goto fail;
 
 	succeed: return sender->content_used;
 	fail_close: BudaFclose(pf); fail: return -1;	

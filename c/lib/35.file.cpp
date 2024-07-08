@@ -72,47 +72,53 @@ void file_write(FILE* pf, const char* buf, int buf_size)
 
 
 
-FILE* get_file_info_open(const char *path, struct ::stat *file_info)
+FILE* file_info_open(const char *path, struct ::stat *file_info)
 {
-    // log("get_file_info_open for %s", path);
+    // log("file_info_open for %s", path);
     FILE* pf=NULL; int r = ::stat(path, file_info); 
-    if (r || !(S_IFREG & file_info->st_mode)) { log("file does not exists when try to open"); goto fail;  } 	
+    if (r || !(S_IFREG & file_info->st_mode)) { log("file does not exists when try to open: %s", path); goto fail;  } 	
     pf = fopen(path, "rb"); if (pf == NULL)  { log("could not open file %s to read.", path); goto fail; }
 
     succeed: return pf;
     fail: return NULL;
 }
-int get_file_content(FILE* pf, int file_size, MemChain *mc)
+int file_content_get(FILE* pf, int file_size, MemChain *mc, Link *mem, char **content)
 {
-    char *c=NULL; MemChainBlock* last=mc->last;
-    if((c=mem_chain_use(mc, file_size))==NULL) goto fail_close;
-    if(fread(c, 1, file_size, pf)!=file_size){ log("read content length is not equal to file size"); goto fail_close; }
+    char *c=NULL; int len;
+    if(mc)
+    {
+        if((c=mem_chain_use(mc, file_size))==NULL) goto fail_close;
+    }
+    else
+    {
+        if((c=BudaMc(file_size))==NULL) goto fail_close;  if(mem) link_append_item(mem, c);
+    }    
+    if((len=fread(c, 1, file_size, pf))!=file_size){ log("read content length %d is not equal to file size %d",len,file_size); goto fail_close; }
 
-    success: BudaFclose(pf); return file_size;
+    success: if(content) *content=c; BudaFclose(pf); return file_size;
     fail_close: BudaFclose(pf); return -1;
 }
-int get_file_content(const char *path, MemChain *mc)
+int file_content_get(const char *path, MemChain *mc, Link *mem, char **content)
 {
-    struct ::stat file_info; int file_size=0; char *c=NULL; MemChainBlock* last=mc->last;
-    FILE* pf=get_file_info_open(path, &file_info); if(pf==NULL) return -1; 
-    file_size=file_info.st_size; if(file_size<0) { log("file size error: %d", file_size); goto fail_close; }
-    return get_file_content(pf, file_size, mc);
+    struct ::stat file_info; FILE* pf=file_info_open(path, &file_info); if(pf==NULL) return -1; 
+    int file_size=file_info.st_size; if(file_size<0) { log("file size error: %d", file_size); goto fail_close; }
+    return file_content_get(pf, file_size, mc, mem, content);
 
     fail_close: BudaFclose(pf); return -1;
 }
 
 
-int concat_filename(struct dirent *entry, void* filenames)
+int filename_concat(struct dirent *entry, void* filenames)
 {
   char* name=entry->d_name;
   if(mem_chain_use(((MemChain*)filenames), "%s\n", name)==NULL) return -1;
   return 0;
 }
-int get_dir_filenames(const char *dir_path, MemChain *mc)
+int dir_filenames(const char *dir_path, MemChain *mc)
 {
-    return iterate_dir(dir_path, concat_filename, mc);  
+    return dir_iterate(dir_path, filename_concat, mc);  
 }
-int iterate_dir(const char *dir_path, process_entry processor, void* arg) 
+int dir_iterate(const char *dir_path, process_entry processor, void* arg) 
 {
   DIR *dir=NULL; struct dirent *entry;
 

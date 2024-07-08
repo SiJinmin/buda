@@ -35,11 +35,18 @@ view log from http://<server>/log , you need to input admin password in config f
 
 ### config file: /etc/buda.conf
 
-It's ok if the config file is missing, then the following default values will be used.
+Sample buda.conf is buda/doc/buda.conf, you can cp it to /etc.
 
+```sh
+cp buda/doc/buda.conf /etc/
 ```
-# admin password
-pw=buda
+
+It's ok if /etc/buda.conf is missing, then the following default values will be used.
+
+```js
+{
+  pw: "Buda123456",
+}
 ```
 
 ### log files: /var/log/buda/
@@ -137,6 +144,7 @@ For "systemctl start buda" style, please ref buda/doc/buda.service
 
 ## future work plans
 
+数据库每日备份
 网站备案<br>
 完成日志查看功能：
 log的写入严格检查
@@ -161,9 +169,28 @@ Img组件扫动时切换图片<br>
 实现全民兼职业务员网络系统<br>
 添加文章视频发布、常用信息剪贴板<br>
 svg文件格式简化，首页comp集成<br>
+三套异地的数据库备份和查看系统<br>
+报警系统，每日主动发起例行检查任务，发现异常时报警。
+1. 三套数据库备份和查看系统是否能正常工作。
+2. 网站是否能正常访问
+3. 系统性能是否正常
 
 
 ## completed works
+
+2024-07-08<br>
+implement json parse<br>
+change buda.conf to json format<br>
+
+2024-07-07<br>
+implement memory management by Link across functions<br>
+implement json save to file(object and array)<br>
+
+2024-07-06<br>
+design json structs, implement json save to file(int and string)<br>
+
+2024-07-05<br>
+implement Link (bi directions)<br>
 
 2024-06-30<br>
 write invalid user input into individual log file, and stop response

@@ -6,8 +6,14 @@ namespace BUDA
 //------------global externs definitions-------------
 
 const u_char BYTE_LOW4_MASK = 15;
-char* HEXS = (char*)"0123456789ABCDEF";
-char* URL_ALLOW = (char*)"abcdefghijklmnopqrstuvwxyz/:#?&=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ+-,._*~@!$^()[]{}';|";
+const char* HEXS = "0123456789ABCDEF";
+const char* URL_ALLOW = "abcdefghijklmnopqrstuvwxyz/:#?&=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ+-,._*~@!$^()[]{}';|";
+
+const char *Space_nl=" \t\r\n";
+const char *Space_nl_quote=" \t\r\n\"";
+const char *Space_nl_quote_colon=" \t\r\n\":";
+const char *Endbrace_comma=",}";
+const char *Endbracket_comma=",]";
 
 const int PATH_MAX_1 = PATH_MAX - 1;
 const int TIME_BUF_SIZE = 2048;
@@ -17,29 +23,32 @@ const int SOCK_BUF_SEND_SIZE_MAX = 200008192;
 const int SOCK_BUF_SEND_SIZE_INIT = 10008192;
 const int SOCK_CONN_QUEUE_MAX = 3;
 const int SOCK_PORT_MAX = 65535;
-char *VERSION = (char*)"1.0.0";	
-char *conf_path = (char*)"/etc/buda.conf";
+const char *VERSION = "1.0.0";	
+const char *Conf_path = "/etc/buda.conf";
+const char *Log_dir = "/var/log/buda/";
+const char *Pattern_log_time = "\\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\\]\\[[0-9]+\\.[0-9]+\\]";
 
-char *log_dir = (char*)"/var/log/buda/";
+
 char log_input_dir[30];
 FILE* log_file=NULL;
 struct timespec last_log_time = {0, 0};
-MemChain *conf=NULL;
-char* admin_pw=(char*)"buda";
+regex_t regex_log_time;
+const char* admin_pw="Buda123456";
 char web_root[PATH_MAX]="../../vue/dist/"; 
 int web_root_len = 0; 
 int server_listen_port = 8888;
-char *pattern_log_time = (char*)"\\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\\]\\[[0-9]+\\.[0-9]+\\]";
-regex_t regex_log_time;
+
+
 
 //------------end of global externs definitions-------------
 
 void read_conf()
 {
-	conf = mem_chain_create(); if(conf==NULL) return;
-	if(get_file_content((char*)conf_path, conf) > 0) 
+	Link *mem=link_create();
+
+  char* content=NULL; int len; if((len=file_content_get((char*)Conf_path, NULL, mem, &content)) > 0) 
 	{
-		MemChainBlock* last=conf->last; char *pc=last->mem, *pc_end=pc + last->used, c;
+		char *pc=content, *pc_end=pc + len, c;
 		while(pc < pc_end)
 		{
 			c=*pc; if(c=='#' || c=='\r' || c=='\n') {pc=next_line(pc); if(pc==NULL) break; else continue;}
@@ -50,6 +59,8 @@ void read_conf()
 		}
 		// printf("admin_pw: %s\n", admin_pw);
 	}
+
+	BudaF(mem);
 }
 
 typedef int (*FUN_process_connection_sock)(int sock, char* buf_recv, int buf_recv_size, MemChain* sender); 
@@ -99,11 +110,10 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* se
 
 int main(int argc, char * argv[])
 {
-	show_sys_info(); json_tests(); return 0;
+	show_sys_info(); json_test_load(); return 0;
 
-	sprintf(log_input_dir, "%s%s", log_dir, "input/");
+	sprintf(log_input_dir, "%s%s", Log_dir, "input/");
 	if(log_start()<0) return -1;
-	if(compile_regex(pattern_log_time, &regex_log_time)) return -1;
 	read_conf(); //return 0;
 
 	int r=0; int optc; char *program_name = argv[0]; 

@@ -71,6 +71,7 @@
 #define BudaPreWrite(max_len, dec, fail) if((max_len-=dec)<0) goto fail;
 #define BudaPreWrite1(max_len, fail) if((--max_len)<0) goto fail;
 #define BudaWriteCheck(max_len, len, fail) if(max_len<=len) goto fail;
+#define BudaWritePad(n, pf) for(int i=0;i<n;i++) file_write(pf, "  ", 2)
 
 #define BudaMax(a, b) ((a)<(b)?(b):(a))
 
@@ -150,9 +151,17 @@ typedef struct http_mime
 
 
 //--------------- constants --------------
+
 extern const u_char BYTE_LOW4_MASK;
-extern char* HEXS;
-extern char* URL_ALLOW;
+extern const char* HEXS;
+extern const char* URL_ALLOW;
+
+extern const char *Space_nl;
+extern const char *Space_nl_quote;
+extern const char *Space_nl_quote_colon;
+extern const char *Endbrace_comma;
+extern const char *Endbracket_comma;
+
 extern const HttpMime HttpMimes[];
 extern const int HttpMimesLen;
 
@@ -164,20 +173,18 @@ extern const int SOCK_BUF_SEND_SIZE_MAX;  // about 200M, controled by MemChain
 extern const int SOCK_BUF_SEND_SIZE_INIT; // about 10M, it's just the init size, the memory need will be allocated by MemChain
 extern const int SOCK_CONN_QUEUE_MAX;
 extern const int SOCK_PORT_MAX;
-extern char *VERSION;	
-extern char *conf_path;
+extern const char *VERSION;	
+extern const char *Conf_path;
 
-extern MemChain *conf;
-extern char* hostname;
-extern char* admin_pw;
-extern char *log_dir;
+extern const char* admin_pw;
+extern const char *Log_dir;
 extern char log_input_dir[];
 extern FILE* log_file;
 extern struct timespec last_log_time;
 extern char web_root[]; // the real path of web_root dir
 extern int web_root_len; 
 extern int server_listen_port;
-extern char *pattern_log_time;
+extern const char *Pattern_log_time;
 extern regex_t regex_log_time;
 
 
@@ -228,6 +235,11 @@ int vsnprintf2 (char *s, size_t size, const char *format, va_list args) ;
 int snprintf2 (char *s, size_t size, const char *format, ...);
 
 
+long get_long_int(char **ppc, char *end1);
+char* convert_escaped_string(char **ppc, char *end1);
+char next_char(char **ppc, char* end1, const char *scope);
+char next_char_not(char **ppc, char* end1, const char *scope);
+
 // return -1 for invalid user input, 0 for good input with no match
 // int check_user_input_for_log(char* input);
 // caller should provide the regex to receive compiled result
@@ -274,8 +286,7 @@ int url_decode(u_char *s, u_char *d, int max_len=PATH_MAX_1);
    type=f (filename): 2024_06_25_13_40_33
    use_gmt is bool value, indicate using GMT/Local time
    disable_log is bool value, indicate using log() in it
-   return -1 for failure, return written lengh for success
-*/
+   return -1 for failure, return written lengh for success */
 int time_text(char *r, int max_len, char type='t', int use_gmt=0, int disable_log=0);
 // time format like 2024_06_25_13_40_33
 // return -1 for failure, return written lengh for success
@@ -312,39 +323,47 @@ void file_write(FILE* pf, const char* buf, int buf_size);
 
 
 // return -1 for failure, return file size for sucess
-int get_file_content(FILE* pf, int file_size, MemChain *mc);
+int file_content_get(FILE* pf, int file_size, MemChain *mc=NULL, Link *mem=NULL, char **content=NULL);
 // Make sure the path is not user input info.
 // return -1 for failure, return file size for sucess
-int get_file_content(const char *path, MemChain *mc);
+int file_content_get(const char *path, MemChain *mc=NULL, Link *mem=NULL, char **content=NULL);
 // return NULL if failed, return open file for success
-FILE* get_file_info_open(const char *input_path, struct ::stat *file_info);
+FILE* file_info_open(const char *input_path, struct ::stat *file_info);
 
 // return -1 if failed, return 0 for succeed
 typedef int (*process_entry)(struct dirent *entry, void* arg);
 // make sure the dir_path is existing
 // return -1 if failed, return 0 for succeed
-int iterate_dir(const char *dir_path, process_entry processor, void* arg);
+int dir_iterate(const char *dir_path, process_entry processor, void* arg);
 // return -1 if failed, return 0 for succeed
-int concat_filename(struct dirent *entry, void* filenames);
+int filename_concat(struct dirent *entry, void* filenames);
 // return -1 if failed, return 0 for succeed
-int get_dir_filenames(const char *dir_path, MemChain *mc);
+int dir_filenames(const char *dir_path, MemChain *mc);
 
 
 //--------------------------- json.cpp ---------------------------
 
-void json_save(Json *j, const char* file_path);
-void json_tests();
-
+Json *json_make_long(long value, Link *mem);
 Json *json_make_time(Link *mem);
 Json *json_make_string(const char* content, Link *mem);
+KeyValue *json_make_kv(const char* key, Json *value, Link *mem);
 KeyValue *json_make_kv_time(const char* name, Link *mem);
 KeyValue *json_make_kv_string(const char* name, const char* content, Link *mem);
 Json *json_make_obj(Link *mem, ...);
+Json *json_make_array(Link *mem, ...);
 
 void json_write(Json *j, FILE *pf, int pad=0);
 void json_write_long(FILE *pf, const char *value);
 void json_write_string(FILE *pf, const char *value);
 void json_write_object(FILE *pf, const char *value, int pad=0);
+void json_write_array(FILE *pf, const char *value, int pad);
+
+Json* json_parse(char **ppc, char *end1, Link *mem);
+void json_save(Json *j, const char* file_path, Link *mem);
+Json* json_load(const char* file_path, Link *mem);
+
+void json_test_load();
+void json_test_save();
 
 
 //--------------------------- socket.cpp ---------------------------

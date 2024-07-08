@@ -15,6 +15,9 @@ namespace BUDA
 	  char a=0b10000000; u_char b=0b10000000; a=(a>>4); b=(b>>4); printf("a=%d, b=%d\n", (int)a, (int)b);
   }
 
+  
+	//if(compile_regex(Pattern_log_time, &regex_log_time)) return -1;
+
 
 /*int check_user_input_for_log(char* input)
 {
