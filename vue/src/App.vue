@@ -47,6 +47,7 @@ function CloseSiteMenu(){ SiteMenuShowing.value = false; }
       </div>
       <div v-if="buda.page.msg" class="page_msg">{{ buda.page.msg }}</div>
       <div class="site_content_inner">
+        <div class="page_main_des">{{ buda.page.module.des_main }}</div>
         <RouterView />
       </div>
     </div>

@@ -16,10 +16,13 @@ namespace BUDA
   }
 
   
-	//if(compile_regex(Pattern_log_time, &regex_log_time)) return -1;
 
+/*
 
-/*int check_user_input_for_log(char* input)
+if(compile_regex(Pattern_log_time, &regex_log_time)) return -1;
+const char *Pattern_log_time = "\\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\\]\\[[0-9]+\\.[0-9]+\\]";
+
+int check_user_input_for_log(char* input)
 {
   int r = search_first(input, &regex_log_time); if(r>=1) 
 	{ 
@@ -31,6 +34,34 @@ namespace BUDA
     return -1;
 	}
   return 0;
-}*/
+}
+
+
+
+
+
+void read_conf()
+{
+	Link *mem=link_create();
+
+  char* content=NULL; int len; if((len=file_content_get((char*)Conf_path, NULL, mem, &content)) > 0) 
+	{
+		char *pc=content, *pc_end=pc + len, c;
+		while(pc < pc_end)
+		{
+			c=*pc; if(c=='#' || c=='\r' || c=='\n') {pc=next_line(pc); if(pc==NULL) break; else continue;}
+			if(strncmp(pc, "pw=", 3)==0 && pc+3<pc_end)
+			{
+				admin_pw=pc+3; pc=set_next_space_0(pc, pc_end);
+			} else pc++;
+		}
+		// printf("admin_pw: %s\n", admin_pw);
+	}
+
+	BudaF(mem);
+}
+
+
+*/
 
 }

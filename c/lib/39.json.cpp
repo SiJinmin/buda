@@ -135,7 +135,15 @@ Json* json_parse(char **ppc, char *end1, Link *mem)
   }
   end: return j;
 }
-
+Json* json_value(Json *obj, const char* key)
+{
+  if(obj->type!='o') return NULL;
+  Link *kvs=(Link*)obj->value; LinkItem* li=kvs->first; while(li)
+  {
+    BudaCast(KeyValue*, kv, li->content); if(strcmp(key, kv->key)==0) return (Json*)kv->value;
+  }
+  return NULL;
+}
 
 void json_save(Json *j, const char* file_path, Link *mem)
 {

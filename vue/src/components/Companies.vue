@@ -1,6 +1,7 @@
 <script setup>
 import buda from '../buda.js'
 import { onMounted } from 'vue'
+import BudaImg from '../comps/Img.vue'
 
 onMounted(() => {
   Buda.window_resize();
@@ -10,7 +11,7 @@ onMounted(() => {
 
 <template>
   <div class="grid_c">
-    <div v-for="a in buda.jobs"  class="block">
+    <div v-for="a in buda.companies.filter(i=>!i.closed)"  class="block">
       <div class="block_inner">
         <div class="title">{{ a.company }}</div>
         <div><span class="field_title">地址</span>{{ a.location }}</div>
@@ -18,22 +19,20 @@ onMounted(() => {
           <div class="field_title">联系人</div>
           <div class="contacts">
             <div class="rm" v-for="d in a.contacts">
-              {{ d }} 
+              {{ d }}
             </div>
           </div>
         </div>
-        <div>
-          <div>{{ a.summary }}</div>
+        <div v-if="a.summary">{{ a.summary }}</div>
+        <div v-if="a.services && a.services.length" class="bm">
+          <div class="field_title">业务范围</div>
+          <ul>
+            <li class="rm" v-for="d in a.services">
+              {{ d }}
+            </li>
+          </ul>
         </div>
-        <ul>
-          <li v-for="(s, index) in a.ServiceItems" :key="index">{{ s }}</li>
-        </ul>
-        <div v-if="a.detail && a.detail.length" v-for="d in a.detail">
-          <img :title="d" :src="`/images/companies/small/${d}`" class="detail_image">
-        </div>
-        <div v-if="a.env && a.env.length" v-for="d in a.env">
-          <img :title="d" :src="`/images/companies/small/${d}`" class="detail_image">
-        </div>
+        <BudaImg v-if="a.imgs && a.imgs.length" :imgs="a.imgs.map(name=>({ alt: name, src: `/images/companies/small/${name}`}))" :img_class="{detail_image: true}"/>      
       </div>
     </div>
   </div>

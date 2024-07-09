@@ -1,21 +1,28 @@
-let jobs=[
-  
-  { 
-    company:"艺术速递",
-    location:'金银湖科技园2栋602',
+let companies=[  
+  {     
+    company:"晟建环境科技有限公司",
+    location:'金银湖科技园15栋2单元202',
     summary:'',
-    env:['艺术速递大门.jpg', '艺术速递内景.jpg', '艺术速递logo.jpg'],  
-    contacts:['本群@周林平'],  
-    closed: true,
+    services: ['销售污水处理设备和相关配件','承接污水处理工程'],
+    imgs:['晟建.webp', '晟建会议室.webp', '晟建办公室.webp'],
+    contacts:['微信群@晟建'],
   },
   { 
-    company:"玲明信息技术服务",
+    company:"艺术速递定制画框艺术品有限公司",
+    location:'金银湖科技园2栋602',
+    services: ['高品质艺术画框定制','字画装裱卷轴','大幅图像激光打印','字画艺术品打包邮寄'],
+    imgs:['艺术快递.webp','艺术快递2_1.webp','艺术快递2_2.webp','艺术快递2_3.webp','艺术快递3_1.webp','艺术快递3_2.webp','艺术快递3_3.webp','艺术快递3_4.webp','艺术快递3_5.webp','艺术快递1_1.webp','艺术快递1_2.webp','艺术快递1_4.webp','艺术快递1_5.webp','艺术快递1_6.webp','艺术快递1_7.webp','艺术快递1_8.webp', '艺术速递内景.jpg', '艺术速递logo.jpg'],  
+    imgs2:['艺术速递大门.jpg', ],
+    contacts:['微信群@周林平'],  
+  },
+  { 
+    company:"玲明软件开发技术服务（个人）",
     location:'金银湖科技园16栋',
-    summary:'提供信息技术服务:',
-    ServiceItems: ['电脑系统安装维护','Excel/Word等文件资料自动化处理','文件存储管理系统（历史记录、多人协作）','网站开发','管理软件开发','工作流程自动化软件开发','微信小程序开发','手机APP开发'],
-    env:['qiuzen20240613.jpg'],  
+    summary:'',
+    services: ['电脑系统、应用软件安装维护','Excel/Word等文件资料自动化处理','管理软件、工作流程自动化软件开发','其它任意软件开发需求'],
+    services2: ['文件存储管理系统（历史记录、多人协作）','网站开发','微信小程序、手机APP开发'],
+    imgs:['qiuzen20240703.webp'],  
     contacts:['微信：TobeBuda'],  
-    closed: true,
   },
   { 
     company:"品牌女装",
@@ -30,6 +37,7 @@ let jobs=[
     summary:'招聘能上12小时夜班的年轻人',
     env:['普诺克前台.jpg'],
     contacts:['微信群@大宝'],
+    closed: true,
   },
   { 
     company:"武汉科印",
@@ -73,6 +81,7 @@ let jobs=[
     summary:'招聘糕点制作和礼盒包装小时工，16元/小时',
     detail:['天怡食品找小时工.jpg'],
     env:['天怡食品招牌.jpg', '天怡食品广告1.jpg','天怡食品绿豆糕.jpg','天怡食品喜饼.jpg',],
+    closed: true,
   },
   { 
     company:"优点生物",
@@ -80,6 +89,7 @@ let jobs=[
     summary:'招聘车间普工，4k-7k，五险一金，包食宿',
     detail:['优点生物普工.jpg'],
     env:['优点生物大门.jpg'],
+    closed: true,
   },
   { 
     company:"武商奥莱",
@@ -102,6 +112,7 @@ let jobs=[
     summary:'招聘能开车送货、搬东西的年轻男子',
     env:[],
     contacts:['本群@大宝小贝'],
+    closed: true,
   },
   { 
     company:"开拓智能装备",
@@ -109,6 +120,7 @@ let jobs=[
     summary:'招聘有销售经验的销售人员',
     env:['开拓智能前台.jpg', '开拓智能文化.jpg'],
     contacts:['吳小姐 180-6215-9577', '服务热线 18062668722'],
+    closed: true,
   },
   { 
     company:"樱花糕坊",
@@ -125,4 +137,4 @@ let jobs=[
   },
 ];
 
-export default jobs;
+export default companies;

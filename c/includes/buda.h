@@ -74,6 +74,7 @@
 #define BudaWritePad(n, pf) for(int i=0;i<n;i++) file_write(pf, "  ", 2)
 
 #define BudaMax(a, b) ((a)<(b)?(b):(a))
+#define BudaCast(T, r, s) T r=(T)(s)
 
 
 
@@ -359,6 +360,7 @@ void json_write_object(FILE *pf, const char *value, int pad=0);
 void json_write_array(FILE *pf, const char *value, int pad);
 
 Json* json_parse(char **ppc, char *end1, Link *mem);
+Json* json_value(Json *obj, const char* key);
 void json_save(Json *j, const char* file_path, Link *mem);
 Json* json_load(const char* file_path, Link *mem);
 

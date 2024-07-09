@@ -26,7 +26,6 @@ const int SOCK_PORT_MAX = 65535;
 const char *VERSION = "1.0.0";	
 const char *Conf_path = "/etc/buda.conf";
 const char *Log_dir = "/var/log/buda/";
-const char *Pattern_log_time = "\\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\\]\\[[0-9]+\\.[0-9]+\\]";
 
 
 char log_input_dir[30];
@@ -42,26 +41,14 @@ int server_listen_port = 8888;
 
 //------------end of global externs definitions-------------
 
-void read_conf()
+void read_conf(Link *mem)
 {
-	Link *mem=link_create();
-
-  char* content=NULL; int len; if((len=file_content_get((char*)Conf_path, NULL, mem, &content)) > 0) 
-	{
-		char *pc=content, *pc_end=pc + len, c;
-		while(pc < pc_end)
-		{
-			c=*pc; if(c=='#' || c=='\r' || c=='\n') {pc=next_line(pc); if(pc==NULL) break; else continue;}
-			if(strncmp(pc, "pw=", 3)==0 && pc+3<pc_end)
-			{
-				admin_pw=pc+3; pc=set_next_space_0(pc, pc_end);
-			} else pc++;
-		}
-		// printf("admin_pw: %s\n", admin_pw);
-	}
-
-	BudaF(mem);
+  Json *conf = json_load(Conf_path, mem); if(conf)
+  {
+		Json *pw=json_value(conf, "pw"); if(pw && pw->type=='s') printf("admin password: %s\n", pw->value);
+  }
 }
+
 
 typedef int (*FUN_process_connection_sock)(int sock, char* buf_recv, int buf_recv_size, MemChain* sender); 
 	
@@ -110,11 +97,15 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* se
 
 int main(int argc, char * argv[])
 {
-	show_sys_info(); json_test_load(); return 0;
+	// show_sys_info(); json_test_load(); return 0;
 
 	sprintf(log_input_dir, "%s%s", Log_dir, "input/");
 	if(log_start()<0) return -1;
-	read_conf(); //return 0;
+
+	
+  Link *mem=link_create();
+
+	read_conf(mem); //return 0;
 
 	int r=0; int optc; char *program_name = argv[0]; 
 	FUN_process_connection_sock fun_sock = http_single_thread; char *web_root_input = NULL;

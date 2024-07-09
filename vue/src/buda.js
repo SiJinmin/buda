@@ -1,4 +1,5 @@
 import jobs from './jobs.js'
+import companies from './companies.js'
 import houses from './houses.js'
 import goods from './goods.js'
 import ideals from './ideals.js'
@@ -16,18 +17,23 @@ let site = { title: '资讯服务' };
 let page ={ module:{}, msg:'', }; // current page
 
 let modules = [
+  { 
+    title:'全民业务', title2:'全民兼职业务员组织', Code: 'Companies', live:true, menu: true, 
+    des:'商机无处不在，业务不期而遇，每个人都有自己独特的人脉关系和资源，随时都可能遇到第一手的业务资讯，将它出售给需要的公司，举手之劳，可以繁荣公司的业务，同时让自己获利。', 
+    des_main:'如果您能帮助下列公司和个人介绍相关的业务，促成销售交易，您将获得销售额的10%作为您介绍业务的报酬。', 
+  },
   { title:'招聘信息', Code: 'Jobs', live:true, menu: true, des:'社区及周边的招聘信息，包括全职、兼职、小时工等各种工作形式。', },
-  { title:'房屋租售', Code: 'Houses', live:true, menu: true, des:'房屋出租、出售、转让信息。', },
+  { title:'房屋租售', Code: 'Houses', live:true, menu: true, des:'社区及周边的房屋出租、出售、转让信息。', },
   { title:'创业合作', title2:'创业合作 聚会交友', Code: 'Ideals', live:true, menu: true, des:'以创业项目演示为主题的聚会交友活动，招募创业合作伙伴，筹集创业资金。', },
   { title:'传记工具', title2:'人物传记整理工具', Code:'Lifeditor', live:true, menu: true, des:'整理人物传记的小工具，按时间排序，可以自动计算人的年龄，一边叙述人物的真实经历、心理状态和行为造作，一边用佛法分析它们的因果关系。', },
   { title:'日志查看', Code: 'Log', des:'查看日志', },
 
   { title:'活动详情', Code: 'Ideal', route:'/ideal/:id', live:true, des:'以创业项目演示为主题的聚会交友活动，招募创业合作伙伴，筹集创业资金。', },
 
+  { title:'精英人才', Code: 'Persons', live:false, menu: false, des:'社区及周边提供服务的人才，包括全职、兼职、小时工等各种服务形式。', },
   { title:'本站内容', Code: 'Home', des:'本站提供的服务项目。', },
   { title:'最新资讯', Code: 'Home', des:'本站所有最新资讯的综合看板。', },
   { title:'求职信息', Code: 'Partners', des:'社区及周边的求职者信息，包括全职、兼职、小时工等各种求职方式。', },
-  { title:'公司目录', Code: 'Companies', des:'社区及周边的所有公司的列表。', },
   { title:'服务目录', Code: 'Services', des:'社区及周边的所有服务列表，包括个人提供的服务和公司提供的服务。', },
   { title:'纯素超市', Code: 'Goods', des:'纯素版的朴朴、叮咚，订购后半小时内送货上门，所有商品都是纯植物原料的，不含动物制品。', },
   { title:'兴趣交友', des:'以兴趣爱好为主题的聚会交友活动。', },
@@ -49,7 +55,7 @@ let buda = reactive({
   ui,
   community, site, page,
   menu_modules, modules,
-  jobs, houses, goods, ideals,
+  jobs, companies, houses, goods, ideals,
 });
 
 site.name=`${community}社区${site.title}`;

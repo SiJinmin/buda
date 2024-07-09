@@ -150,6 +150,7 @@ For "systemctl start buda" style, please ref buda/doc/buda.service
 log的写入严格检查
 每隔一定的时间获取一次内存使用量/剩余量、硬盘使用量/剩余量、CPU占有率
 统计和显示任意时间间隔段内的线程的工作时长、空置率、内存使用量（%）、硬盘使用量(%)、CPU占有率、request数量、接收字节数、发送字节数、每个request的平均响应时间、每个字节的平均接收和发送时长<br>
+文件上传和下载<br>
 使用cmake<br>
 内存分配和释放记录<br>
 拼车模块、租车模块<br>
@@ -174,9 +175,13 @@ svg文件格式简化，首页comp集成<br>
 1. 三套数据库备份和查看系统是否能正常工作。
 2. 网站是否能正常访问
 3. 系统性能是否正常
+strchr的排序搜索优化版
 
 
 ## completed works
+
+2024-07-09<br>
+添加全民兼职业务员页面<br>
 
 2024-07-08<br>
 implement json parse<br>
@@ -227,9 +232,9 @@ change log files to /var/log/buda/<br>
 人物传记整理工具，完成30%<br>
 
 
-## contact us, discucss, denote
+## contact us, discucss, donate, invest
 
-Welcome to concat us by the following ways, discuss the website development and community services system. We also need denote and investments.<br>
+Welcome to concat us by the following ways, discuss the website development and community services system. We also need donate and investments.<br>
 Wechat: TobeBuda<br>
 Email / Alipay / Paypal: jinmin.si@outlook.com<br>
 CSDN：https://blog.csdn.net/qiuzen<br>
