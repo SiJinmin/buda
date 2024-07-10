@@ -5,50 +5,32 @@ namespace BUDA
 
 //------------global externs definitions-------------
 
+const int PATH_MAX_1 = PATH_MAX - 1;
 const u_char BYTE_LOW4_MASK = 15;
 const char* HEXS = "0123456789ABCDEF";
 const char* URL_ALLOW = "abcdefghijklmnopqrstuvwxyz/:#?&=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ+-,._*~@!$^()[]{}';|";
+const char *Space_nl=" \t\r\n"; const char *Space_nl_quote=" \t\r\n\""; const char *Space_nl_quote_colon=" \t\r\n\":";
+const char *Endbrace_comma=",}"; const char *Endbracket_comma=",]";
 
-const char *Space_nl=" \t\r\n";
-const char *Space_nl_quote=" \t\r\n\"";
-const char *Space_nl_quote_colon=" \t\r\n\":";
-const char *Endbrace_comma=",}";
-const char *Endbracket_comma=",]";
-
-const int PATH_MAX_1 = PATH_MAX - 1;
-const int TIME_BUF_SIZE = 2048;
-const int TIME_BUF_SIZE1 = TIME_BUF_SIZE - 1;
+const int TIME_BUF_SIZE = 2048; const int TIME_BUF_SIZE1 = TIME_BUF_SIZE - 1;
 const int SOCK_BUF_RECV_SIZE = 8192;
-const int SOCK_BUF_SEND_SIZE_MAX = 200008192;
-const int SOCK_BUF_SEND_SIZE_INIT = 10008192;
+const int SOCK_BUF_SEND_SIZE_MAX = 200008192; const int SOCK_BUF_SEND_SIZE_INIT = 10008192;
 const int SOCK_CONN_QUEUE_MAX = 3;
 const int SOCK_PORT_MAX = 65535;
-const char *VERSION = "1.0.0";	
+
 const char *Conf_path = "/etc/buda.conf";
-const char *Log_dir = "/var/log/buda/";
-
-
-char log_input_dir[30];
-FILE* log_file=NULL;
-struct timespec last_log_time = {0, 0};
-regex_t regex_log_time;
 const char* admin_pw="Buda123456";
-char web_root[PATH_MAX]="../../vue/dist/"; 
-int web_root_len = 0; 
+const char *VERSION = "1.0.0";	
+char web_root[PATH_MAX]="../../vue/dist/"; int web_root_len = 0; 
 int server_listen_port = 8888;
 
+const char *Log_dir = "/var/log/buda/"; char log_input_dir[30]; FILE *log_file=NULL;
+int Logs_max_count=1000; int logs_saved_count=0;
+Link *logs=NULL; bool log_ready=false;
 
+const int Thread_buf_size=4096; char thread_buf[Thread_buf_size];
 
 //------------end of global externs definitions-------------
-
-void read_conf(Link *mem)
-{
-  Json *conf = json_load(Conf_path, mem); if(conf)
-  {
-		Json *pw=json_value(conf, "pw"); if(pw && pw->type=='s') printf("admin password: %s\n", pw->value);
-  }
-}
-
 
 typedef int (*FUN_process_connection_sock)(int sock, char* buf_recv, int buf_recv_size, MemChain* sender); 
 	
@@ -97,9 +79,9 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* se
 
 int main(int argc, char * argv[])
 {
-	// show_sys_info(); json_test_load(); return 0;
+	// show_sys_info(); json_test_load();  test_threads_mutex(); 
+	return 0;
 
-	sprintf(log_input_dir, "%s%s", Log_dir, "input/");
 	if(log_start()<0) return -1;
 
 	
@@ -179,7 +161,4 @@ int main(int argc, char * argv[])
 
 }
 
-int main(int argc, char * argv[])
-{
-  return BUDA::main(argc, argv);
-}
+int main(int argc, char * argv[]){ return BUDA::main(argc, argv); }

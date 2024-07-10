@@ -9,7 +9,7 @@ Json *json_make_long(long value, Link *mem)
 }
 Json *json_make_time(Link *mem)
 {
-  timespec ts; clock_gettime(CLOCK_REALTIME, &ts); return json_make_long(ts.tv_sec*1000000000+ts.tv_nsec, mem);
+  return json_make_long(time_nano(), mem);
 }
 Json *json_make_string(const char* content, Link *mem)
 {
@@ -78,7 +78,7 @@ void json_write_object(FILE *pf, const char *value, int pad)
   Link *v=(Link*)value; LinkItem *item=v->first; KeyValue *kv; while(item)
   {
     kv=(KeyValue*)item->content; 
-    BudaWritePad(pad1, pf); file_write(pf, kv->key, strlen(kv->key));
+    BudaWritePad(pad1, pf); file_write(pf, "\"", 1); file_write(pf, kv->key, strlen(kv->key)); file_write(pf, "\"", 1);
     file_write(pf, ": ", 2); json_write((Json*)kv->value, pf, pad1); file_write(pf, ",\n", 2);
     item=item->next;
   }  

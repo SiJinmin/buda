@@ -3,10 +3,6 @@
 namespace BUDA
 {
 
-extern FILE* log_file;
-extern struct timespec last_log_time;
-
-
 int vsnprintf2 (char *s, size_t size, const char *format, va_list args)  
 {
   int len = vsnprintf(s, size, format, args); 
@@ -108,45 +104,6 @@ int search_first(char *content, char *pattern, char **startPtr, char **endPtr)
 
   succeed: return match_count;
   fail: regfree(&regex); return -1;
-}
-
-
-int log_start()
-{  
-  int r=0; char real_path[PATH_MAX], *c=real_path; int remain=PATH_MAX_1, len; struct stat status; 
-  
-  r = stat(Log_dir, &status); if (!(r==0 && (status.st_mode & S_IFDIR))) 
-  {
-    r = mkdir(Log_dir, 0700); // owner can read, write and execute
-    if (r) { printf("create dir fail: %s\n", Log_dir); goto fail; }   
-  }
-  r = stat(log_input_dir, &status); if (!(r==0 && (status.st_mode & S_IFDIR))) 
-  { r = mkdir(log_input_dir, 0700); if (r) { printf("create dir fail: %s\n", log_input_dir); goto fail; } }
-
-  len = snprintf(c, remain, "%s", Log_dir); BudaWriteStep2(c, len, remain);
-  len = time_text(c, remain, 'f', false, true); BudaWriteStep2(c, len, remain); 
-  len = snprintf(c, remain, ".txt"); BudaWriteStep2(c, len, remain);  
-  log_file = fopen(real_path, "ab"); if (log_file == NULL) { printf("Failed to open file: %s\n", real_path); goto fail; }
-  printf("created log file: %s\n", real_path);
-
-  clock_gettime(CLOCK_MONOTONIC, &last_log_time);
-
-  succeed: return 0;
-  fail: return -1;
-}
-void log(const char *format, ...)
-{
-  char buf[TIME_BUF_SIZE]; int len; long sep_sec, sep_nsec; 
-  len = time_text(buf, TIME_BUF_SIZE1, 't', false, true); struct timespec log_time; clock_gettime(CLOCK_MONOTONIC, &log_time); 
-  sep_sec=log_time.tv_sec-last_log_time.tv_sec; sep_nsec=log_time.tv_nsec-last_log_time.tv_nsec; if(sep_nsec<0) { sep_nsec+=1000000000; sep_sec--; }
-  last_log_time = log_time;
-  fprintf(log_file, "[%s][%ld.%ld] ", buf, sep_sec, sep_nsec); 
-  va_list args; va_start(args, format); vfprintf(log_file, format, args); va_end(args); fflush(log_file);
-  va_start(args, format); vprintf(format, args); va_end(args);
-  fprintf(log_file, "\n"); printf("\n");
-
-  succeed: return;
-  fail: printf("log failed\n"); return;
 }
 
 

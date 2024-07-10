@@ -144,6 +144,8 @@ For "systemctl start buda" style, please ref buda/doc/buda.service
 
 ## future work plans
 
+id generator by timenano
+訪問index.html時寫入cookie
 数据库每日备份
 网站备案<br>
 完成日志查看功能：
@@ -179,6 +181,10 @@ strchr的排序搜索优化版
 
 
 ## completed works
+
+2024-07-10<br>
+write logs<br>
+multi-thread test<br>
 
 2024-07-09<br>
 添加全民兼职业务员页面<br>

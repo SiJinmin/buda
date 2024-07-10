@@ -21,6 +21,14 @@ namespace BUDA
     return item;
   }
 
+  void link_remove_first(Link *link)
+  {
+    LinkItem* first = link->first; if(first == NULL) return; 
+    LinkItem* second = first->next; if(second){ second->pre=NULL; } 
+    link->first=second; link->item_count--; 
+    if(link->mem==NULL) free(first);
+  }
+
   int link_concat(Link *link, Link *link2)
   {
     //log("link_concat %d:%d", link->content_used, link2->content_used);
@@ -55,6 +63,13 @@ namespace BUDA
       while(item) { next=item->next; BudaFree(item); item=next; }
     }
     link->first = link->last=0; link->item_count=0; 
+  }
+
+  MemObj* mem_obj_create()
+  {
+    BudaMn(Link, mem); if(mem==NULL) return NULL;
+    BudaMn(MemObj, mo); if(mo==NULL) return NULL; mo->mem=mem;   
+    link_append_item(mem, mo);
   }
 
 }

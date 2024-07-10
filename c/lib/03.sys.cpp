@@ -15,5 +15,57 @@ namespace BUDA
 
   }
 
+  int log_start()
+  {  
+    int r=0; char real_path[PATH_MAX], *c=real_path; int remain=PATH_MAX_1, len; struct stat status; 
+    
+    r = stat(Log_dir, &status); if (!(r==0 && (status.st_mode & S_IFDIR))) 
+    {
+      r = mkdir(Log_dir, 0700); // owner can read, write and execute
+      if (r) { printf("create dir fail: %s\n", Log_dir); goto fail; }   
+    }    
+	  sprintf(log_input_dir, "%s%s", Log_dir, "input/"); r = stat(log_input_dir, &status); if (!(r==0 && (status.st_mode & S_IFDIR))) 
+    { r = mkdir(log_input_dir, 0700); if (r) { printf("create dir fail: %s\n", log_input_dir); goto fail; } }
+
+    len = snprintf(c, remain, "%s", Log_dir); BudaWriteStep2(c, len, remain);
+    len = time_text(c, remain, 'f', false, true); BudaWriteStep2(c, len, remain); 
+    len = snprintf(c, remain, ".txt"); BudaWriteStep2(c, len, remain);  
+    log_file = fopen(real_path, "ab"); if (log_file == NULL) { printf("Failed to open file: %s\n", real_path); goto fail; }
+    printf("created log file: %s\n", real_path);
+
+    logs=link_create();
+
+    succeed: log_ready=true; return 0;
+    fail: return -1;
+  }
+
+  void log(const char *format, ...)
+  {
+    if(!log_ready) return;
+       
+    va_list args; va_start(args, format); vsnprintf(thread_buf, Thread_buf_size, format, args); va_end(args); 
+    va_start(args, format); vprintf(format, args); va_end(args);
+
+    LogData* d = (LogData*)calloc(1, sizeof(LogData)); if (!d) { printf("alloc memory for LogData failed."); return; }  
+    char* content = (char*)calloc(1, strlen(thread_buf)+1); if (!content) { printf("alloc memory for LogData content failed."); return; }  
+    d->content=content; d->time=time_nano(); link_append_item(logs, d);
+  }
+
+  void log_save()
+  {
+    // Json *j=json_make_obj(mem, NULL); 
+    // KeyValue *kv_time = json_make_kv_time("t", mem); KeyValue *kv_content=json_make_kv_string("c", )
+    // fprintf(log_file, "\n"); printf("\n");
+    // fflush(log_file);
+  }
+
+  void read_conf(Link *mem)
+  {
+    Json *conf = json_load(Conf_path, mem); if(conf)
+    {
+      Json *pw=json_value(conf, "pw"); if(pw && pw->type=='s') printf("admin password: %s\n", pw->value);
+    }
+  }
+
 
 }

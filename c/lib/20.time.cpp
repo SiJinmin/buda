@@ -4,6 +4,11 @@
 namespace BUDA
 {	
 
+long time_nano()
+{
+  timespec ts; clock_gettime(CLOCK_REALTIME, &ts); return (ts.tv_sec*1000000000+ts.tv_nsec);
+}
+
 int time_text(char *r, int max_len, char type, int use_gmt, int disable_log)
 {  
   static const char* format_error="return len error(%d/%d) for %s\n";

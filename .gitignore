@@ -10,7 +10,7 @@ lerna-debug.log*
 package-lock.json
 node_modules
 .DS_Store
-vue/dist
+vue/dist/
 c/release
 dist-ssr
 coverage

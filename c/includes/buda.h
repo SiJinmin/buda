@@ -90,6 +90,16 @@ typedef struct key_value
   const char *value;
 } KeyValue;
 
+typedef struct log_data
+{
+   const char *content;
+   long time;
+   long user;
+   long device;
+   long session;
+   long request;   
+} LogData;
+
 
 typedef struct mem_chain_block
 {
@@ -125,6 +135,11 @@ typedef struct link
   struct link_item *last;
   int item_count;
 } Link;
+typedef struct mem_obj
+{
+   Link *mem;
+   void *obj;
+} MemObj;
 
 
 typedef struct json
@@ -153,45 +168,46 @@ typedef struct http_mime
 
 //--------------- constants --------------
 
-extern const u_char BYTE_LOW4_MASK;
-extern const char* HEXS;
-extern const char* URL_ALLOW;
-
-extern const char *Space_nl;
-extern const char *Space_nl_quote;
-extern const char *Space_nl_quote_colon;
-extern const char *Endbrace_comma;
-extern const char *Endbracket_comma;
-
-extern const HttpMime HttpMimes[];
-extern const int HttpMimesLen;
-
 extern const int PATH_MAX_1;
-extern const int TIME_BUF_SIZE;
-extern const int TIME_BUF_SIZE1;
+extern const u_char BYTE_LOW4_MASK;
+extern const char* HEXS; extern const char* URL_ALLOW;
+
+extern const char *Space_nl; extern const char *Space_nl_quote; extern const char *Space_nl_quote_colon;
+extern const char *Endbrace_comma; extern const char *Endbracket_comma;
+
+extern const HttpMime HttpMimes[]; extern const int HttpMimesLen;
+
+extern const int TIME_BUF_SIZE; extern const int TIME_BUF_SIZE1;
 extern const int SOCK_BUF_RECV_SIZE;      // 8K
 extern const int SOCK_BUF_SEND_SIZE_MAX;  // about 200M, controled by MemChain
 extern const int SOCK_BUF_SEND_SIZE_INIT; // about 10M, it's just the init size, the memory need will be allocated by MemChain
 extern const int SOCK_CONN_QUEUE_MAX;
 extern const int SOCK_PORT_MAX;
-extern const char *VERSION;	
-extern const char *Conf_path;
 
+extern const char *Conf_path;
+extern const char *VERSION;	
 extern const char* admin_pw;
-extern const char *Log_dir;
-extern char log_input_dir[];
-extern FILE* log_file;
-extern struct timespec last_log_time;
-extern char web_root[]; // the real path of web_root dir
-extern int web_root_len; 
+extern char web_root[]; extern int web_root_len; 
 extern int server_listen_port;
-extern const char *Pattern_log_time;
-extern regex_t regex_log_time;
+
+extern const char *Log_dir; extern char log_input_dir[]; extern FILE* log_file;
+extern int Logs_max_count; extern int logs_saved_count;
+extern Link *logs; extern bool log_ready;
+
+extern const int Thread_buf_size; extern char thread_buf[];
 
 
 //-------------------- sys.cpp ---------------------------
 
 void show_sys_info();
+
+// Pay attention to not log inside itself
+// return 0 for success, return -1 for failure
+int log_start();
+// Pay attention to not log inside itself
+void log(const char *format, ...);
+
+void read_conf(Link *mem);
 
 
 //-------------------- mem.cpp ---------------------------
@@ -224,6 +240,7 @@ LinkItem* link_append_item(Link *link, void* content);
 int link_concat(Link *link, Link *link2);
 void link_free(Link *link);
 void link_reset(Link *link);
+MemObj* mem_obj_create();
 
 
 //-------------------- string.cpp ---------------------------
@@ -262,11 +279,6 @@ char* set_next_space_0(char *pc, char *pc_end);
 // get the start of next line from pc
 // return NULL for not found, return next line start for success
 char* next_line(char *pc);
-// Pay attention to not log inside itself
-// return 0 for success, return -1 for failure
-int log_start();
-// Pay attention to not log inside itself
-void log(const char *format, ...);
 /* This function is originally written for parse http request, but can be used by others.
    It gets the first token ended by end in the current line starting from *start.
    If not found, *start remains original value, *token=NULL, return -1.
@@ -281,6 +293,7 @@ int url_decode(u_char *s, u_char *d, int max_len=PATH_MAX_1);
 
 //--------------------------- time.cpp ---------------------------
 
+long time_nano();
 /* type=t (time): 2024-06-25 13:40:33
    type=d (date): 2024-06-25
    type=w (week): Fri, 22 May 2009 06:07:21 GMT
@@ -399,6 +412,16 @@ int http_route_log_files(HttpReq* req, MemChain* sender);
 
 //--------------------------- help.cpp ---------------------------
 void print_help(char* program_name);
+
+
+
+
+//--------------------------- tset.cpp ---------------------------
+
+int test_threads();
+int test_threads_mutex();
+
+
 
 
 }
