@@ -8,7 +8,7 @@ In order to satisfy the high visits and huge video files download in the future,
 buda是「佛」的英文Budda的简写，意谓推崇大乘佛法「慈悲喜舍、普度众生」的精神。<br>
 为了将来最大限度地满足高并发性访问和大量视频、文件的下载，提高服务器的运行效率和灵活性，用C/C++语言开发了专属的http服务器。<br>
 
-## supported arch
+## supported environment
 
 We develop it on Ubuntu Linux x64 system. 32-bit system or Windows system cannot compile and run it.
 We compile it by gcc. Other compilers are not tested.
