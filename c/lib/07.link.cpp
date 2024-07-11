@@ -70,6 +70,7 @@ namespace BUDA
     BudaMn(Link, mem); if(mem==NULL) return NULL;
     BudaMn(MemObj, mo); if(mo==NULL) return NULL; mo->mem=mem;   
     link_append_item(mem, mo);
+    return mo;
   }
 
 }

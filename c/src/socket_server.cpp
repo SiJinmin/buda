@@ -80,14 +80,13 @@ int http_single_thread(int sock, char* buf_recv, int buf_recv_size, MemChain* se
 int main(int argc, char * argv[])
 {
 	// show_sys_info(); json_test_load();  test_threads_mutex(); 
-	return 0;
+	//return 0;
 
 	if(log_start()<0) return -1;
 
 	
-  Link *mem=link_create();
-
-	read_conf(mem); //return 0;
+  //Link *mem=link_create();
+	//read_conf(mem); //return 0;
 
 	int r=0; int optc; char *program_name = argv[0]; 
 	FUN_process_connection_sock fun_sock = http_single_thread; char *web_root_input = NULL;

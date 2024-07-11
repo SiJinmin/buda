@@ -17,6 +17,7 @@ namespace BUDA
 
   int log_start()
   {  
+    return 0;
     int r=0; char real_path[PATH_MAX], *c=real_path; int remain=PATH_MAX_1, len; struct stat status; 
     
     r = stat(Log_dir, &status); if (!(r==0 && (status.st_mode & S_IFDIR))) 
@@ -41,6 +42,7 @@ namespace BUDA
 
   void log(const char *format, ...)
   {
+    return;
     if(!log_ready) return;
        
     va_list args; va_start(args, format); vsnprintf(thread_buf, Thread_buf_size, format, args); va_end(args); 
