@@ -1,24 +1,19 @@
-# buda community services website( buda 社区资讯服务网站 )
+# buda小时工资讯网
 
-This project is a community services website, use vue3 for frontend, and build a http server by C/C++.<br>
-buda is the brief 「Budda」, it means we like the Budda spirit of 「give happiness and resolve suffering, help all the people realize their ideals.」<br>
-In order to satisfy the high visits and huge video files download in the future, and for the performance and flexibility of server, we make a dedicated http server for this website by C/C++.<br>
-
-本项目是开发一个提供社区资讯服务的网站，前端用vue3开发，后端用C/C++语言自建http服务器。<br>
+本项目是开发一个提供小时工资讯服务的网站，前端用vue3开发，后端用C/C++语言自建http服务器。<br>
 buda是「佛」的英文Budda的简写，意谓推崇大乘佛法「慈悲喜舍、普度众生」的精神。<br>
 为了将来最大限度地满足高并发性访问和大量视频、文件的下载，提高服务器的运行效率和灵活性，用C/C++语言开发了专属的http服务器。<br>
 
-## supported environment
+
+## 本项目的开发运行环境
 
 We develop it on Ubuntu Linux x64 system. 32-bit system or Windows system cannot compile and run it.
 We compile it by gcc. Other compilers are not tested.
 
 
-## main functions
+## 主要功能
 
-### jobs list
-### houses list
-### parties list
+### 招聘信息
 
 ### human life story edit tool
 auto adjust input area height.<br>
@@ -26,16 +21,9 @@ auto save user input content into local storage, the red color text means it sha
 auto get the event time from input content, support time locking.<br>
 auto compute the human age for events.<br>
 
-### log record and view
-view log from http://<server>/log , you need to input admin password in config file. There are 4 view modes:
-1. raw: raw log record, txt format, hard to read, but it's completed.
-2. align: make the raw mode look better, left column displays time, right column displays log content. It's also completed.
-3. requests: combine multiple log records into a http request, then display only http requests. It will hide many other information, focus on http requests display.
-4. users: sort and combine http requests into users by user-agents of http requests, in order to check the actions of a user.
-
 ### config file: /etc/buda.conf
 
-Sample buda.conf is buda/doc/buda.conf, you can cp it to /etc.
+Sample buda.conf is buda/doc/buda.conf, you can copy it to /etc.
 
 ```sh
 cp buda/doc/buda.conf /etc/
@@ -48,10 +36,6 @@ It's ok if /etc/buda.conf is missing, then the following default values will be 
   pw: "Buda123456",
 }
 ```
-
-### log files: /var/log/buda/
-
-log files are in /var/log/buda/.
 
 
 ## source code arch
@@ -117,8 +101,6 @@ alias debugbudac='cd ~/code/buda/c/debug && gdb --args ./socket_server -w ../../
 ```
 commit to git: # gitbuda "commit message"
 
-
-
 ### deployment
 
 Ubuntu Linux 22 cloud server<br>
@@ -141,8 +123,7 @@ gcc ../src/socket_server.cpp ../lib/*.cpp -o socket_server
 For "systemctl start buda" style, please ref buda/doc/buda.service
 
 
-
-## future work plans
+## 开发计划
 
 id generator by timenano
 訪問index.html時寫入cookie
@@ -180,7 +161,7 @@ svg文件格式简化，首页comp集成<br>
 strchr的排序搜索优化版
 
 
-## completed works
+## 已完成的工作
 
 2024-07-10<br>
 write logs<br>
@@ -238,11 +219,11 @@ change log files to /var/log/buda/<br>
 人物传记整理工具，完成30%<br>
 
 
-## contact us, discucss, donate, invest
+## 联系我们，捐助即是投资
 
-Welcome to concat us by the following ways, discuss the website development and community services system. We also need donate and investments.<br>
-Wechat: TobeBuda<br>
-Email / Alipay / Paypal: jinmin.si@outlook.com<br>
+欢迎通过以下联系方式与我们联系，探讨本站的发展，捐助就是投资，即为我们的股东。<br>
+微信: TobeBuda<br>
+Email / 支付宝 / Paypal: jinmin.si@outlook.com<br>
 CSDN：https://blog.csdn.net/qiuzen<br>
 Github: https://github.com/SiJinmin<br>
 微信公众号：立心成见<br>

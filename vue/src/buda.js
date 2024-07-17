@@ -12,27 +12,25 @@ let ui = {
   list :{ item:{ w: 25 }},
 };
 
-let community = '金银湖科技园';
-let site = { title: '资讯服务' };
+let site = { title: '小时工资讯网' };
 let page ={ module:{}, msg:'', }; // current page
 
 let modules = [
   { 
-    title:'全民兼职', title2:'全民兼职业务员组织', Code: 'Companies', live:true, menu: true, 
-    des:'商机无处不在，业务不期而遇，每个人都有自己独特的人脉关系和资源，随时都可能遇到第一手的业务资讯，将它出售给需要的公司，举手之劳，可以繁荣公司的业务，同时让自己获利。', 
-    des_main:'如果您能帮助下列公司和个人介绍相关的业务，促成销售交易，您将获得销售额的10%作为您介绍业务的报酬。', 
+    title:'全民兼职', title2:'全民兼职业务员组织', Code: 'Companies', live:false, menu: false, 
+    des:'商机无处不在，业务不期而遇，每个人都有自己独特的人脉关系和资源，随时都可能遇到第一手的业务资讯，将它出售给需要的公司，举手之劳，可以繁荣公司的业务，同时让自己获利。如果您能帮助下列公司和个人介绍相关的业务，促成销售交易，您将获得销售额的10%作为您介绍业务的报酬。', 
   },
-  { title:'招聘信息', Code: 'Jobs', live:true, menu: true, des:'社区及周边的招聘信息，包括全职、兼职、小时工等各种工作形式。', },
-  { title:'房屋租售', Code: 'Houses', live:true, menu: true, des:'社区及周边的房屋出租、出售、转让信息。', },
-  { title:'创业合作', title2:'创业合作 聚会交友', Code: 'Ideals', live:true, menu: true, des:'以创业项目演示为主题的聚会交友活动，招募创业合作伙伴，筹集创业资金。', },
-  { title:'传记工具', title2:'人物传记整理工具', Code:'Lifeditor', live:true, menu: true, des:'整理人物传记的小工具，按时间排序，可以自动计算人的年龄，一边叙述人物的真实经历、心理状态和行为造作，一边用佛法分析它们的因果关系。', },
-  { title:'项目介绍', title2:'「社区资讯服务」创业项目介绍', Code:'BudaProject', live:true, menu: true, des:'社区资讯服务创业项目的目标是为全世界的每一个小区建造专属的资讯服务网站，收集本小区的人、事、物资讯，让小区的每一个人过上幸福的生活。', },
+  { title:'招聘信息', Code: 'Jobs', live:true, menu: true, des:'全球小时工招聘信息汇集地，工作时间自由，工资日结。小时工获得报酬以后需向信息提供者支付2%的感谢费，其中1%由提供招聘信息的人获得，另外1%由本站获得。发布招聘信息请联系本站站长（微信: TobeBuda）', },
+  { title:'房屋租售', Code: 'Houses', live:false, menu: false, des:'社区及周边的房屋出租、出售、转让信息。', },
+  { title:'创业合作', title2:'创业合作 聚会交友', Code: 'Ideals', live:false, menu: false, des:'以创业项目演示为主题的聚会交友活动，招募创业合作伙伴，筹集创业资金。', },
+  { title:'传记工具', title2:'人物传记整理工具', Code:'Lifeditor', live:false, menu: false, des:'整理人物传记的小工具，按时间排序，可以自动计算人的年龄，一边叙述人物的真实经历、心理状态和行为造作，一边用佛法分析它们的因果关系。', },
+  { title:'项目介绍', title2:'「社区资讯服务」创业项目介绍', Code:'BudaProject', live:false, menu: false, des:'社区资讯服务创业项目的目标是为全世界的每一个小区建造专属的资讯服务网站，收集本小区的人、事、物资讯，让小区的每一个人过上幸福的生活。', },
 
-  { title:'活动详情', Code: 'Ideal', route:'/ideal/:id', live:true, des:'以创业项目演示为主题的聚会交友活动，招募创业合作伙伴，筹集创业资金。', },
+  { title:'活动详情', Code: 'Ideal', route:'/ideal/:id', live:false, des:'以创业项目演示为主题的聚会交友活动，招募创业合作伙伴，筹集创业资金。', },
 
   { title:'日志查看', Code: 'Log', des:'查看日志', },
   { title:'精英人才', Code: 'Persons', live:false, menu: false, des:'社区及周边提供服务的人才，包括全职、兼职、小时工等各种服务形式。', },
-  { title:'本站内容', Code: 'Home', des:'本站提供的服务项目。', },
+  { title:'本站内容', Code: 'Home', des:'', },
   { title:'最新资讯', Code: 'Home', des:'本站所有最新资讯的综合看板。', },
   { title:'求职信息', Code: 'Partners', des:'社区及周边的求职者信息，包括全职、兼职、小时工等各种求职方式。', },
   { title:'服务目录', Code: 'Services', des:'社区及周边的所有服务列表，包括个人提供的服务和公司提供的服务。', },
@@ -54,11 +52,11 @@ let menu_modules=modules.filter(s=>s.live && s.menu);
 
 let buda = reactive({
   ui,
-  community, site, page,
+  site, page,
   menu_modules, modules,
   jobs, companies, houses, goods, ideals,
 });
 
-site.name=`${community}社区${site.title}`;
+site.name=`${site.title}`;
 
 export default buda;

@@ -1,5 +1,4 @@
-let Houses=[
-  
+let Houses=[  
   { 
     addr:"武汉市东西湖区马池路9号（轻工业大学对面）",
     community:{ 

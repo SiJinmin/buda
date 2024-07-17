@@ -32,7 +32,7 @@ function CloseSiteMenu(){ SiteMenuShowing.value = false; }
       </div>
       <div class="site_title_c">
         <img v-if="false" alt="logo" class="logo" src="@/assets/ico/logo.svg"/>
-        <RouterLink class="site_title" to="/">{{ buda.community }}</RouterLink>
+        <RouterLink class="site_title" to="/">{{ buda.site.title }}</RouterLink>
       </div>
       <div class="site_header_right">
         <img alt="menu" class="ico_button" src="@/assets/ico/menu.svg" @click.stop="ClickSiteMenu">
@@ -47,7 +47,7 @@ function CloseSiteMenu(){ SiteMenuShowing.value = false; }
       </div>
       <div v-if="buda.page.msg" class="page_msg">{{ buda.page.msg }}</div>
       <div class="site_content_inner">
-        <div v-if="buda.page.module.des_main" class="page_main_des">{{ buda.page.module.des_main }}</div>
+        <div v-if="buda.page.module.des" class="page_des">{{ buda.page.module.des }}</div>
         <RouterView />
       </div>
     </div>

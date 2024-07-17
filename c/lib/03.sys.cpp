@@ -17,7 +17,6 @@ namespace BUDA
 
   int log_start()
   {  
-    return 0;
     int r=0; char real_path[PATH_MAX], *c=real_path; int remain=PATH_MAX_1, len; struct stat status; 
     
     r = stat(Log_dir, &status); if (!(r==0 && (status.st_mode & S_IFDIR))) 

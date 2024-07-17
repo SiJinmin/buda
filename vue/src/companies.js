@@ -1,20 +1,4 @@
-let companies=[  
-  {     
-    company:"晟建环境科技有限公司",
-    location:'金银湖科技园15栋2单元202',
-    summary:'',
-    services: ['销售污水处理设备和相关配件','承接污水处理工程'],
-    imgs:['晟建.webp', '晟建会议室.webp', '晟建办公室.webp'],
-    contacts:['微信群@晟建'],
-  },
-  { 
-    company:"艺术速递定制画框艺术品有限公司",
-    location:'金银湖科技园2栋602',
-    services: ['高品质艺术画框定制','字画装裱卷轴','大幅图像激光打印','字画艺术品打包邮寄'],
-    imgs:['艺术快递.webp','艺术快递2_1.webp','艺术快递2_2.webp','艺术快递2_3.webp','艺术快递3_1.webp','艺术快递3_2.webp','艺术快递3_3.webp','艺术快递3_4.webp','艺术快递3_5.webp','艺术快递1_1.webp','艺术快递1_2.webp','艺术快递1_4.webp','艺术快递1_5.webp','艺术快递1_6.webp','艺术快递1_7.webp','艺术快递1_8.webp', '艺术速递内景.jpg', '艺术速递logo.jpg'],  
-    imgs2:['艺术速递大门.jpg', ],
-    contacts:['微信群@周林平'],  
-  },
+let companies=[ 
   { 
     company:"玲明软件开发技术服务（个人）",
     location:'金银湖科技园16栋',
@@ -23,13 +7,6 @@ let companies=[
     services2: ['文件存储管理系统（历史记录、多人协作）','网站开发','微信小程序、手机APP开发'],
     imgs:['qiuzen20240703.webp'],  
     contacts:['微信：TobeBuda'],  
-  },
-  { 
-    company:"品牌女装",
-    location:'金银湖科技园7栋4单元3楼',
-    summary:'',
-    env:['品牌女装.jpg'],  
-    closed: true,
   },
   { 
     company:"普诺克精密工具",
