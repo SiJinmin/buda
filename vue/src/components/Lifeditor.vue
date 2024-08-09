@@ -2,48 +2,58 @@
 import buda from '../buda.js'
 import BudaDate from '../comps/Date.vue'
 import BudaInput from '../comps/Input.vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 
-import { reactive, onMounted } from 'vue'
 
-function AEvent(year, month, day){
+let life, lives, lifeditor;
+
+
+function AEvent(year, month, day)
+{
   return {
     date:{ year, month, day },
     content: '',
     lock_date: false,
   };
 }
-
-let life=localStorage.getItem("life"); if(!life) life={
-  name:"",
-  title:"",
-  birth:{ year:1900, month: 1, day: 1 },
-  summary:'',
-  events:[
-    AEvent(1900,1,1),
-  ],
-  refs:'',
-}; else life=JSON.parse(life);
-life = reactive(life);
-
-function LastEvent(){ return life.events[life.events.length-1]; }
-function Age(e){ return e.date.year-life.birth.year;  }
-
-
-let BirthUpdateFirst=true;
-function save(){
-  localStorage.setItem("life", JSON.stringify(life));
-  console.log('saved', new Date());
-
-  let e=life.events[0].date, b=life.birth; let {year, month, day}=e; 
-  BirthUpdateFirst = ((year==1900 && month==1 && day==1) || (year==b.year && month==b.month && day==b.day));
+function ALife()
+{
+  return {
+    name:"",
+    title:"",
+    birth:{ year:1900, month: 1, day: 1 },
+    summary:'',
+    events:[ AEvent(1900,1,1), ],
+    refs:'',
+  };
 }
-function save_birth(){ 
-  if(BirthUpdateFirst){ let e=life.events[0].date, b=life.birth; e.year=b.year; e.month=b.month; e.day=b.day; }
-  save(); 
+
+
+lifeditor=localStorage.getItem("lifeditor"); if(!lifeditor) 
+{
+  lives=localStorage.getItem("lives"); if(!lives) 
+  {
+    life=localStorage.getItem("life"); if(!life) life=ALife(); else life = JSON.parse(life);
+    lives=[ life ];
+  } 
+  else lives = JSON.parse(lives);
+  lifeditor = { cindex:0, lives };
+} else lifeditor = JSON.parse(lifeditor);
+lifeditor = reactive(lifeditor); ({lives}=lifeditor);
+life = computed(() => lives[lifeditor.cindex]); 
+
+
+function save()
+{
+  localStorage.setItem("lifeditor", JSON.stringify(lifeditor)); console.log('saved', new Date());
 }
-function event_content_input(event, ei){
-  let e=life.events[ei];
-  if(!e.lock_date){
+function Age(e){ let f=life.value; return e.date.year-f.birth.year;  }
+
+function select_life(index){ lifeditor.cindex=index; save(); }
+function event_content_input(event, ei)
+{
+  let f=life.value; let e=f.events[ei]; if(!e.lock_date)
+  {
     let reg_year=/([0-9]{1,4})\s*年/;
     let reg_month=/([0-9]{1,2})\s*月/;
     let reg_day=/([0-9]{1,2})\s*日/;
@@ -53,34 +63,43 @@ function event_content_input(event, ei){
     if((r=reg_day.exec(v)) && r.length>=2) d.day=parseInt(r[1]);
   } 
 }
-
-// the last add event has no args
-function AddEvent(nexte, nextei){
-  let year, {events}=life;
-  let next=nexte, pre=(nextei>0?events[nextei-1]:null); 
+function AddEvent(nexte, nextei)
+{
+  let f=life.value; let year, {events}=f;
+  let next=nexte, pre=(nextei>0?events[nextei-1]:null);
   if(!next) year=pre.date.year+1; else if(!pre) year=next.date.year-1; else year=Math.floor((pre.date.year+next.date.year)/2);
   events.splice(nextei, 0, AEvent(year, '', ''));
   save();
 }
-function DeleteEvent(ei){
+function DeleteEvent(ei)
+{
   if(!confirm("确定删除本事件？")) return;
   let {events}=life;
   events.splice(ei, 1);
   save();
 }
+function NewLife()
+{
+  lives.push(ALife()); save(); lifeditor.cindex = lifeditor.lives.length-1;
+}
 
 
-onMounted(() => {
+onMounted(() => 
+{
  // Buda.window_resize();
-    let textareas=document.getElementsByClassName('auto_height');  
-    for(let textarea of textareas)
-    { Buda.dom.setAreaH(textarea, buda.ui.rem, 0,null, 0, 2);  }   
+  let textareas=document.getElementsByClassName('auto_height'); for(let textarea of textareas)
+  { Buda.dom.setAreaH(textarea, buda.ui.rem, 0,null, 0, 2);  }   
 });
+
 
 </script>
 
 <template>
   <div class="page_comp_small_padding">
+    <section class="list pad">
+      <div class="block" v-for="(a, i) in lives"><div class="button" @click="select_life(i)">{{  a.name  }}</div></div>
+      <div class="block"><div class="button" @click="NewLife">+</div></div>
+    </section>
     <section class="editor">
       <div class="field_editor">
         <div class="field_editor_label">标题</div>
@@ -88,7 +107,7 @@ onMounted(() => {
       </div>
       <div class="field_editor">
         <div class="field_editor_label">出生时间</div>
-        <div class="field_editor_content"><BudaDate v-model:year="life.birth.year" v-model:month="life.birth.month" v-model:day="life.birth.day" :func="save_birth" /></div>      
+        <div class="field_editor_content"><BudaDate v-model:year="life.birth.year" v-model:month="life.birth.month" v-model:day="life.birth.day" :func="save" /></div>      
       </div>  
       <div class="field_editor">
         <div class="field_editor_label">简称</div>
@@ -117,7 +136,7 @@ onMounted(() => {
           </div>
         </div>
         <div>
-          <img src="@/assets/ico/add.svg" @click="AddEvent()" class="mid_ico_button bm">
+          <img src="@/assets/ico/add.svg" @click="AddEvent(null, life.events.length)" class="mid_ico_button bm">
         </div>
       </div> 
       <div class="field_editor_multilines">

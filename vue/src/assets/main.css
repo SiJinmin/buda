@@ -105,6 +105,7 @@ ul{ padding:0; margin:0 0 0 1em;}
 
 /* grid */
 .grid_c { --ColumnCount: 1; padding: var(--size-list-item-gap); display:grid; grid-template-columns: repeat(var(--ColumnCount), 1fr);  }
+.list { display: flex; flex-wrap: wrap; justify-content: center; }
 
 /* name list */
 .name_list{ padding: 0.5em; display: flex; flex-wrap: wrap;  }

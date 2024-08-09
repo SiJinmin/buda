@@ -1,36 +1,31 @@
-# buda小时工资讯网
+# 「明慈文化创作」IT系统
 
-本项目是开发一个提供小时工资讯服务的网站，前端用vue3开发，后端用C/C++语言自建http服务器。<br>
-buda是「佛」的英文Budda的简写，意谓推崇大乘佛法「慈悲喜舍、普度众生」的精神。<br>
-为了将来最大限度地满足高并发性访问和大量视频、文件的下载，提高服务器的运行效率和灵活性，用C/C++语言开发了专属的http服务器。<br>
+「明慈文化创作」致力于「创作和传播最重要最基本的真理智慧，设计和实践最公正最高效的合作机制，为所有的人的幸福生活努力奋斗。」推崇大乘佛法「慈悲喜捨、普度众生」的精神。<br>
+本项目是「明慈文化创作」的IT系统，希望能为弘扬开源自由精神作出贡献。<br>
+本项目前端用vue3开发界面，为了将来最大限度地满足高并发性访问和大量视频、文件的下载，提高服务器的运行效率和灵活性，后端用C/C++语言开发了专属的http服务器。<br>
 
 
 ## 本项目的开发运行环境
 
-We develop it on Ubuntu Linux x64 system. 32-bit system or Windows system cannot compile and run it.
-We compile it by gcc. Other compilers are not tested.
+We develop it on Ubuntu Linux x64 system. (32-bit system or Windows system cannot compile and run it.)
+We compile it by gcc. (Other compilers are not tested.)
 
 
 ## 主要功能
 
-### 招聘信息
+### 人物传记编辑工具
+自动调整输入框的高度。<br>
+自动保存输入的内容，红色文字表示将在5秒内自动保存。<br>
+自动从输入内容中提取事件的发生时间，提供事件时间锁定功能防止后续更新。<br>
+自动计算事件发生时的人物年龄。<br>
 
-### human life story edit tool
-auto adjust input area height.<br>
-auto save user input content into local storage, the red color text means it shall be saved in 5 seconds.<br>
-auto get the event time from input content, support time locking.<br>
-auto compute the human age for events.<br>
-
-### config file: /etc/buda.conf
-
-Sample buda.conf is buda/doc/buda.conf, you can copy it to /etc.
-
+### 配置文件: /etc/buda.conf
+Sample buda.conf is buda/doc/buda.conf, you can copy it to /etc/buda.conf.
 ```sh
 cp buda/doc/buda.conf /etc/
 ```
 
 It's ok if /etc/buda.conf is missing, then the following default values will be used.
-
 ```js
 {
   pw: "Buda123456",
@@ -38,14 +33,17 @@ It's ok if /etc/buda.conf is missing, then the following default values will be 
 ```
 
 
-## source code arch
+## 源代码结构
 
 buda/c: website backend, including the http server by C/C++. It's not full implementation of http protocol, just some functions we need in this website. <br>
 buda/vue: website frontend, by Vue3.<br>
-buda/node: some script tools by nodejs, you can ignore it. <br>
+buda/node: some script tools by nodejs. You can ignore it. <br>
+buda/db: database files. <br>
+buda/doc: some files you may need, such as sample config file, systemctl service file. You can ignore it. <br>
+buda/upload: for uploaded files, such as images. You can ignore it. <br>
 
 
-## about frontend
+## 前端界面 buda/vue
 
 ```sh
 cd buda/vue
@@ -55,29 +53,25 @@ npm run build
 ```
 
 
-## about backend
+## 后端 buda/c
 
 Backend is in buda/c.
 
 ### code principles
-
-We try to just use C, but use C++ as little as possilbe. The C++ features we use are:
-1. namespace
-2. function default value
+We try to just use C, but use C++ as little as possilbe. The very little C++ features we use are:
+1. namespaces
+2. function default values
 
 ### source code arch of buda/c/
-
 release: exe file with no debug info<br>
 debug: exe file with debug info<br>
 src: entry source file<br>
 includes: head files<br>
 lib: library source files<br>
-play: for fun, you can ignore it.<br>
+play: for test and fun, you can ignore it.<br>
 
-### development
-
+### development 
 Ubuntu Linux 24.04 AMD 64 Desktop，VSCODE<br>
-
 ```sh
 sudo cp buda/buda.conf /etc/
 # then modify /etc/buda.conf to your settings
@@ -90,7 +84,6 @@ gdb --args socket_server -w ../../vue/dist -p 80
 ```
 
 in ~/.bash_aliases
-
 ```sh
 alias gitbuda='gitbuda() { cd ~/code/buda; git add -A; git commit -m "$1"; git push; }; gitbuda'
 alias makebudav='cd ~/code/buda/vue && npm run build'
@@ -104,7 +97,6 @@ commit to git: # gitbuda "commit message"
 ### deployment
 
 Ubuntu Linux 22 cloud server<br>
-
 ```sh
 # check firewall(80,443,8080,8443 are 备案 ports in China, do not use them before 备案)
 ufw status
@@ -125,34 +117,36 @@ For "systemctl start buda" style, please ref buda/doc/buda.service
 
 ## 开发计划
 
-id generator by timenano
-訪問index.html時寫入cookie
-数据库每日备份
+文件上传和下载<br>
+常用信息剪贴板
+文章视频发布<br>
+https
+纯素商城: 商品展示、佛经、佛法艺术品
 网站备案<br>
-完成日志查看功能：
+范仲淹传记
+短视频文案、拍摄、发布
+Img组件扫动时切换图片<br>
+数据库每日备份
+id generator by timenano
+
+訪問index.html時寫入cookie
+日志查看
 log的写入严格检查
 每隔一定的时间获取一次内存使用量/剩余量、硬盘使用量/剩余量、CPU占有率
 统计和显示任意时间间隔段内的线程的工作时长、空置率、内存使用量（%）、硬盘使用量(%)、CPU占有率、request数量、接收字节数、发送字节数、每个request的平均响应时间、每个字节的平均接收和发送时长<br>
-文件上传和下载<br>
 使用cmake<br>
-内存分配和释放记录<br>
 拼车模块、租车模块<br>
-Img组件扫动时切换图片<br>
-活动详情页面居中显示<br>
-实现https协议<br>
-实现服务端的多线程运行，开启线程前后检查每个线程消耗的内存数量，线程数量通过CPU核心数决定<br>
-实现服务端的内容缓存系统，提升运行效率<br>
-实现Connection: keep-alive<br>
+服务端的多线程运行，开启线程前后检查每个线程消耗的内存数量，线程数量通过CPU核心数决定<br>
+服务端的内容缓存系统，提升运行效率<br>
+Connection: keep-alive<br>
+内存分配和释放记录<br>
 内存使用动态释放较长时间不用的内存块<br>
-实现共享MemChain Pool<br>
-实现纯素商城: 出售娃哈哈、三只松鼠素肉、佛法艺术品、joke咖啡<br>
+共享MemChain Pool<br>
 日租房<br>
-实现公司官网模板<br>
+公司官网模板<br>
 全民分红系统<br>
-完成人物传记整理工具<br>
-实现全民兼职业务员网络系统<br>
-添加文章视频发布、常用信息剪贴板<br>
-svg文件格式简化，首页comp集成<br>
+全民兼职业务员<br>
+svg文件格式简化<br>
 三套异地的数据库备份和查看系统<br>
 报警系统，每日主动发起例行检查任务，发现异常时报警。
 1. 三套数据库备份和查看系统是否能正常工作。
